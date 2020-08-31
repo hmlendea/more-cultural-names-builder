@@ -1,60 +1,67 @@
 #!/bin/bash
 
-STARTDIR="$(pwd)"
-MODNAME="hip-more-cultural-names"
-OUTDIR="$STARTDIR/out"
+APP_NAME=$(git remote -v | tail -1 | sed 's|.*/\([^/]*\)\.git.*|\1|')
+VERSION="$1"
+RELEASE_DIR_RELATIVE="bin/Release"
+PUBLISH_DIR_RELATIVE="${RELEASE_DIR_RELATIVE}/publish-script-output"
+RELEASE_DIR="$(pwd)/$RELEASE_DIR_RELATIVE"
+PUBLISH_DIR="$(pwd)/$PUBLISH_DIR_RELATIVE"
 
-BUILDDIR="$STARTDIR/build"
-BUILDDIR_DEFAULT="$BUILDDIR/default"
-BUILDDIR_STEAM="$BUILDDIR/steam"
+if [ -z "$VERSION" ]; then
+    echo "ERROR: Please specify a version"
+    exit 1
+fi
 
-[ ! -d "$OUTDIR" ] && mkdir "$OUTDIR"
-[ ! -d "$BUILDDIR" ] && mkdir "$BUILDDIR"
-[ ! -d "$BUILDDIR_DEFAULT" ] && mkdir "$BUILDDIR_DEFAULT"
-[ ! -d "$BUILDDIR_STEAM" ] && mkdir "$BUILDDIR_STEAM"
+function package {
+    ARCH="$1"
 
-NAMES_COUNT=$(cat hip-more-cultural-names/common/landed_titles/0_HIP_MoreCulturalNames.txt | grep " * = *\".*\"" | sed 's/\(\ \|\t\)//g' | grep -Ev "{|}|^#|^$" | wc -l)
+    OUTPUT_DIR="$PUBLISH_DIR/$ARCH"
+    OUTPUT_FILE="$RELEASE_DIR/${APP_NAME}_${VERSION}_${ARCH}.zip"
 
-function buildDefault {
-    echo "Building the default package..."
+    echo "Packaging \"$OUTPUT_DIR\" to \"$OUTPUT_FILE\""
 
-    [ "$(ls -A "$BUILDDIR_DEFAULT")" ] && rm -rf "$BUILDDIR_DEFAULT/*"
+    if [ -f "$OUTPUT_FILE" ]; then
+        rm "$OUTPUT_FILE"
+    fi
 
-    cp -R "./$MODNAME" "$BUILDDIR_DEFAULT/"
-    cp "./$MODNAME.mod" "$BUILDDIR_DEFAULT/"
-
-    sed -i 's/^path.*/path\ =\ \"mod\/'$MODNAME'\"/g' "$BUILDDIR_DEFAULT/$MODNAME.mod"
-
-    cd "$BUILDDIR_DEFAULT"
-    zip -q -r "${MODNAME}_default.zip" "./"
-    mv "${MODNAME}_default.zip" "$OUTDIR/"
-
-    cd "$STARTDIR"
-
-    echo "Done!"
+    cd "$OUTPUT_DIR"
+    zip -q -9 -r "$OUTPUT_FILE" .
+    cd -
 }
 
-function buildSteam {
-    echo "Building the Steam package..."
+function dotnet-pub {
+    ARCH="$1"
+    OUTPUT_DIR="$PUBLISH_DIR_RELATIVE/$ARCH"
 
-    [ "$(ls -A "$BUILDDIR_STEAM")" ] && rm -rf "$BUILDDIR_STEAM"
-
-    cp -R "./$MODNAME/." "$BUILDDIR_STEAM/"
-    cp "./$MODNAME.mod" "$BUILDDIR_STEAM/descriptor.mod"
-
-    sed -i 's/^path.*/path\ =\ \"mod\/'$MODNAME.zip'\"/g' "$BUILDDIR_STEAM/descriptor.mod"
-
-    cd "$BUILDDIR_STEAM"
-    zip -q -r "${MODNAME}_steam.zip" "./"
-    mv "${MODNAME}_steam.zip" "$OUTDIR/"
-
-    cd "$STARTDIR"
-
-    echo "Done!"
+    dotnet publish -c Release -r "$ARCH" -o "$OUTPUT_DIR" --self-contained=true /p:TrimUnusedDependencies=true /p:LinkDuringPublish=true
 }
 
-buildDefault
-buildSteam
+function prepare {
+    echo "Adding the temporary NuGet packages"
+    dotnet add package Microsoft.Packaging.Tools.Trimming --version 1.1.0-preview1-26619-01
+    #dotnet add package ILLink.Tasks --version 0.1.5-preview-1841731 --source https://dotnet.myget.org/F/dotnet-core/api/v3/index.json
+}
 
-echo "Current number of dynamic names: $NAMES_COUNT"
+function cleanup {
+    echo "Removing the temporary NuGet packages"
+    dotnet remove package Microsoft.Packaging.Tools.Trimming
+    #dotnet remove package ILLink.Task
 
+    echo "Cleaning build output"
+    rm -rf "$PUBLISH_DIR"
+}
+
+function build-release {
+    dotnet-pub $1
+    package $1
+}
+
+prepare
+
+build-release linux-arm
+build-release linux-arm64
+build-release linux-x64
+build-release osx-x64
+build-release win-x64
+
+cleanup
