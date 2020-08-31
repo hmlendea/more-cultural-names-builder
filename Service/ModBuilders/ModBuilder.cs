@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 using NuciDAL.Repositories;
 
@@ -56,7 +57,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .ThenBy(x => x.LanguageId)
                 .ToList();
         }
-        
+
         protected virtual List<Localisation> GetGameLocationLocalisations(string locationGameId)
         {
             List<Localisation> localisations = new List<Localisation>();
@@ -125,6 +126,49 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             }
 
             return localisations;
+        }
+
+        protected string GetWindows1252Name(string name)
+        {
+            string processedName = name;
+
+            processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
+            processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
+            processedName = Regex.Replace(processedName, "[ČĆ]", "C");
+            processedName = Regex.Replace(processedName, "[ĐƊḌ]", "D");
+            processedName = Regex.Replace(processedName, "[Ē]", "Ë");
+            processedName = Regex.Replace(processedName, "[Ę]", "E");
+            processedName = Regex.Replace(processedName, "[Ğ]", "G");
+            processedName = Regex.Replace(processedName, "[İĪ]", "I");
+            processedName = Regex.Replace(processedName, "[Ƙ]", "K");
+            processedName = Regex.Replace(processedName, "[Ł]", "L");
+            processedName = Regex.Replace(processedName, "[Ń]", "N");
+            processedName = Regex.Replace(processedName, "[Ō]", "Ö");
+            processedName = Regex.Replace(processedName, "[ȘŞṢŚŠ]", "S");
+            processedName = Regex.Replace(processedName, "[ȚТ]", "T");
+            processedName = Regex.Replace(processedName, "[Ū]", "Ü");
+            processedName = Regex.Replace(processedName, "[Ư]", "U'");
+            processedName = Regex.Replace(processedName, "[ŹŻŽ]", "Z");
+            processedName = Regex.Replace(processedName, "[ăā]", "ã");
+            processedName = Regex.Replace(processedName, "[ḃḅ]", "b");
+            processedName = Regex.Replace(processedName, "[ćč]", "c");
+            processedName = Regex.Replace(processedName, "[đɗḍ]", "d");
+            processedName = Regex.Replace(processedName, "[ē]", "ë");
+            processedName = Regex.Replace(processedName, "[ęе]", "e");
+            processedName = Regex.Replace(processedName, "[ğ]", "g");
+            processedName = Regex.Replace(processedName, "[īı]", "i");
+            processedName = Regex.Replace(processedName, "[ƙк]", "k");
+            processedName = Regex.Replace(processedName, "[ł]", "l");
+            processedName = Regex.Replace(processedName, "[ń]", "n");
+            processedName = Regex.Replace(processedName, "[ō]", "ö");
+            processedName = Regex.Replace(processedName, "[șşṣśš]", "s");
+            processedName = Regex.Replace(processedName, "[ț]", "t");
+            processedName = Regex.Replace(processedName, "[ū]", "ü");
+            processedName = Regex.Replace(processedName, "[źżž]", "z");
+
+            processedName = Regex.Replace(processedName, "[ʻ]", "'");
+
+            return processedName;
         }
 
         string GetLocationName(IEnumerable<Language> languages, Location location, string languageGameId)

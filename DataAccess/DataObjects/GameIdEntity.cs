@@ -22,6 +22,9 @@ namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
         [XmlAttribute("parent")]
         public string ParentId { get; set; }
 
+        [XmlAttribute("order")]
+        public string Order { get; set; }
+
         [XmlText]
         public string Id { get; set; }
     }

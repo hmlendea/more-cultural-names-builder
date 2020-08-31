@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 using NuciDAL.Repositories;
 
@@ -47,8 +48,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         {
             List<Localisation> localisations = GetLocalisations();
 
-            string path = Path.Combine(landedTitlesDirectoryPath, LandedTitlesFileName);
-
             Dictionary<string, List<Localisation>> localisationsByLocation = localisations
                 .GroupBy(x => x.LocationId)
                 .OrderBy(x => x.Key)
@@ -57,15 +56,28 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
             
             string content = GetContentRecursively(locations);
+            WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
+        }
 
-            File.WriteAllText(path, content);
+        void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
+        {
+            string filePath = Path.Combine(landedTitlesDirectoryPath, LandedTitlesFileName);
+
+            EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
+            Encoding.RegisterProvider(encodingProvider);
+
+            Encoding encoding = Encoding.GetEncoding("windows-1252");
+            byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
+            
+            File.WriteAllBytes(filePath, contentBytes);
         }
 
         IEnumerable<GameId> GetChildrenIds(IEnumerable<Location> locations, string gameId)
         {
             IEnumerable<GameId> childrenGameIds = locations
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game && x.ParentId == gameId);
+                .Where(x => x.Game == Game && x.ParentId == gameId)
+                .OrderBy(x => x.Order);
             
             return childrenGameIds;
         }
@@ -100,7 +112,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
                 foreach (Localisation localisation in localisations)
                 {
-                    content += $"{indentation2}{localisation.LanguageId} = \"{localisation.Name}\"" + Environment.NewLine;
+                    string name = GetWindows1252Name(localisation.Name);
+                    content += $"{indentation2}{localisation.LanguageId} = \"{name}\"" + Environment.NewLine;
                 }
 
                 string childContent = GetContentRecursively(locations, childGameId.Id);

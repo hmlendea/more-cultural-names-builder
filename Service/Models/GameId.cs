@@ -6,6 +6,8 @@ namespace MoreCulturalNamesModBuilder.Service.Models
 
         public string ParentId { get; set; }
 
+        public int Order { get; set; }
+
         public string Id { get; set; }
     }
 }
