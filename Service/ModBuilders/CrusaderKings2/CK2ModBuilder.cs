@@ -40,8 +40,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             Directory.CreateDirectory(commonDirectoryPath);
 
             CreateDataFiles(landedTitlesDirectoryPath);
-
-            List<Localisation> localisations = GetLocalisations();
+            CreateDescriptorFiles();
         }
 
         void CreateDataFiles(string landedTitlesDirectoryPath)
@@ -57,6 +56,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             
             string content = GetContentRecursively(locations);
             WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
+        }
+
+        void CreateDescriptorFiles()
+        {
+            string fileContent = GenerateDescriptorFileContent();
+
+            string descriptorFile1Path = Path.Combine(OutputDirectoryPath, $"{outputSettings.CK2HipModId}.mod");
+            string descriptorFile2Path = Path.Combine(OutputDirectoryPath, outputSettings.CK2HipModId, "descriptor.mod");
+
+            File.WriteAllText(descriptorFile1Path, fileContent);
+            File.WriteAllText(descriptorFile2Path, fileContent);
         }
 
         void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
@@ -100,13 +110,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                     .OrderBy(x => x.LanguageId)
                     .ToList();
 
-                if (localisations.Count == 0)
-                {
-                    continue;
-                }
-
                 string indentation1 = GetIndentation(childGameId);
                 string indentation2 = indentation1 + string.Empty.PadRight(SpacesPerIdentationLevel);
+                string thisContent = string.Empty;
 
                 content += $"{indentation1}{childGameId.Id} = {{" + Environment.NewLine;
 
@@ -120,8 +126,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
                 if (!string.IsNullOrWhiteSpace(childContent))
                 {
-
-                    content += Environment.NewLine + childContent;
+                    if (localisations.Count > 0)
+                    {
+                        content += Environment.NewLine;
+                    }
+                    
+                    content += childContent;
                 }
 
                 content += $"{indentation1}}}" + Environment.NewLine;
@@ -138,6 +148,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             }
             
             return GetIndentation(gameId.Id);
+        }
+
+        string GenerateDescriptorFileContent()
+        {
+            return
+                $"name = \"{outputSettings.CK2HipModName}\"" + Environment.NewLine +
+                $"path = \"mod/{outputSettings.CK2HipModId}\"" + Environment.NewLine +
+                $"dependencies = {{ \"HIP - Historical Immersion Project\" }}" + Environment.NewLine +
+                $"tags = {{ map immersion HIP }}\"" + Environment.NewLine +
+                $"picture = \"mcn.png\"";
         }
 
         string GetIndentation(string gameId)
