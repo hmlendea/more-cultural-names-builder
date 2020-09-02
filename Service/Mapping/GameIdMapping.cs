@@ -14,6 +14,7 @@ namespace MoreCulturalNamesModBuilder.Service.Mapping
             serviceModel.Game = dataObject.Game;
             serviceModel.ParentId = dataObject.ParentId;
             serviceModel.Order = int.Parse(string.IsNullOrWhiteSpace(dataObject.Order) ? "999" : dataObject.Order);
+            serviceModel.ProvinceId = dataObject.ProvinceId;
             serviceModel.Id = dataObject.Id;
 
             return serviceModel;
@@ -25,6 +26,7 @@ namespace MoreCulturalNamesModBuilder.Service.Mapping
             dataObject.Game = serviceModel.Game;
             dataObject.ParentId = serviceModel.ParentId;
             dataObject.Order = serviceModel.Order.ToString();
+            dataObject.ProvinceId = serviceModel.ProvinceId;
             dataObject.Id = serviceModel.Id;
 
             return dataObject;

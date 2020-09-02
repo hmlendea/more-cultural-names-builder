@@ -8,6 +8,8 @@ namespace MoreCulturalNamesModBuilder.Service.Models
 
         public int Order { get; set; }
 
+        public string ProvinceId { get; set; }
+
         public string Id { get; set; }
     }
 }

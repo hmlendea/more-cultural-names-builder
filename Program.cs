@@ -10,6 +10,7 @@ using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.ModBuilders;
 using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2;
+using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3;
 using MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome;
 
 namespace MoreCulturalNamesModBuilder
@@ -37,13 +38,16 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(dataStoreSettings.LanguageStorePath))
                 .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(dataStoreSettings.TitleStorePath))
                 .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()
+                .AddSingleton<ICK3ModBuilder, CK3ModBuilder>()
                 .AddSingleton<IImperatorRomeModBuilder, ImperatorRomeModBuilder>()
                 .BuildServiceProvider();
             
             IModBuilder ck2Builder = serviceProvider.GetService<ICK2ModBuilder>();
+            IModBuilder ck3Builder = serviceProvider.GetService<ICK3ModBuilder>();
             IModBuilder imperatorRomeBuilder = serviceProvider.GetService<IImperatorRomeModBuilder>();
             
             ck2Builder.Build();
+            ck3Builder.Build();
             imperatorRomeBuilder.Build();
         }
 
