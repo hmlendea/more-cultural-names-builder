@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 using NuciDAL.Repositories;
 
@@ -11,14 +10,15 @@ using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Mapping;
 using MoreCulturalNamesModBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 {
-    public sealed class CK3ModBuilder : ModBuilder, ICK2ModBuilder
+    public sealed class CK3ModBuilder : ModBuilder, ICK3ModBuilder
     {
         public override string Game => "CK3";
 
-        const string LandedTitlesFileName = "0_MoreCulturalNames.txt";
+        const string LandedTitlesFileName = "999_MoreCulturalNames.txt";
         const int SpacesPerIdentationLevel = 4;
+        const string NewLine = "\r\n";
 
         public CK3ModBuilder(
             IRepository<LanguageEntity> languageRepository,
@@ -30,7 +30,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         public override void Build()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.CK2HipModId);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.CK3ModId);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
 
@@ -54,7 +54,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
             
-            string content = GetContentRecursively(locations);
+            string content = '\uFEFF' + GetContentRecursively(locations);
             WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
         }
 
@@ -62,8 +62,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         {
             string fileContent = GenerateDescriptorFileContent();
 
-            string descriptorFile1Path = Path.Combine(OutputDirectoryPath, $"{outputSettings.CK2HipModId}.mod");
-            string descriptorFile2Path = Path.Combine(OutputDirectoryPath, outputSettings.CK2HipModId, "descriptor.mod");
+            string descriptorFile1Path = Path.Combine(OutputDirectoryPath, $"{outputSettings.CK3ModId}.mod");
+            string descriptorFile2Path = Path.Combine(OutputDirectoryPath, outputSettings.CK3ModId, "descriptor.mod");
 
             File.WriteAllText(descriptorFile1Path, fileContent);
             File.WriteAllText(descriptorFile2Path, fileContent);
@@ -103,16 +103,35 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 IList<Localisation> localisations = GetGameLocationLocalisations(childGameId.Id)
                     .OrderBy(x => x.LanguageId)
                     .ToList();
+                    
+                if (childGameId.Id[0] == 'b' && localisations.Count == 0)
+                {
+                    continue;
+                }
 
                 string indentation1 = GetIndentation(childGameId);
                 string indentation2 = indentation1 + string.Empty.PadRight(SpacesPerIdentationLevel);
+                string indentation3 = indentation2 + string.Empty.PadRight(SpacesPerIdentationLevel);
                 string thisContent = string.Empty;
 
-                content += $"{indentation1}{childGameId.Id} = {{" + Environment.NewLine;
+                content += $"{indentation1}{childGameId.Id} = {{" + NewLine;
 
-                foreach (Localisation localisation in localisations)
+                if (childGameId.Id[0] == 'b')
                 {
-                    content += $"{indentation2}{localisation.LanguageId} = \"{localisation.Name}\"" + Environment.NewLine;
+                    content += $"{indentation2}province = {childGameId.ProvinceId}" + NewLine;
+                    content += NewLine;
+                }
+
+                if (localisations.Count > 0)
+                {
+                    content += $"{indentation2}cultural_names = {{" + NewLine;
+
+                    foreach (Localisation localisation in localisations)
+                    {
+                        content += $"{indentation3}{localisation.LanguageId} = \"{localisation.Name}\"" + NewLine;
+                    }
+
+                    content += $"{indentation2}}}" + NewLine;
                 }
 
                 string childContent = GetContentRecursively(locations, childGameId.Id);
@@ -121,13 +140,13 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 {
                     if (localisations.Count > 0)
                     {
-                        content += Environment.NewLine;
+                        content += NewLine;
                     }
                     
                     content += childContent;
                 }
 
-                content += $"{indentation1}}}" + Environment.NewLine;
+                content += $"{indentation1}}}" + NewLine;
             }
 
             return content;
@@ -146,10 +165,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         string GenerateDescriptorFileContent()
         {
             return
-                $"name = \"{outputSettings.CK2HipModName}\"" + Environment.NewLine +
-                $"path = \"mod/{outputSettings.CK2HipModId}\"" + Environment.NewLine +
-                $"dependencies = {{ \"HIP - Historical Immersion Project\" }}" + Environment.NewLine +
-                $"tags = {{ map immersion HIP }}\"" + Environment.NewLine +
+                $"version = 1.0" + NewLine +
+                $"tags = {{" + NewLine +
+                $"    \"Culture\"" + NewLine +
+                $"    \"Historical\"" + NewLine +
+                $"    \"Map\"" + NewLine +
+                $"    \"Translation\"" + NewLine +
+                $"}}" + NewLine +
+                $"name = \"{outputSettings.CK3ModName}\"" + NewLine +
+                $"supported_version = \"1.0.*\"" + NewLine +
+                $"path = \"mod/{outputSettings.CK3ModId}\"" + NewLine +
                 $"picture = \"mcn.png\"";
         }
 

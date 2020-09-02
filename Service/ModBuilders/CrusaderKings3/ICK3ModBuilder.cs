@@ -1,4 +1,4 @@
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 {
     public interface ICK3ModBuilder : IModBuilder
     {

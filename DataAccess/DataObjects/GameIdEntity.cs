@@ -25,6 +25,9 @@ namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
         [XmlAttribute("order")]
         public string Order { get; set; }
 
+        [XmlAttribute("province")]
+        public string ProvinceId { get; set; }
+
         [XmlText]
         public string Id { get; set; }
     }
