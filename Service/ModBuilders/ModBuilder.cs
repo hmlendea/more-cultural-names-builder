@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,7 +35,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             this.outputSettings = outputSettings;
         }
 
-        public virtual void Build()
+        public void Build()
+        {
+            Console.WriteLine($"Started building for {Game}...");
+
+            BuildMod();
+
+            Console.WriteLine($"Finished building for {Game}!");
+        }
+
+        protected virtual void BuildMod()
         {
 
         }

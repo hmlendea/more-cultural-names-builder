@@ -26,7 +26,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         {
         }
 
-        public override void Build()
+        protected override void BuildMod()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId);
             string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localization");

@@ -28,7 +28,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         {
         }
 
-        public override void Build()
+        protected override void BuildMod()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.CK2HipModId);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");

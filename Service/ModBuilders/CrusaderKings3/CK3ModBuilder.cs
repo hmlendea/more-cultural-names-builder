@@ -28,7 +28,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         {
         }
 
-        public override void Build()
+        protected override void BuildMod()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.CK3ModId);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
