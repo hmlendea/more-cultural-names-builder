@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 using NuciDAL.Repositories;
 
@@ -28,7 +29,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         {
         }
 
-        public override void Build()
+        protected override void BuildMod()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.CK3ModId);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
@@ -54,7 +55,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
             
-            string content = '\uFEFF' + GetContentRecursively(locations);
+            string content = BuildLandedTitlesFile();
             WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
         }
 
@@ -69,97 +70,54 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             File.WriteAllText(descriptorFile2Path, fileContent);
         }
 
-        void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
+        string BuildLandedTitlesFile()
         {
-            string filePath = Path.Combine(landedTitlesDirectoryPath, LandedTitlesFileName);
+            string content = File.ReadAllText(Path.Combine(ApplicationPaths.DataDirectory, "ck3_landed_titles.txt"));
 
-            File.WriteAllText(filePath, content);
-        }
+            IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
 
-        IEnumerable<GameId> GetChildrenIds(IEnumerable<Location> locations, string gameId)
-        {
-            IEnumerable<GameId> childrenGameIds = locations
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game && x.ParentId == gameId)
-                .OrderBy(x => x.Order);
-            
-            return childrenGameIds;
-        }
-
-        string GetContentRecursively(IEnumerable<Location> locations)
-        {
-            return
-                GetContentRecursively(locations, null) +
-                GetContentRecursively(locations, string.Empty);
-        }
-
-        string GetContentRecursively(IEnumerable<Location> locations, string gameId)
-        {
-            string content = string.Empty;
-            IEnumerable<GameId> childrenIds = GetChildrenIds(locations, gameId);
-
-            foreach (GameId childGameId in childrenIds)
+            foreach (Location location in locations)
             {
-                IList<Localisation> localisations = GetGameLocationLocalisations(childGameId.Id)
-                    .OrderBy(x => x.LanguageId)
-                    .ToList();
-                    
-                if (childGameId.Id[0] == 'b' && localisations.Count == 0)
+                foreach (GameId gameLocation in location.GameIds.Where(x => x.Game == Game))
                 {
-                    continue;
+                    content = AddLocalisationsToTitle(content, gameLocation.Id);
                 }
-
-                string indentation1 = GetIndentation(childGameId);
-                string indentation2 = indentation1 + string.Empty.PadRight(SpacesPerIdentationLevel);
-                string indentation3 = indentation2 + string.Empty.PadRight(SpacesPerIdentationLevel);
-                string thisContent = string.Empty;
-
-                content += $"{indentation1}{childGameId.Id} = {{" + NewLine;
-
-                if (childGameId.Id[0] == 'b')
-                {
-                    content += $"{indentation2}province = {childGameId.ProvinceId}" + NewLine;
-                    content += NewLine;
-                }
-
-                if (localisations.Count > 0)
-                {
-                    content += $"{indentation2}cultural_names = {{" + NewLine;
-
-                    foreach (Localisation localisation in localisations)
-                    {
-                        content += $"{indentation3}{localisation.LanguageId} = \"{localisation.Name}\"" + NewLine;
-                    }
-
-                    content += $"{indentation2}}}" + NewLine;
-                }
-
-                string childContent = GetContentRecursively(locations, childGameId.Id);
-
-                if (!string.IsNullOrWhiteSpace(childContent))
-                {
-                    if (localisations.Count > 0)
-                    {
-                        content += NewLine;
-                    }
-                    
-                    content += childContent;
-                }
-
-                content += $"{indentation1}}}" + NewLine;
             }
 
             return content;
         }
 
-        string GetIndentation(GameId gameId)
+        string AddLocalisationsToTitle(string landedTitlesFile, string gameId)
         {
-            if (string.IsNullOrWhiteSpace(gameId.ParentId))
+            IList<Localisation> localisations = GetGameLocationLocalisations(gameId);
+
+            if (!localisations.Any())
             {
-                return string.Empty;
+                return landedTitlesFile;
             }
-            
-            return GetIndentation(gameId.Id);
+
+            string indentation1 = Regex.Match(landedTitlesFile, "^([ \t]*)" + gameId + "[ \t]*=[ \t]*\\{.*$", RegexOptions.Multiline).Groups[1].Value;
+            string indentation2 = indentation1 + "\t";
+            string indentation3 = indentation2 + "\t";
+            string thisContent = string.Empty;
+
+            thisContent += $"{indentation2}cultural_names = {{" + NewLine;
+
+            foreach (Localisation localisation in localisations)
+            {
+                thisContent += $"{indentation3}{localisation.LanguageId} = \"{localisation.Name}\"" + NewLine;
+            }
+
+            thisContent += $"{indentation2}}}" + NewLine;
+
+            return Regex.Replace(landedTitlesFile, "^([ \t]*" + gameId + "[ \t]*=[ \t]*\\{.*$)", "$1\n" + thisContent, RegexOptions.Multiline);
+        }
+
+        void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
+        {
+            string filePath = Path.Combine(landedTitlesDirectoryPath, LandedTitlesFileName);
+
+            File.WriteAllText(filePath, content);
         }
 
         string GenerateDescriptorFileContent()
@@ -176,34 +134,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 $"supported_version = \"1.0.*\"" + NewLine +
                 $"path = \"mod/{outputSettings.CK3ModId}\"" + NewLine +
                 $"picture = \"mcn.png\"";
-        }
-
-        string GetIndentation(string gameId)
-        {
-            if (string.IsNullOrWhiteSpace(gameId))
-            {
-                return string.Empty;
-            }
-
-            switch (gameId[0])
-            {
-                default:
-                case 'e':
-                case 'E':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 0);
-                case 'k':
-                case 'K':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 1);
-                case 'd':
-                case 'D':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 2);
-                case 'c':
-                case 'C':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 3);
-                case 'b':
-                case 'B':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 4);
-            }
         }
     }
 }
