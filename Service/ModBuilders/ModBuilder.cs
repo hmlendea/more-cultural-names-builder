@@ -156,12 +156,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             processedName = Regex.Replace(processedName, "[Ō]", "Ö");
             processedName = Regex.Replace(processedName, "[ȘŞṢŚŠ]", "S");
             processedName = Regex.Replace(processedName, "[ȚТ]", "T");
+            processedName = Regex.Replace(processedName, "[Ť]", "Ty");
             processedName = Regex.Replace(processedName, "[Ū]", "Ü");
             processedName = Regex.Replace(processedName, "[Ư]", "U'");
             processedName = Regex.Replace(processedName, "[ŹŻŽ]", "Z");
             processedName = Regex.Replace(processedName, "[ăā]", "ã");
             processedName = Regex.Replace(processedName, "[ḃḅ]", "b");
-            processedName = Regex.Replace(processedName, "[ćč]", "c");
+            processedName = Regex.Replace(processedName, "[ć]", "c");
+            processedName = Regex.Replace(processedName, "[č]", "ch");
             processedName = Regex.Replace(processedName, "[đɗḍ]", "d");
             processedName = Regex.Replace(processedName, "[ē]", "ë");
             processedName = Regex.Replace(processedName, "[ęе]", "e");
