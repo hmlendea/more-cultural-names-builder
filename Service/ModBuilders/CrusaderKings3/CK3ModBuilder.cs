@@ -72,7 +72,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
         string BuildLandedTitlesFile()
         {
-            string content = File.ReadAllText("Data/ck3_landed_titles.txt");
+            string content = File.ReadAllText(Path.Combine(ApplicationPaths.DataDirectory, "ck3_landed_titles.txt"));
 
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
 
