@@ -14,7 +14,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 {
     public sealed class ImperatorRomeModBuilder : ModBuilder, IImperatorRomeModBuilder
     {
-        const string GameVersion = "1.4.*";
+        const string GameVersion = "1.5.*";
 
         public override string Game => "ImperatorRome";
 
