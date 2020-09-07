@@ -14,8 +14,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 {
     public sealed class ImperatorRomeModBuilder : ModBuilder, IImperatorRomeModBuilder
     {
-        const string GameVersion = "1.5.*";
-
         public override string Game => "ImperatorRome";
 
         public ImperatorRomeModBuilder(
@@ -85,13 +83,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
         void CreateDescriptorFiles()
         {
-            string fileContent = GenerateDescriptorFileContent();
+            string mainDescriptorContent = GenerateMainDescriptorContent();
+            string innerDescriptorContent = GenerateInnerDescriptorContent();
 
-            string descriptorFile1Path = Path.Combine(OutputDirectoryPath, $"{outputSettings.ImperatorRomeModId}.mod");
-            string descriptorFile2Path = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId, "descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.ImperatorRomeModId}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId, $"descriptor.mod");
 
-            File.WriteAllText(descriptorFile1Path, fileContent);
-            File.WriteAllText(descriptorFile2Path, fileContent);
+            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
+            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
         string GenerateLocalisationFileContent(string language)
@@ -107,15 +106,20 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             return content;
         }
 
-        string GenerateDescriptorFileContent()
+        string GenerateMainDescriptorContent()
+        {
+            return GenerateInnerDescriptorContent() + Environment.NewLine +
+                $"path=\"mod/{outputSettings.ImperatorRomeModId}\"";
+        }
+
+        string GenerateInnerDescriptorContent()
         {
             return
-                $"version=\"{GameVersion}\"" + Environment.NewLine +
+                $"version=1" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}" + Environment.NewLine +
-                $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine +
-                $"path=\"mod/{outputSettings.ImperatorRomeModId}\"";
+                $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine;
         }
     }
 }

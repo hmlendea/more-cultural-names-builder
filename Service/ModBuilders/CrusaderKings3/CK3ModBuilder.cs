@@ -61,13 +61,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
         void CreateDescriptorFiles()
         {
-            string fileContent = GenerateDescriptorFileContent();
+            string mainDescriptorContent = GenerateMainDescriptorContent();
+            string innerDescriptorContent = GenerateInnerDescriptorContent();
 
-            string descriptorFile1Path = Path.Combine(OutputDirectoryPath, $"{outputSettings.CK3ModId}.mod");
-            string descriptorFile2Path = Path.Combine(OutputDirectoryPath, outputSettings.CK3ModId, "descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.CK3ModId}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.CK3ModId, $"descriptor.mod");
 
-            File.WriteAllText(descriptorFile1Path, fileContent);
-            File.WriteAllText(descriptorFile2Path, fileContent);
+            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
+            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
         string BuildLandedTitlesFile()
@@ -120,20 +121,24 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             File.WriteAllText(filePath, content);
         }
 
-        string GenerateDescriptorFileContent()
+        string GenerateMainDescriptorContent()
+        {
+            return GenerateInnerDescriptorContent() + Environment.NewLine +
+                $"path=\"mod/{outputSettings.CK3ModId}\"";
+        }
+
+        string GenerateInnerDescriptorContent()
         {
             return
-                $"version = 1.0" + NewLine +
-                $"tags = {{" + NewLine +
+                $"version=1" + NewLine +
+                $"tags={{" + NewLine +
                 $"    \"Culture\"" + NewLine +
                 $"    \"Historical\"" + NewLine +
                 $"    \"Map\"" + NewLine +
                 $"    \"Translation\"" + NewLine +
                 $"}}" + NewLine +
-                $"name = \"{outputSettings.CK3ModName}\"" + NewLine +
-                $"supported_version = \"1.0.*\"" + NewLine +
-                $"path = \"mod/{outputSettings.CK3ModId}\"" + NewLine +
-                $"picture = \"mcn.png\"";
+                $"name=\"{outputSettings.CK3ModName}\"" + NewLine +
+                $"supported_version=\"1.0.*\"";
         }
     }
 }

@@ -60,13 +60,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         void CreateDescriptorFiles()
         {
-            string fileContent = GenerateDescriptorFileContent();
+            string mainDescriptorContent = GenerateMainDescriptorContent();
+            string innerDescriptorContent = GenerateInnerDescriptorContent();
 
-            string descriptorFile1Path = Path.Combine(OutputDirectoryPath, $"{outputSettings.CK2HipModId}.mod");
-            string descriptorFile2Path = Path.Combine(OutputDirectoryPath, outputSettings.CK2HipModId, "descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.CK2HipModId}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.CK2HipModId, "descriptor.mod");
 
-            File.WriteAllText(descriptorFile1Path, fileContent);
-            File.WriteAllText(descriptorFile2Path, fileContent);
+            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
+            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
         void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
@@ -150,14 +151,18 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             return GetIndentation(gameId.Id);
         }
 
-        string GenerateDescriptorFileContent()
+        string GenerateMainDescriptorContent()
+        {
+            return GenerateInnerDescriptorContent() + Environment.NewLine +
+                $"path = \"mod/{outputSettings.CK2HipModId}\"";
+        }
+
+        string GenerateInnerDescriptorContent()
         {
             return
                 $"name = \"{outputSettings.CK2HipModName}\"" + Environment.NewLine +
-                $"path = \"mod/{outputSettings.CK2HipModId}\"" + Environment.NewLine +
                 $"dependencies = {{ \"HIP - Historical Immersion Project\" }}" + Environment.NewLine +
-                $"tags = {{ map immersion HIP }}\"" + Environment.NewLine +
-                $"picture = \"mcn.png\"";
+                $"tags = {{ map immersion HIP }}\"";
         }
 
         string GetIndentation(string gameId)
