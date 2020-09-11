@@ -73,7 +73,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             List<Localisation> localisations = new List<Localisation>();
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
             IEnumerable<Language> languages = languageRepository.GetAll().ToServiceModels();
-            Location location = locations.First(x => x.GameIds.Any(y => y.Game == Game && y.Id == locationGameId));
 
             IEnumerable<GameId> languageGameIds = languages
                 .SelectMany(x => x.GameIds)
@@ -82,7 +81,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
             foreach (GameId languageGameId in languageGameIds)
             {
-                string name = GetLocationName(languages, location, languageGameId.Id);
+                string name = GetLocationName(languages, locations, locationGameId, languageGameId.Id);
                 
                 if (string.IsNullOrWhiteSpace(name))
                 {
@@ -185,26 +184,35 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             return processedName;
         }
 
-        string GetLocationName(IEnumerable<Language> languages, Location location, string languageGameId)
+        string GetLocationName(IEnumerable<Language> languages, IEnumerable<Location> locations, string locationGameId, string languageGameId)
         {
-            Language language = languages.First(x => x.GameIds.Any(x => x.Id == languageGameId));
-            List<string> languagesToCheck = new List<string>() { language.Id };
-            languagesToCheck.AddRange(language.FallbackLanguages);
+            Language language = languages.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == languageGameId));
+            Location location = locations.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
 
-            foreach (string languageIdToCheck in languagesToCheck)
+            List<string> locationIdsToCheck = new List<string>() { location.Id };
+            List<string> languageIdsToCheck = new List<string>() { language.Id };
+
+            locationIdsToCheck.AddRange(location.FallbackLocations);
+            languageIdsToCheck.AddRange(language.FallbackLanguages);
+
+            foreach (string locationIdToCheck in locationIdsToCheck)
             {
-                foreach (LocationName name in location.Names)
+                Location locationToCheck = locations.First(x => x.Id == locationIdToCheck);
+
+                foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    if (name.LanguageId == languageIdToCheck)
+                    foreach (LocationName name in locationToCheck.Names)
                     {
-                        return name.Value;
+                        if (name.LanguageId == languageIdToCheck)
+                        {
+                            return name.Value;
+                        }
                     }
                 }
             }
 
             return null;
         }
-
 
         protected virtual string GetName(string locationId, string languageId)
         {
