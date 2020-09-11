@@ -27,6 +27,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         protected readonly OutputSettings outputSettings;
 
         IDictionary<string, string> windows1252cache;
+        
+        IDictionary<string, Location> locations;
+        IDictionary<string, Language> languages;
 
         public ModBuilder(
             IRepository<LanguageEntity> languageRepository,
@@ -39,6 +42,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             this.outputSettings = outputSettings;
 
             windows1252cache = new Dictionary<string, string>();
+
+            locations = locationRepository
+                .GetAll()
+                .ToServiceModels()
+                .ToDictionary(key => key.Id, val => val);
+
+            languages = languageRepository
+                .GetAll()
+                .ToServiceModels()
+                .ToDictionary(key => key.Id, val => val);
         }
 
         public void Build()
@@ -77,23 +90,25 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         protected virtual List<Localisation> GetGameLocationLocalisations(string locationGameId)
         {
             ConcurrentBag<Localisation> localisations = new ConcurrentBag<Localisation>();
-            IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
-            IEnumerable<Language> languages = languageRepository.GetAll().ToServiceModels();
 
-            IEnumerable<GameId> languageGameIds = languages
+            IDictionary<string, string> languageGameIds = languages.Values
                 .SelectMany(x => x.GameIds)
                 .Where(x => x.Game == Game)
-                .ToList();
+                .ToDictionary(
+                    key => languages.Values.First(language => language.GameIds.Any(gameId => gameId.Id == key.Id)).Id,
+                    val => val.Id);
 
-            Parallel.ForEach(languageGameIds, languageGameId => 
+            Location location = locations.Values.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
+            
+            Parallel.ForEach(languageGameIds, gameLanguage => 
             {
-                string name = GetLocationName(languages, locations, locationGameId, languageGameId.Id);
+                string name = GetLocationName(location, gameLanguage.Key);
                 
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     Localisation localisation = new Localisation();
                     localisation.LocationId = locationGameId;
-                    localisation.LanguageId = languageGameId.Id;
+                    localisation.LanguageId = gameLanguage.Value;
                     localisation.Name = name;
 
                     localisations.Add(localisation);
@@ -195,16 +210,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             return processedName;
         }
 
-        string GetLocationName(IEnumerable<Language> languages, IEnumerable<Location> locations, string locationGameId, string languageGameId)
+        string GetLocationName(Location location, string languageId)
         {
-            Location location = locations.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
-
-            if (location.Names.Count() == 0 && location.FallbackLocations.Count() == 0)
+            if (location.IsEmpty())
             {
                 return null;
             }
 
-            Language language = languages.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == languageGameId));
+            Language language = languages[languageId];
 
             List<string> locationIdsToCheck = new List<string>() { location.Id };
             List<string> languageIdsToCheck = new List<string>() { language.Id };
@@ -214,13 +227,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
             foreach (string locationIdToCheck in locationIdsToCheck)
             {
-                Location locationToCheck = locations.First(x => x.Id == locationIdToCheck);
+                Location locationToCheck = locations[locationIdToCheck];
                 
-                string foundLanguageId = languageIdsToCheck.FirstOrDefault(languageIdToCheck => locationToCheck.Names.Any(x => x.LanguageId == languageIdToCheck));
-
-                if (!string.IsNullOrWhiteSpace(foundLanguageId))
+                foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    return locationToCheck.Names.FirstOrDefault(x => x.LanguageId == foundLanguageId).Value;
+                    foreach (LocationName name in locationToCheck.Names)
+                    {
+                        if (name.LanguageId == languageIdToCheck)
+                        {
+                            return name.Value;
+                        }
+                    }
                 }
             }
 
