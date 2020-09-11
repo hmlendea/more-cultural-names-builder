@@ -73,7 +73,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             List<Localisation> localisations = new List<Localisation>();
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
             IEnumerable<Language> languages = languageRepository.GetAll().ToServiceModels();
-            Location location = locations.First(x => x.GameIds.Any(y => y.Id == locationGameId));
+            Location location = locations.First(x => x.GameIds.Any(y => y.Game == Game && y.Id == locationGameId));
 
             IEnumerable<GameId> languageGameIds = languages
                 .SelectMany(x => x.GameIds)
