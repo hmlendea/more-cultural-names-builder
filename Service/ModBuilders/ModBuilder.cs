@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 
@@ -24,6 +26,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected readonly OutputSettings outputSettings;
 
+        IDictionary<string, string> windows1252cache;
+
         public ModBuilder(
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
@@ -33,6 +37,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             this.locationRepository = locationRepository;
 
             this.outputSettings = outputSettings;
+
+            windows1252cache = new Dictionary<string, string>();
         }
 
         public void Build()
@@ -70,7 +76,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected virtual List<Localisation> GetGameLocationLocalisations(string locationGameId)
         {
-            List<Localisation> localisations = new List<Localisation>();
+            ConcurrentBag<Localisation> localisations = new ConcurrentBag<Localisation>();
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
             IEnumerable<Language> languages = languageRepository.GetAll().ToServiceModels();
 
@@ -79,24 +85,22 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .Where(x => x.Game == Game)
                 .ToList();
 
-            foreach (GameId languageGameId in languageGameIds)
+            Parallel.ForEach(languageGameIds, languageGameId => 
             {
                 string name = GetLocationName(languages, locations, locationGameId, languageGameId.Id);
                 
-                if (string.IsNullOrWhiteSpace(name))
+                if (!string.IsNullOrWhiteSpace(name))
                 {
-                    continue;
+                    Localisation localisation = new Localisation();
+                    localisation.LocationId = locationGameId;
+                    localisation.LanguageId = languageGameId.Id;
+                    localisation.Name = name;
+
+                    localisations.Add(localisation);
                 }
+            });
 
-                Localisation localisation = new Localisation();
-                localisation.LocationId = locationGameId;
-                localisation.LanguageId = languageGameId.Id;
-                localisation.Name = name;
-
-                localisations.Add(localisation);
-            }
-
-            return localisations;
+            return localisations.ToList();
         }
 
         protected virtual List<Localisation> GetLocationLocalisations(string locationId)
@@ -141,6 +145,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         {
             string processedName = name;
 
+            if (windows1252cache.ContainsKey(name))
+            {
+                return windows1252cache[name];
+            }
+
             processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
             processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
             processedName = Regex.Replace(processedName, "[ČĆ]", "C");
@@ -181,13 +190,21 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
             processedName = Regex.Replace(processedName, "[ʻ]", "'");
 
+            windows1252cache.Add(name, processedName);
+
             return processedName;
         }
 
         string GetLocationName(IEnumerable<Language> languages, IEnumerable<Location> locations, string locationGameId, string languageGameId)
         {
-            Language language = languages.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == languageGameId));
             Location location = locations.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
+
+            if (location.Names.Count() == 0 && location.FallbackLocations.Count() == 0)
+            {
+                return null;
+            }
+
+            Language language = languages.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == languageGameId));
 
             List<string> locationIdsToCheck = new List<string>() { location.Id };
             List<string> languageIdsToCheck = new List<string>() { language.Id };
@@ -198,16 +215,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             foreach (string locationIdToCheck in locationIdsToCheck)
             {
                 Location locationToCheck = locations.First(x => x.Id == locationIdToCheck);
+                
+                string foundLanguageId = languageIdsToCheck.FirstOrDefault(languageIdToCheck => locationToCheck.Names.Any(x => x.LanguageId == languageIdToCheck));
 
-                foreach (string languageIdToCheck in languageIdsToCheck)
+                if (!string.IsNullOrWhiteSpace(foundLanguageId))
                 {
-                    foreach (LocationName name in locationToCheck.Names)
-                    {
-                        if (name.LanguageId == languageIdToCheck)
-                        {
-                            return name.Value;
-                        }
-                    }
+                    return locationToCheck.Names.FirstOrDefault(x => x.LanguageId == foundLanguageId).Value;
                 }
             }
 
