@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MoreCulturalNamesModBuilder.Service.Models
 {
@@ -13,5 +14,7 @@ namespace MoreCulturalNamesModBuilder.Service.Models
         public IEnumerable<string> FallbackLocations { get; set; }
 
         public IEnumerable<LocationName> Names { get; set; }
+
+        public bool IsEmpty() => Names.Count() == 0 && FallbackLocations.Count() == 0;
     }
 }

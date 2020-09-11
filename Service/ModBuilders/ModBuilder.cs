@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 
@@ -24,6 +26,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected readonly OutputSettings outputSettings;
 
+        IDictionary<string, string> windows1252cache;
+        
+        IDictionary<string, Location> locations;
+        IDictionary<string, Language> languages;
+
         public ModBuilder(
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
@@ -33,6 +40,18 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             this.locationRepository = locationRepository;
 
             this.outputSettings = outputSettings;
+
+            windows1252cache = new Dictionary<string, string>();
+
+            locations = locationRepository
+                .GetAll()
+                .ToServiceModels()
+                .ToDictionary(key => key.Id, val => val);
+
+            languages = languageRepository
+                .GetAll()
+                .ToServiceModels()
+                .ToDictionary(key => key.Id, val => val);
         }
 
         public void Build()
@@ -70,34 +89,33 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected virtual List<Localisation> GetGameLocationLocalisations(string locationGameId)
         {
-            List<Localisation> localisations = new List<Localisation>();
-            IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
-            IEnumerable<Language> languages = languageRepository.GetAll().ToServiceModels();
-            Location location = locations.First(x => x.GameIds.Any(y => y.Game == Game && y.Id == locationGameId));
+            ConcurrentBag<Localisation> localisations = new ConcurrentBag<Localisation>();
 
-            IEnumerable<GameId> languageGameIds = languages
+            IDictionary<string, string> languageGameIds = languages.Values
                 .SelectMany(x => x.GameIds)
                 .Where(x => x.Game == Game)
-                .ToList();
+                .ToDictionary(
+                    key => languages.Values.First(language => language.GameIds.Any(gameId => gameId.Id == key.Id)).Id,
+                    val => val.Id);
 
-            foreach (GameId languageGameId in languageGameIds)
+            Location location = locations.Values.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
+            
+            Parallel.ForEach(languageGameIds, gameLanguage => 
             {
-                string name = GetLocationName(languages, location, languageGameId.Id);
+                string name = GetLocationName(location, gameLanguage.Key);
                 
-                if (string.IsNullOrWhiteSpace(name))
+                if (!string.IsNullOrWhiteSpace(name))
                 {
-                    continue;
+                    Localisation localisation = new Localisation();
+                    localisation.LocationId = locationGameId;
+                    localisation.LanguageId = gameLanguage.Value;
+                    localisation.Name = name;
+
+                    localisations.Add(localisation);
                 }
+            });
 
-                Localisation localisation = new Localisation();
-                localisation.LocationId = locationGameId;
-                localisation.LanguageId = languageGameId.Id;
-                localisation.Name = name;
-
-                localisations.Add(localisation);
-            }
-
-            return localisations;
+            return localisations.ToList();
         }
 
         protected virtual List<Localisation> GetLocationLocalisations(string locationId)
@@ -142,6 +160,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         {
             string processedName = name;
 
+            if (windows1252cache.ContainsKey(name))
+            {
+                return windows1252cache[name];
+            }
+
             processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
             processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
             processedName = Regex.Replace(processedName, "[ČĆ]", "C");
@@ -182,29 +205,42 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
             processedName = Regex.Replace(processedName, "[ʻ]", "'");
 
+            windows1252cache.Add(name, processedName);
+
             return processedName;
         }
 
-        string GetLocationName(IEnumerable<Language> languages, Location location, string languageGameId)
+        string GetLocationName(Location location, string languageId)
         {
-            Language language = languages.First(x => x.GameIds.Any(x => x.Id == languageGameId));
-            List<string> languagesToCheck = new List<string>() { language.Id };
-            languagesToCheck.AddRange(language.FallbackLanguages);
-
-            foreach (string languageIdToCheck in languagesToCheck)
+            if (location.IsEmpty())
             {
-                foreach (LocationName name in location.Names)
+                return null;
+            }
+
+            Language language = languages[languageId];
+
+            List<string> locationIdsToCheck = new List<string>() { location.Id };
+            List<string> languageIdsToCheck = new List<string>() { language.Id };
+
+            locationIdsToCheck.AddRange(location.FallbackLocations);
+            languageIdsToCheck.AddRange(language.FallbackLanguages);
+
+            foreach (string locationIdToCheck in locationIdsToCheck)
+            {
+                foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    if (name.LanguageId == languageIdToCheck)
+                    foreach (LocationName name in locations[locationIdToCheck].Names)
                     {
-                        return name.Value;
+                        if (name.LanguageId == languageIdToCheck)
+                        {
+                            return name.Value;
+                        }
                     }
                 }
             }
 
             return null;
         }
-
 
         protected virtual string GetName(string locationId, string languageId)
         {
