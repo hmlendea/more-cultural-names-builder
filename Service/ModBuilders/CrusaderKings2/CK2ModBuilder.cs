@@ -162,7 +162,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             return
                 $"name = \"{outputSettings.CK2HipModName}\"" + Environment.NewLine +
                 $"dependencies = {{ \"HIP - Historical Immersion Project\" }}" + Environment.NewLine +
-                $"tags = {{ map immersion HIP }}\"";
+                $"tags = {{ map immersion HIP }}";
         }
 
         string GetIndentation(string gameId)
