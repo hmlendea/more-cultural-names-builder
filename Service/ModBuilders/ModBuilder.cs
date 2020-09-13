@@ -95,7 +95,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .SelectMany(x => x.GameIds)
                 .Where(x => x.Game == Game)
                 .ToDictionary(
-                    key => languages.Values.First(language => language.GameIds.Any(gameId => gameId.Id == key.Id)).Id,
+                    key => languages.Values.First(language => language.GameIds.Any(gameId => gameId.Game == Game && gameId.Id == key.Id)).Id,
                     val => val.Id);
 
             Location location = locations.Values.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
