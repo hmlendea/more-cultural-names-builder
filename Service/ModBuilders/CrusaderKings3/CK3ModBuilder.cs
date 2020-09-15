@@ -138,7 +138,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 $"    \"Translation\"" + NewLine +
                 $"}}" + NewLine +
                 $"name=\"{outputSettings.CK3ModName}\"" + NewLine +
-                $"supported_version=\"1.0.*\"";
+                $"supported_version=\"{outputSettings.CK3GameVersion}\"";
         }
     }
 }
