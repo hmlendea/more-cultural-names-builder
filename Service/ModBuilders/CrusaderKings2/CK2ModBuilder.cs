@@ -36,7 +36,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             Directory.CreateDirectory(mainDirectoryPath);
             Directory.CreateDirectory(landedTitlesDirectoryPath);
-
             Directory.CreateDirectory(commonDirectoryPath);
 
             CreateDataFiles(landedTitlesDirectoryPath);
