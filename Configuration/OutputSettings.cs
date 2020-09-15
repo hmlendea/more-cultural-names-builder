@@ -15,5 +15,7 @@ namespace MoreCulturalNamesModBuilder.Configuration
         public string ImperatorRomeModId { get; set; }
 
         public string ImperatorRomeModName { get; set; }
+
+        public string ModVersion { get; set; }
     }
 }

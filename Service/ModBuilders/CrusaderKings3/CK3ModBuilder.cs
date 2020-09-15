@@ -130,7 +130,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         string GenerateInnerDescriptorContent()
         {
             return
-                $"version=1" + NewLine +
+                $"version=\"{outputSettings.ModVersion}\"" + NewLine +
                 $"tags={{" + NewLine +
                 $"    \"Culture\"" + NewLine +
                 $"    \"Historical\"" + NewLine +

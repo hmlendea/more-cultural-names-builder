@@ -22,6 +22,7 @@ namespace MoreCulturalNamesModBuilder
 
         static string[] LanguageStorePathOptions = { "-l", "--languages" };
         static string[] TitlesStorePathOptions = { "-t", "--titles" };
+        static string[] VersionOptions = { "-v", "--ver", "--version" };
         static string[] OutputDirectoryPathOptions = { "-o", "--out", "--output" };
 
         /// <summary>
@@ -65,6 +66,7 @@ namespace MoreCulturalNamesModBuilder
 
             dataStoreSettings.LanguageStorePath = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
             dataStoreSettings.TitleStorePath = CliArgumentsReader.GetOptionValue(args, TitlesStorePathOptions);
+            outputSettings.ModVersion = CliArgumentsReader.GetOptionValue(args, VersionOptions);
             outputSettings.ModOutputDirectory = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
         }
     }
