@@ -115,7 +115,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         string GenerateInnerDescriptorContent()
         {
             return
-                $"version=1" + Environment.NewLine +
+                $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}" + Environment.NewLine +

@@ -8,6 +8,8 @@ namespace MoreCulturalNamesModBuilder.Configuration
 
         public string CK2HipModName { get; set; }
 
+        public string CK3GameVersion { get; set; }
+
         public string CK3ModId { get; set; }
 
         public string CK3ModName { get; set; }
@@ -15,5 +17,7 @@ namespace MoreCulturalNamesModBuilder.Configuration
         public string ImperatorRomeModId { get; set; }
 
         public string ImperatorRomeModName { get; set; }
+
+        public string ModVersion { get; set; }
     }
 }
