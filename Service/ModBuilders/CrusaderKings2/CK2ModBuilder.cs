@@ -96,7 +96,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
                 content.Add(line);
 
-                if (Regex.IsMatch(previousLine, "^\\s*([a-zA-Z][^_][^\\s]* =).*") || // if previous is not a title definition
+                if (previousLine.Contains("gain_effect") ||
+                    previousLine.Contains("allow") ||
+                    previousLine.Contains("limit") ||
+                    previousLine.Contains("trigger") ||
 
                     // Be careful with these
                     nextLine.Contains("is_titular") || // Could cause problems, potentially
@@ -107,12 +110,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 }
 
                 string titleId = Regex.Match(line, "^\\s*([ekdcb]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$").Groups[1].Value;
-                
+
                 if (string.IsNullOrWhiteSpace(titleId))
                 {
                     continue;
                 }
-                    Console.WriteLine(titleId);
 
                 string titleLocalisationsContent = GetTitleLocalisationsContent(line, titleId);
 
