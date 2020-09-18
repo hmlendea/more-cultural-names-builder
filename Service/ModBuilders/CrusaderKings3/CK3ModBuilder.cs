@@ -90,7 +90,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
         string AddLocalisationsToTitle(string landedTitlesFile, string gameId)
         {
-            IList<Localisation> localisations = GetGameLocationLocalisations(gameId);
+            IEnumerable<Localisation> localisations = GetGameLocationLocalisations(gameId);
 
             if (!localisations.Any())
             {

@@ -28,8 +28,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         IDictionary<string, string> windows1252cache;
         
-        IDictionary<string, Location> locations;
-        IDictionary<string, Language> languages;
+        protected IDictionary<string, Location> locations;
+        protected IDictionary<string, Language> languages;
 
         public ModBuilder(
             IRepository<LanguageEntity> languageRepository,
@@ -87,7 +87,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .ToList();
         }
 
-        protected virtual List<Localisation> GetGameLocationLocalisations(string locationGameId)
+        protected virtual IEnumerable<Localisation> GetGameLocationLocalisations(string locationGameId)
         {
             ConcurrentBag<Localisation> localisations = new ConcurrentBag<Localisation>();
 
@@ -98,7 +98,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                     key => languages.Values.First(language => language.GameIds.Any(gameId => gameId.Game == Game && gameId.Id == key.Id)).Id,
                     val => val.Id);
 
-            Location location = locations.Values.First(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
+            Location location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
+
+            if (location is null)
+            {
+                return localisations;
+            }
             
             Parallel.ForEach(languageGameIds, gameLanguage => 
             {
@@ -115,7 +120,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 }
             });
 
-            return localisations.ToList();
+            return localisations;
         }
 
         protected virtual List<Localisation> GetLocationLocalisations(string locationId)

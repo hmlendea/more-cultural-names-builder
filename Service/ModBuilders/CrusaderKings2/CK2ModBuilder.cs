@@ -74,42 +74,107 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         string BuildLandedTitlesFile()
         {
-            string content = ReadLandedTitlesFile(Path.Combine(ApplicationPaths.DataDirectory, "ck2hip_landed_titles.txt"));
+            string landedTitlesFile = ReadLandedTitlesFileLines(Path.Combine(ApplicationPaths.DataDirectory, "ck2hip_landed_titles.txt"));
+            landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
 
-            IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
+            List<string> landedTitlesFileLines = landedTitlesFile.Split('\n').ToList();
+            landedTitlesFileLines.Add(string.Empty);
 
-            foreach (Location location in locations)
+            IEnumerable<GameId> gameLocationIds = locations.Values
+                    .SelectMany(x => x.GameIds)
+                    .Where(x => x.Game == Game)
+                    .OrderBy(x => x.Id);
+
+            List<string> content = new List<string> { string.Empty };
+
+            
+            for (int i = 0; i < landedTitlesFileLines.Count - 1; i++)
             {
-                foreach (GameId gameLocation in location.GameIds.Where(x => x.Game == Game))
+                string line = landedTitlesFileLines[i];
+                string previousLine = content.Last();
+                string nextLine = landedTitlesFileLines[i + 1];
+
+                content.Add(line);
+
+                if (Regex.IsMatch(previousLine, "^\\s*([a-zA-Z][^_][^\\s]* =).*") || // if previous is not a title definition
+
+                    // Be careful with these
+                    nextLine.Contains("is_titular") || // Could cause problems, potentially
+                    nextLine.Contains("owner_under_ROOT") ||
+                    nextLine.Contains("show_scope_change"))
                 {
-                    content = AddLocalisationsToTitle(content, gameLocation.Id);
+                    continue;
+                }
+
+                string titleId = Regex.Match(line, "^\\s*([ekdcb]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$").Groups[1].Value;
+                
+                if (string.IsNullOrWhiteSpace(titleId))
+                {
+                    continue;
+                }
+                    Console.WriteLine(titleId);
+
+                string titleLocalisationsContent = GetTitleLocalisationsContent(line, titleId);
+
+                if (!string.IsNullOrWhiteSpace(titleLocalisationsContent))
+                {
+                    content.Add(titleLocalisationsContent);
                 }
             }
 
-            return content;
+            return string.Join(Environment.NewLine, content);
         }
 
-        string AddLocalisationsToTitle(string landedTitlesFile, string gameId)
+        string GetTitleLocalisationsContent(string line, string gameId)
         {
-            IList<Localisation> localisations = GetGameLocationLocalisations(gameId);
+            IEnumerable<Localisation> localisations = GetGameLocationLocalisations(gameId);
 
-            if (!localisations.Any())
-            {
-                return landedTitlesFile;
-            }
-
-            string indentation = Regex.Match(landedTitlesFile, "^([ \t]*)" + gameId + "[ \t]*=[ \t]*\\{.*$", RegexOptions.Multiline).Groups[1].Value + "\t";
-            string thisContent = string.Empty;
+            string indentation = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "\t";
+            List<string> lines = new List<string>();
 
             foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageId))
             {
-                thisContent += $"{indentation}{localisation.LanguageId} = \"{localisation.Name}\"" + Environment.NewLine;
+                lines.Add($"{indentation}{localisation.LanguageId} = \"{localisation.Name}\"");
             }
 
-            return Regex.Replace(landedTitlesFile, "^([ \t]*" + gameId + "[ \t]*=[ \t]*\\{.*$)", "$1\n" + thisContent, RegexOptions.Multiline);
+            return string.Join(Environment.NewLine, lines);
+        }
+        string CleanLandedTitlesFile(string content)
+        {
+            IEnumerable<GameId> gameLanguageIds = languages.Values
+                    .SelectMany(x => x.GameIds)
+                    .Where(x => x.Game == Game)
+                    .OrderBy(x => x.Id);
+
+            string culturesPattern = string.Join('|', gameLanguageIds.Select(x => x.Id));
+
+            string newContent = Regex.Replace( // Break inline cultural name into multiple lines
+                content,
+                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
+                "$1$2 = {\n$1\t$3\n$1}",
+                RegexOptions.Multiline);
+            
+            newContent = Regex.Replace( // Remove cultural names
+                newContent,
+                "^\\s*(" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\".*\n",
+                "",
+                RegexOptions.Multiline);
+
+            newContent = Regex.Replace( // Break ={} into multiple lines
+                newContent,
+                "(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}",
+                "$1$2\n$1}",
+                RegexOptions.Multiline);
+            
+            newContent = Regex.Replace(newContent, "^\\s*\n", "", RegexOptions.Multiline); // Remove empty/whitespace lines
+            newContent = Regex.Replace(newContent, "^\\s*#.*\n", "", RegexOptions.Multiline); // Remove comment lines
+
+            newContent = newContent.Replace("\r", "");
+            
+            return newContent;
         }
 
-        string ReadLandedTitlesFile(string filePath)
+        string ReadLandedTitlesFileLines(string filePath)
         {
             Encoding encoding = Encoding.GetEncoding("windows-1252");
             
