@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using NuciDAL.Repositories;
 
@@ -26,6 +27,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             OutputSettings outputSettings)
             : base(languageRepository, locationRepository, outputSettings)
         {
+            EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
+            Encoding.RegisterProvider(encodingProvider);
         }
 
         protected override void BuildMod()
@@ -53,7 +56,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
             
-            string content = GetContentRecursively(locations);
+            string content = BuildLandedTitlesFile();
             WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
         }
 
@@ -69,85 +72,59 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
+        string BuildLandedTitlesFile()
         {
-            string filePath = Path.Combine(landedTitlesDirectoryPath, LandedTitlesFileName);
+            string content = ReadLandedTitlesFile(Path.Combine(ApplicationPaths.DataDirectory, "ck2hip_landed_titles.txt"));
 
-            EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
-            Encoding.RegisterProvider(encodingProvider);
+            IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
 
-            Encoding encoding = Encoding.GetEncoding("windows-1252");
-            byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
-            
-            File.WriteAllBytes(filePath, contentBytes);
-        }
-
-        IEnumerable<GameId> GetChildrenIds(IEnumerable<Location> locations, string gameId)
-        {
-            IEnumerable<GameId> childrenGameIds = locations
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game && x.ParentId == gameId)
-                .OrderBy(x => x.Order);
-            
-            return childrenGameIds;
-        }
-
-        string GetContentRecursively(IEnumerable<Location> locations)
-        {
-            return
-                GetContentRecursively(locations, null) +
-                GetContentRecursively(locations, string.Empty);
-        }
-
-        string GetContentRecursively(IEnumerable<Location> locations, string gameId)
-        {
-            string content = string.Empty;
-            IEnumerable<GameId> childrenIds = GetChildrenIds(locations, gameId);
-
-            foreach (GameId childGameId in childrenIds)
+            foreach (Location location in locations.Take(20))
             {
-                IList<Localisation> localisations = GetGameLocationLocalisations(childGameId.Id)
-                    .OrderBy(x => x.LanguageId)
-                    .ToList();
-
-                string indentation1 = GetIndentation(childGameId);
-                string indentation2 = indentation1 + string.Empty.PadRight(SpacesPerIdentationLevel);
-                string thisContent = string.Empty;
-
-                content += $"{indentation1}{childGameId.Id} = {{" + Environment.NewLine;
-
-                foreach (Localisation localisation in localisations)
+                Console.WriteLine(location.Id);
+                foreach (GameId gameLocation in location.GameIds.Where(x => x.Game == Game))
                 {
-                    string name = GetWindows1252Name(localisation.Name);
-                    content += $"{indentation2}{localisation.LanguageId} = \"{name}\"" + Environment.NewLine;
+                    content = AddLocalisationsToTitle(content, gameLocation.Id);
                 }
-
-                string childContent = GetContentRecursively(locations, childGameId.Id);
-
-                if (!string.IsNullOrWhiteSpace(childContent))
-                {
-                    if (localisations.Count > 0)
-                    {
-                        content += Environment.NewLine;
-                    }
-                    
-                    content += childContent;
-                }
-
-                content += $"{indentation1}}}" + Environment.NewLine;
             }
 
             return content;
         }
 
-        string GetIndentation(GameId gameId)
+        string AddLocalisationsToTitle(string landedTitlesFile, string gameId)
         {
-            if (string.IsNullOrWhiteSpace(gameId.ParentId))
+            IList<Localisation> localisations = GetGameLocationLocalisations(gameId);
+
+            if (!localisations.Any())
             {
-                return string.Empty;
+                return landedTitlesFile;
             }
+
+            string indentation = Regex.Match(landedTitlesFile, "^([ \t]*)" + gameId + "[ \t]*=[ \t]*\\{.*$", RegexOptions.Multiline).Groups[1].Value + "\t";
+            string thisContent = string.Empty;
+
+            foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageId))
+            {
+                thisContent += $"{indentation}{localisation.LanguageId} = \"{localisation.Name}\"" + Environment.NewLine;
+            }
+
+            return Regex.Replace(landedTitlesFile, "^([ \t]*" + gameId + "[ \t]*=[ \t]*\\{.*$)", "$1\n" + thisContent, RegexOptions.Multiline);
+        }
+
+        string ReadLandedTitlesFile(string filePath)
+        {
+            Encoding encoding = Encoding.GetEncoding("windows-1252");
             
-            return GetIndentation(gameId.Id);
+            return File.ReadAllText(filePath, encoding);
+        }
+
+        void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
+        {
+            string filePath = Path.Combine(landedTitlesDirectoryPath, LandedTitlesFileName);
+
+            Encoding encoding = Encoding.GetEncoding("windows-1252");
+            byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
+            
+            File.WriteAllBytes(filePath, contentBytes);
         }
 
         string GenerateMainDescriptorContent()
@@ -162,34 +139,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 $"name = \"{outputSettings.CK2HipModName}\"" + Environment.NewLine +
                 $"dependencies = {{ \"HIP - Historical Immersion Project\" }}" + Environment.NewLine +
                 $"tags = {{ map immersion HIP }}";
-        }
-
-        string GetIndentation(string gameId)
-        {
-            if (string.IsNullOrWhiteSpace(gameId))
-            {
-                return string.Empty;
-            }
-
-            switch (gameId[0])
-            {
-                default:
-                case 'e':
-                case 'E':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 0);
-                case 'k':
-                case 'K':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 1);
-                case 'd':
-                case 'D':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 2);
-                case 'c':
-                case 'C':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 3);
-                case 'b':
-                case 'B':
-                    return string.Empty.PadRight(SpacesPerIdentationLevel * 4);
-            }
         }
     }
 }
