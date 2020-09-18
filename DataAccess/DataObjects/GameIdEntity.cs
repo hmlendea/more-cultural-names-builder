@@ -19,15 +19,6 @@ namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
         [XmlAttribute("game")]
         public string Game { get; set; }
 
-        [XmlAttribute("parent")]
-        public string ParentId { get; set; }
-
-        [XmlAttribute("order")]
-        public string Order { get; set; }
-
-        [XmlAttribute("province")]
-        public string ProvinceId { get; set; }
-
         [XmlText]
         public string Id { get; set; }
     }
