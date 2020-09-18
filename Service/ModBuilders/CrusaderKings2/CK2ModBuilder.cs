@@ -135,7 +135,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageId))
             {
-                lines.Add($"{indentation}{localisation.LanguageId} = \"{localisation.Name}\"");
+                string transliteratedName = GetWindows1252Name(localisation.Name);
+                lines.Add($"{indentation}{localisation.LanguageId} = \"{transliteratedName}\"");
             }
 
             return string.Join(Environment.NewLine, lines);
