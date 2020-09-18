@@ -78,9 +78,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
 
-            foreach (Location location in locations.Take(20))
+            foreach (Location location in locations)
             {
-                Console.WriteLine(location.Id);
                 foreach (GameId gameLocation in location.GameIds.Where(x => x.Game == Game))
                 {
                     content = AddLocalisationsToTitle(content, gameLocation.Id);
