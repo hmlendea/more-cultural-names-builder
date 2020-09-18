@@ -18,7 +18,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         public override string Game => "CK3";
 
         const string LandedTitlesFileName = "999_MoreCulturalNames.txt";
-        const int SpacesPerIdentationLevel = 4;
         const string NewLine = "\r\n";
 
         public CK3ModBuilder(
