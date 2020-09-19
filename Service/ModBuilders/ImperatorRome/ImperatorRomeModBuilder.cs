@@ -46,15 +46,15 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         {
             List<Localisation> localisations = GetLocalisations();
 
-            foreach (string culture in localisations.Select(x => x.LanguageId).Distinct())
+            foreach (string culture in localisations.Select(x => x.LanguageGameId).Distinct())
             {
                 string path = Path.Combine(provinceNamesDirectoryPath, $"{culture.ToLower()}.txt");
                 string content = $"{culture} = {{" + Environment.NewLine;
 
-                foreach (Localisation localisation in localisations.Where(x => x.LanguageId == culture))
+                foreach (Localisation localisation in localisations.Where(x => x.LanguageGameId == culture))
                 {
                     content +=
-                        $"    {localisation.LocationId} = PROV{localisation.LocationId}_{culture}" +
+                        $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{culture}" +
                         $" # {localisation.Name}" + Environment.NewLine;
                 }
 
@@ -100,7 +100,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
             foreach(Localisation localisation in localisations)
             {
-                content += $" PROV{localisation.LocationId}_{localisation.LanguageId}:0 \"{localisation.Name}\"{Environment.NewLine}";
+                content += $" PROV{localisation.LocationGameId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"{Environment.NewLine}";
             }
 
             return content;

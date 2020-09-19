@@ -77,7 +77,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             }
 
             return localisations
-                .OrderBy(x => x.LocationId.PadLeft(64, ' '))
+                .OrderBy(x => x.LocationGameId.PadLeft(64, ' '))
                 .ThenBy(x => x.LanguageId)
                 .ToList();
         }
@@ -104,8 +104,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                             foreach (GameId languageGameId in language.GameIds.Where(x => x.Game == Game))
                             {
                                 Localisation localisation = new Localisation();
-                                localisation.LocationId = locationGameId.Id;
-                                localisation.LanguageId = languageGameId.Id;
+                                localisation.LocationGameId = locationGameId.Id;
+                                localisation.LanguageGameId = languageGameId.Id;
                                 localisation.Name = locationName.Value;
 
                                 localisations.Add(localisation);
