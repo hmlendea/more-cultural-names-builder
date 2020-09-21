@@ -150,8 +150,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             string culturesPattern = string.Join('|', gameLanguageIds.Select(x => x.Id));
 
-            string newContent = Regex.Replace( // Break inline cultural name into multiple lines
-                content,
+            string newContent = content;
+            newContent = Regex.Replace(newContent, "^\\s*\n", "", RegexOptions.Multiline); // Remove empty/whitespace lines
+            newContent = Regex.Replace(newContent, "^\\s*#.*\n", "", RegexOptions.Multiline); // Remove comment lines
+
+            newContent = Regex.Replace( // Break inline cultural name into multiple lines
+                newContent,
                 "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
                 "$1$2 = {\n$1\t$3\n$1}",
                 RegexOptions.Multiline);
