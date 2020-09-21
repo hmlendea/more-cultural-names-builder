@@ -18,7 +18,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
     {
         public override string Game => "CK2HIP";
 
-        const string LandedTitlesFileName = "0_HIP_MoreCulturalNames.txt";
+        const string LandedTitlesFileName = "swmh_landed_titles.txt";
 
         public CK2ModBuilder(
             IRepository<LanguageEntity> languageRepository,
