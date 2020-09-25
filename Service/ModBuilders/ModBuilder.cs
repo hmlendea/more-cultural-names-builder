@@ -19,6 +19,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
     {
         public virtual string Game { get; protected set; }
 
+        public string ModId => outputSettings.GetModId(Game);
+
         protected string OutputDirectoryPath => Path.Combine(outputSettings.ModOutputDirectory, Game);
 
         protected readonly IRepository<LanguageEntity> languageRepository;
@@ -176,11 +178,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             processedName = Regex.Replace(processedName, "[Č]", "Ch");
             processedName = Regex.Replace(processedName, "[ĐƊḌ]", "D");
             processedName = Regex.Replace(processedName, "[Ē]", "Ë");
-            processedName = Regex.Replace(processedName, "[Ę]", "E");
+            processedName = Regex.Replace(processedName, "[ĘƏ]", "E");
             processedName = Regex.Replace(processedName, "[Ğ]", "G");
             processedName = Regex.Replace(processedName, "[İ]", "I");
             processedName = Regex.Replace(processedName, "[Ī]", "Ï");
-            processedName = Regex.Replace(processedName, "[Ƙ]", "K");
+            processedName = Regex.Replace(processedName, "[ƘḲ]", "K");
             processedName = Regex.Replace(processedName, "[Ł]", "L");
             processedName = Regex.Replace(processedName, "[Ń]", "N");
             processedName = Regex.Replace(processedName, "[Ō]", "Ö");
@@ -199,11 +201,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             processedName = Regex.Replace(processedName, "[ě]", "ie");
             processedName = Regex.Replace(processedName, "[ē]", "ë");
             processedName = Regex.Replace(processedName, "[ė]", "è");
-            processedName = Regex.Replace(processedName, "[ęе]", "e");
+            processedName = Regex.Replace(processedName, "[ęеə]", "e");
             processedName = Regex.Replace(processedName, "[ğ]", "g");
             processedName = Regex.Replace(processedName, "[ı]", "i");
             processedName = Regex.Replace(processedName, "[ī]", "ï");
-            processedName = Regex.Replace(processedName, "[ƙк]", "k");
+            processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
             processedName = Regex.Replace(processedName, "[ł]", "l");
             processedName = Regex.Replace(processedName, "[ń]", "n");
             processedName = Regex.Replace(processedName, "[ō]", "ö");

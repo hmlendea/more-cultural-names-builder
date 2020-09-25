@@ -28,7 +28,7 @@ namespace MoreCulturalNamesModBuilder
         /// <summary>
         /// The entry point of the program, where the program control starts and ends.
         /// </summary>
-        /// <param name="args">CLI arguments</param>
+        /// <param name="args">The command line arguments.</param>
         public static void Main(string[] args)
         {
             LoadConfiguration(args);
@@ -39,15 +39,18 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(dataStoreSettings.LanguageStorePath))
                 .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(dataStoreSettings.TitleStorePath))
                 .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()
+                .AddSingleton<ICK2HIPModBuilder, CK2HIPModBuilder>()
                 .AddSingleton<ICK3ModBuilder, CK3ModBuilder>()
                 .AddSingleton<IImperatorRomeModBuilder, ImperatorRomeModBuilder>()
                 .BuildServiceProvider();
             
             IModBuilder ck2Builder = serviceProvider.GetService<ICK2ModBuilder>();
+            IModBuilder ck2hipBuilder = serviceProvider.GetService<ICK2HIPModBuilder>();
             IModBuilder ck3Builder = serviceProvider.GetService<ICK3ModBuilder>();
             IModBuilder imperatorRomeBuilder = serviceProvider.GetService<IImperatorRomeModBuilder>();
             
             ck2Builder.Build();
+            ck2hipBuilder.Build();
             ck3Builder.Build();
             imperatorRomeBuilder.Build();
         }
@@ -55,8 +58,8 @@ namespace MoreCulturalNamesModBuilder
         static void LoadConfiguration(string[] args)
         {
             IConfiguration config =new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json", true, true)
-                    .Build();
+                .AddJsonFile("appsettings.json", true, true)
+                .Build();
 
             dataStoreSettings = new DataStoreSettings();
             outputSettings = new OutputSettings();

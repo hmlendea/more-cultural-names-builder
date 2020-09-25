@@ -14,11 +14,13 @@ using MoreCulturalNamesModBuilder.Service.Models;
 
 namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 {
-    public sealed class CK2ModBuilder : ModBuilder, ICK2ModBuilder
+    public class CK2ModBuilder : ModBuilder, ICK2ModBuilder
     {
-        public override string Game => "CK2HIP";
+        public override string Game => "CK2";
 
-        const string LandedTitlesFileName = "swmh_landed_titles.txt";
+        protected virtual string InputLandedTitlesFileName => "ck2_landed_titles.txt";
+
+        protected virtual string OutputLandedTitlesFileName => "landed_titles.txt";
 
         public CK2ModBuilder(
             IRepository<LanguageEntity> languageRepository,
@@ -32,7 +34,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected override void BuildMod()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.CK2HipModId);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, ModId);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
 
@@ -42,6 +44,20 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             CreateDataFiles(landedTitlesDirectoryPath);
             CreateDescriptorFiles();
+        }
+
+        protected virtual string GenerateDescriptorContent()
+        {
+            return
+                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
+                $"name = \"{outputSettings.CK2ModName}\"" + Environment.NewLine +
+                $"tags = {{ map immersion }}";
+        }
+
+        protected virtual string GenerateMainDescriptorContent()
+        {
+            return GenerateDescriptorContent() + Environment.NewLine +
+                $"path = \"mod/{outputSettings.CK2ModId}\"";
         }
 
         void CreateDataFiles(string landedTitlesDirectoryPath)
@@ -62,10 +78,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         void CreateDescriptorFiles()
         {
             string mainDescriptorContent = GenerateMainDescriptorContent();
-            string innerDescriptorContent = GenerateInnerDescriptorContent();
+            string innerDescriptorContent = GenerateDescriptorContent();
 
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.CK2HipModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.CK2HipModId, "descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, ModId, "descriptor.mod");
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
@@ -73,16 +89,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         string BuildLandedTitlesFile()
         {
-            string landedTitlesFile = ReadLandedTitlesFileLines(Path.Combine(ApplicationPaths.DataDirectory, "ck2hip_landed_titles.txt"));
+            string landedTitlesFile = ReadLandedTitlesFileLines(Path.Combine(ApplicationPaths.DataDirectory, InputLandedTitlesFileName));
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
 
             List<string> landedTitlesFileLines = landedTitlesFile.Split('\n').ToList();
             landedTitlesFileLines.Add(string.Empty);
 
             IEnumerable<GameId> gameLocationIds = locations.Values
-                    .SelectMany(x => x.GameIds)
-                    .Where(x => x.Game == Game)
-                    .OrderBy(x => x.Id);
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game)
+                .OrderBy(x => x.Id);
 
             List<string> content = new List<string> { string.Empty };
 
@@ -95,13 +111,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
                 content.Add(line);
 
-                if (previousLine.Contains("gain_effect") ||
+                if (previousLine.Contains("dejure_liege_title") ||
+                    previousLine.Contains("gain_effect") ||
                     previousLine.Contains("allow") ||
                     previousLine.Contains("limit") ||
                     previousLine.Contains("trigger") ||
 
                     // Be careful with these
+                    nextLine.Contains("any_direct_de_jure_vassal_title") ||
+                    nextLine.Contains("has_holder") ||
                     nextLine.Contains("is_titular") || // Could cause problems, potentially
+                    nextLine.Contains("owner") ||
                     nextLine.Contains("owner_under_ROOT") ||
                     nextLine.Contains("show_scope_change"))
                 {
@@ -141,6 +161,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             return string.Join(Environment.NewLine, lines);
         }
+
         string CleanLandedTitlesFile(string content)
         {
             IEnumerable<GameId> gameLanguageIds = languages.Values
@@ -151,8 +172,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             string culturesPattern = string.Join('|', gameLanguageIds.Select(x => x.Id));
 
             string newContent = content;
+            newContent = Regex.Replace(newContent, "\\t", "    ", RegexOptions.Multiline); // Replace tabs
+            newContent = Regex.Replace(newContent, "\\s*=\\s*", " = ", RegexOptions.Multiline); // Standardise spacings aroung equals
+            newContent = Regex.Replace(newContent, "\\s*#[^\r\n]*", "", RegexOptions.Multiline); // Remove comments
             newContent = Regex.Replace(newContent, "^\\s*\n", "", RegexOptions.Multiline); // Remove empty/whitespace lines
-            newContent = Regex.Replace(newContent, "^\\s*#.*\n", "", RegexOptions.Multiline); // Remove comment lines
+            newContent = Regex.Replace(newContent, "\\s+$", "", RegexOptions.Multiline); // Remove trailing whitespaces
 
             newContent = Regex.Replace( // Break inline cultural name into multiple lines
                 newContent,
@@ -162,7 +186,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             
             newContent = Regex.Replace( // Remove cultural names
                 newContent,
-                "^\\s*(" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\".*\n",
+                "^\\s*(" + culturesPattern + ")\\s*=\\s*\"*[^\"\r\n]*\"*[^\r\n]*\r*\n",
                 "",
                 RegexOptions.Multiline);
 
@@ -171,9 +195,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 "(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}",
                 "$1$2\n$1}",
                 RegexOptions.Multiline);
-            
-            newContent = Regex.Replace(newContent, "^\\s*\n", "", RegexOptions.Multiline); // Remove empty/whitespace lines
-            newContent = Regex.Replace(newContent, "^\\s*#.*\n", "", RegexOptions.Multiline); // Remove comment lines
 
             newContent = newContent.Replace("\r", "");
             
@@ -189,26 +210,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
         {
-            string filePath = Path.Combine(landedTitlesDirectoryPath, LandedTitlesFileName);
+            string filePath = Path.Combine(landedTitlesDirectoryPath, OutputLandedTitlesFileName);
 
             Encoding encoding = Encoding.GetEncoding("windows-1252");
             byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
             
             File.WriteAllBytes(filePath, contentBytes);
-        }
-
-        string GenerateMainDescriptorContent()
-        {
-            return GenerateInnerDescriptorContent() + Environment.NewLine +
-                $"path = \"mod/{outputSettings.CK2HipModId}\"";
-        }
-
-        string GenerateInnerDescriptorContent()
-        {
-            return
-                $"name = \"{outputSettings.CK2HipModName}\"" + Environment.NewLine +
-                $"dependencies = {{ \"HIP - Historical Immersion Project\" }}" + Environment.NewLine +
-                $"tags = {{ map immersion HIP }}";
         }
     }
 }
