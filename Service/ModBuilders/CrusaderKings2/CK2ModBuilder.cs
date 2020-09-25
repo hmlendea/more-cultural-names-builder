@@ -110,13 +110,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
                 content.Add(line);
 
-                if (previousLine.Contains("gain_effect") ||
+                if (previousLine.Contains("dejure_liege_title") ||
+                    previousLine.Contains("gain_effect") ||
                     previousLine.Contains("allow") ||
                     previousLine.Contains("limit") ||
                     previousLine.Contains("trigger") ||
 
                     // Be careful with these
+                    nextLine.Contains("any_direct_de_jure_vassal_title") ||
+                    nextLine.Contains("has_holder") ||
                     nextLine.Contains("is_titular") || // Could cause problems, potentially
+                    nextLine.Contains("owner") ||
                     nextLine.Contains("owner_under_ROOT") ||
                     nextLine.Contains("show_scope_change"))
                 {
