@@ -39,17 +39,20 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(dataStoreSettings.LanguageStorePath))
                 .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(dataStoreSettings.TitleStorePath))
                 .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()
+                .AddSingleton<ICK2HIPModBuilder, CK2HIPModBuilder>()
                 .AddSingleton<ICK3ModBuilder, CK3ModBuilder>()
                 .AddSingleton<IImperatorRomeModBuilder, ImperatorRomeModBuilder>()
                 .BuildServiceProvider();
             
             IModBuilder ck2Builder = serviceProvider.GetService<ICK2ModBuilder>();
+            IModBuilder ck2hipBuilder = serviceProvider.GetService<ICK2HIPModBuilder>();
             IModBuilder ck3Builder = serviceProvider.GetService<ICK3ModBuilder>();
             IModBuilder imperatorRomeBuilder = serviceProvider.GetService<IImperatorRomeModBuilder>();
             
             ck2Builder.Build();
-            ck3Builder.Build();
-            imperatorRomeBuilder.Build();
+            ck2hipBuilder.Build();
+            //ck3Builder.Build();
+            //imperatorRomeBuilder.Build();
         }
 
         static void LoadConfiguration(string[] args)

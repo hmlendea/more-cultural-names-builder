@@ -1,3 +1,5 @@
+using System;
+
 namespace MoreCulturalNamesModBuilder.Configuration
 {
     public sealed class OutputSettings
@@ -17,5 +19,22 @@ namespace MoreCulturalNamesModBuilder.Configuration
 
         public string ImperatorRomeModId { get; set; }
         public string ImperatorRomeModName { get; set; }
+
+        public string GetModId(string game)
+        {
+            switch (game.ToUpperInvariant())
+            {
+                case "CK2":
+                    return CK2ModId;
+                case "CK2HIP":
+                    return CK2HipModId;
+                case "CK3":
+                    return CK3ModId;
+                case "ImperatorRome":
+                    return ImperatorRomeModId;
+                default:
+                    throw new ArgumentException("Invalid game identifier");
+            }
+        }
     }
 }

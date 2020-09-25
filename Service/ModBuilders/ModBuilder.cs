@@ -19,6 +19,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
     {
         public virtual string Game { get; protected set; }
 
+        public string ModId => outputSettings.GetModId(Game);
+
         protected string OutputDirectoryPath => Path.Combine(outputSettings.ModOutputDirectory, Game);
 
         protected readonly IRepository<LanguageEntity> languageRepository;
