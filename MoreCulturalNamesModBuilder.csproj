@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <None Update="appsettings.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
+    <None Update="Data/ck2_landed_titles.txt"> <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
     <None Update="Data/ck2hip_landed_titles.txt"> <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
     <None Update="Data/ck3_landed_titles.txt"> <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
   </ItemGroup>
