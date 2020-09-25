@@ -49,6 +49,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         protected virtual string GenerateDescriptorContent()
         {
             return
+                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
                 $"name = \"{outputSettings.CK2ModName}\"" + Environment.NewLine +
                 $"tags = {{ map immersion }}";
         }

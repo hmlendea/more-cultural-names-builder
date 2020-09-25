@@ -37,6 +37,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         protected override string GenerateDescriptorContent()
         {
             return
+                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
                 $"name = \"{outputSettings.CK2HipModName}\"" + Environment.NewLine +
                 $"dependencies = {{ \"HIP - Historical Immersion Project\" }}" + Environment.NewLine +
                 $"tags = {{ map immersion HIP }}";
