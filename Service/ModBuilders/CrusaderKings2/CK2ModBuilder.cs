@@ -95,9 +95,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             landedTitlesFileLines.Add(string.Empty);
 
             IEnumerable<GameId> gameLocationIds = locations.Values
-                    .SelectMany(x => x.GameIds)
-                    .Where(x => x.Game == Game)
-                    .OrderBy(x => x.Id);
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game)
+                .OrderBy(x => x.Id);
 
             List<string> content = new List<string> { string.Empty };
 

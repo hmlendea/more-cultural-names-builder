@@ -28,7 +28,7 @@ namespace MoreCulturalNamesModBuilder
         /// <summary>
         /// The entry point of the program, where the program control starts and ends.
         /// </summary>
-        /// <param name="args">CLI arguments</param>
+        /// <param name="args">The command line arguments.</param>
         public static void Main(string[] args)
         {
             LoadConfiguration(args);
@@ -51,15 +51,15 @@ namespace MoreCulturalNamesModBuilder
             
             ck2Builder.Build();
             ck2hipBuilder.Build();
-            //ck3Builder.Build();
-            //imperatorRomeBuilder.Build();
+            ck3Builder.Build();
+            imperatorRomeBuilder.Build();
         }
 
         static void LoadConfiguration(string[] args)
         {
             IConfiguration config =new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json", true, true)
-                    .Build();
+                .AddJsonFile("appsettings.json", true, true)
+                .Build();
 
             dataStoreSettings = new DataStoreSettings();
             outputSettings = new OutputSettings();
