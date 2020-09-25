@@ -167,8 +167,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             string culturesPattern = string.Join('|', gameLanguageIds.Select(x => x.Id));
 
             string newContent = content;
+            newContent = Regex.Replace(newContent, "\\t", "    ", RegexOptions.Multiline); // Replace tabs
+            newContent = Regex.Replace(newContent, "\\s*=\\s*", " = ", RegexOptions.Multiline); // Standardise spacings aroung equals
+            newContent = Regex.Replace(newContent, "\\s*#[^\r\n]*", "", RegexOptions.Multiline); // Remove comments
             newContent = Regex.Replace(newContent, "^\\s*\n", "", RegexOptions.Multiline); // Remove empty/whitespace lines
-            newContent = Regex.Replace(newContent, "^\\s*#.*\n", "", RegexOptions.Multiline); // Remove comment lines
+            newContent = Regex.Replace(newContent, "\\s+$", "", RegexOptions.Multiline); // Remove trailing whitespaces
 
             newContent = Regex.Replace( // Break inline cultural name into multiple lines
                 newContent,
@@ -178,7 +181,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             
             newContent = Regex.Replace( // Remove cultural names
                 newContent,
-                "^\\s*(" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\".*\n",
+                "^\\s*(" + culturesPattern + ")\\s*=\\s*\"*[^\"\r\n]*\"*[^\r\n]*\r*\n",
                 "",
                 RegexOptions.Multiline);
 
@@ -187,9 +190,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 "(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}",
                 "$1$2\n$1}",
                 RegexOptions.Multiline);
-            
-            newContent = Regex.Replace(newContent, "^\\s*\n", "", RegexOptions.Multiline); // Remove empty/whitespace lines
-            newContent = Regex.Replace(newContent, "^\\s*#.*\n", "", RegexOptions.Multiline); // Remove comment lines
 
             newContent = newContent.Replace("\r", "");
             
