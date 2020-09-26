@@ -115,11 +115,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         string GenerateInnerDescriptorContent()
         {
             return
+                $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine +
                 $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
+                $"supported_version=\"{outputSettings.CK3GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
-                $"}}" + Environment.NewLine +
-                $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine;
+                $"}}";
         }
     }
 }
