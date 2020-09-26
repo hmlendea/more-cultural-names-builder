@@ -6,15 +6,22 @@ namespace MoreCulturalNamesModBuilder.Service
     public sealed class NameNormaliser : INameNormaliser
     {
         ConcurrentDictionary<string, string> windows1252cache;
+        ConcurrentDictionary<string, string> hoi4cache;
 
         public NameNormaliser()
         {
             windows1252cache = new ConcurrentDictionary<string, string>();
+            hoi4cache = new ConcurrentDictionary<string, string>();
         }
 
         public string ToHOI4(string name)
         {
             string processedName = name;
+
+            if (hoi4cache.ContainsKey(name))
+            {
+                return hoi4cache[name];
+            }
 
             processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
             processedName = Regex.Replace(processedName, "[Ə]", "E");
@@ -26,6 +33,8 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
             processedName = Regex.Replace(processedName, "[țṭ]", "t");
             processedName = Regex.Replace(processedName, "[ș]", "ş");
+
+            hoi4cache.TryAdd(name, processedName);
 
             return processedName;
         }
