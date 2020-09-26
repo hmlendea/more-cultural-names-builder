@@ -51,7 +51,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             List<Localisation> localisations = GetLocalisations();
 
             Dictionary<string, List<Localisation>> localisationsByLocation = localisations
-                .GroupBy(x => x.LocationId)
+                .GroupBy(x => x.LocationGameId)
                 .OrderBy(x => x.Key)
                 .ToDictionary(x => x.Key, x => x.ToList());
 
@@ -139,7 +139,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
             foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageId))
             {
-                lines.Add($"{indentation2}{localisation.LanguageId} = \"{localisation.Name}\"");
+                lines.Add($"{indentation2}{localisation.LanguageGameId} = \"{localisation.Name}\"");
             }
 
             lines.Add($"{indentation1}}}");

@@ -45,8 +45,8 @@ namespace MoreCulturalNamesModBuilder.Service
                 .SelectMany(x => x.GameIds)
                 .Where(x => x.Game == gameId)
                 .ToDictionary(
-                    key => languages.Values.First(language => language.GameIds.Any(x => x.Game == gameId && x.Id == key.Id)).Id,
-                    val => val.Id);
+                    key => key.Id,
+                    val => languages.Values.First(language => language.GameIds.Any(x => x.Game == gameId && x.Id == val.Id)).Id);
 
             Location location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x => x.Game == gameId && x.Id == locationGameId));
 
@@ -57,13 +57,15 @@ namespace MoreCulturalNamesModBuilder.Service
             
             Parallel.ForEach(languageGameIds, gameLanguage => 
             {
-                string name = GetLocationName(location, gameLanguage.Key);
+                string name = GetLocationName(location, gameLanguage.Value);
                 
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     Localisation localisation = new Localisation();
-                    localisation.LocationId = locationGameId;
+                    localisation.LocationId = location.Id;
+                    localisation.LocationGameId = locationGameId;
                     localisation.LanguageId = gameLanguage.Value;
+                    localisation.LanguageGameId = gameLanguage.Key;
                     localisation.Name = name;
 
                     localisations.Add(localisation);

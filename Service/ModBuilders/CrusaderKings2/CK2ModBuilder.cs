@@ -74,7 +74,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             List<Localisation> localisations = GetLocalisations();
 
             Dictionary<string, List<Localisation>> localisationsByLocation = localisations
-                .GroupBy(x => x.LocationId)
+                .GroupBy(x => x.LocationGameId)
                 .OrderBy(x => x.Key)
                 .ToDictionary(x => x.Key, x => x.ToList());
 
@@ -161,10 +161,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             string indentation = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "    ";
             List<string> lines = new List<string>();
 
-            foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageId))
+            foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageGameId))
             {
                 string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
-                lines.Add($"{indentation}{localisation.LanguageId} = \"{normalisedName}\"");
+                lines.Add($"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\"");
             }
 
             return string.Join(Environment.NewLine, lines);
