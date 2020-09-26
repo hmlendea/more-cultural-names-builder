@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 
@@ -27,8 +24,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         protected readonly IRepository<LocationEntity> locationRepository;
 
         protected readonly OutputSettings outputSettings;
-
-        IDictionary<string, string> windows1252cache;
         
         protected IDictionary<string, Location> locations;
         protected IDictionary<string, Language> languages;
@@ -42,8 +37,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             this.locationRepository = locationRepository;
 
             this.outputSettings = outputSettings;
-
-            windows1252cache = new Dictionary<string, string>();
 
             locations = locationRepository
                 .GetAll()
@@ -89,42 +82,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .ToList();
         }
 
-        protected virtual IEnumerable<Localisation> GetGameLocationLocalisations(string locationGameId)
-        {
-            ConcurrentBag<Localisation> localisations = new ConcurrentBag<Localisation>();
-
-            IDictionary<string, string> languageGameIds = languages.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
-                .ToDictionary(
-                    key => languages.Values.First(language => language.GameIds.Any(gameId => gameId.Game == Game && gameId.Id == key.Id)).Id,
-                    val => val.Id);
-
-            Location location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x => x.Game == Game && x.Id == locationGameId));
-
-            if (location is null)
-            {
-                return localisations;
-            }
-            
-            Parallel.ForEach(languageGameIds, gameLanguage => 
-            {
-                string name = GetLocationName(location, gameLanguage.Key);
-                
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    Localisation localisation = new Localisation();
-                    localisation.LocationId = locationGameId;
-                    localisation.LanguageId = gameLanguage.Value;
-                    localisation.Name = name;
-
-                    localisations.Add(localisation);
-                }
-            });
-
-            return localisations;
-        }
-
         protected virtual List<Localisation> GetLocationLocalisations(string locationId)
         {
             List<Localisation> localisations = new List<Localisation>();
@@ -161,108 +118,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             }
 
             return localisations;
-        }
-
-        protected string GetWindows1252Name(string name)
-        {
-            string processedName = name;
-
-            if (windows1252cache.ContainsKey(name))
-            {
-                return windows1252cache[name];
-            }
-
-            processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
-            processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
-            processedName = Regex.Replace(processedName, "[Ć]", "C");
-            processedName = Regex.Replace(processedName, "[Č]", "Ch");
-            processedName = Regex.Replace(processedName, "[ĐƊḌ]", "D");
-            processedName = Regex.Replace(processedName, "[Ē]", "Ë");
-            processedName = Regex.Replace(processedName, "[ĘƏ]", "E");
-            processedName = Regex.Replace(processedName, "[Ğ]", "G");
-            processedName = Regex.Replace(processedName, "[İ]", "I");
-            processedName = Regex.Replace(processedName, "[Ī]", "Ï");
-            processedName = Regex.Replace(processedName, "[ƘḲ]", "K");
-            processedName = Regex.Replace(processedName, "[Ł]", "L");
-            processedName = Regex.Replace(processedName, "[Ń]", "N");
-            processedName = Regex.Replace(processedName, "[Ō]", "Ö");
-            processedName = Regex.Replace(processedName, "[ȘŞṢŚ]", "S");
-            processedName = Regex.Replace(processedName, "[ȚṬТ]", "T");
-            processedName = Regex.Replace(processedName, "[Ť]", "Ty");
-            processedName = Regex.Replace(processedName, "[Ū]", "Ü");
-            processedName = Regex.Replace(processedName, "[Ư]", "U'");
-            processedName = Regex.Replace(processedName, "[ŹŻ]", "Z");
-            processedName = Regex.Replace(processedName, "[ą]", "a");
-            processedName = Regex.Replace(processedName, "[ăā]", "ã");
-            processedName = Regex.Replace(processedName, "[ḃḅ]", "b");
-            processedName = Regex.Replace(processedName, "[ć]", "c");
-            processedName = Regex.Replace(processedName, "[č]", "ch");
-            processedName = Regex.Replace(processedName, "[đɗḍ]", "d");
-            processedName = Regex.Replace(processedName, "[ě]", "ie");
-            processedName = Regex.Replace(processedName, "[ē]", "ë");
-            processedName = Regex.Replace(processedName, "[ė]", "è");
-            processedName = Regex.Replace(processedName, "[ęеə]", "e");
-            processedName = Regex.Replace(processedName, "[ğ]", "g");
-            processedName = Regex.Replace(processedName, "[ı]", "i");
-            processedName = Regex.Replace(processedName, "[ī]", "ï");
-            processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
-            processedName = Regex.Replace(processedName, "[ł]", "l");
-            processedName = Regex.Replace(processedName, "[ń]", "n");
-            processedName = Regex.Replace(processedName, "[ō]", "ö");
-            processedName = Regex.Replace(processedName, "[ř]", "rz");
-            processedName = Regex.Replace(processedName, "[șşṣś]", "s");
-            processedName = Regex.Replace(processedName, "[țṭ]", "t");
-            processedName = Regex.Replace(processedName, "[ū]", "ü");
-            processedName = Regex.Replace(processedName, "[źż]", "z");
-
-            processedName = Regex.Replace(processedName, "[ʻ]", "'");
-
-            windows1252cache.Add(name, processedName);
-
-            return processedName;
-        }
-
-        string GetLocationName(Location location, string languageId)
-        {
-            if (location.IsEmpty())
-            {
-                return null;
-            }
-
-            Language language = languages[languageId];
-
-            List<string> locationIdsToCheck = new List<string>() { location.Id };
-            List<string> languageIdsToCheck = new List<string>() { language.Id };
-
-            locationIdsToCheck.AddRange(location.FallbackLocations);
-            languageIdsToCheck.AddRange(language.FallbackLanguages);
-
-            foreach (string locationIdToCheck in locationIdsToCheck)
-            {
-                foreach (string languageIdToCheck in languageIdsToCheck)
-                {
-                    foreach (LocationName name in locations[locationIdToCheck].Names)
-                    {
-                        if (name.LanguageId == languageIdToCheck)
-                        {
-                            return name.Value;
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        protected virtual string GetName(string locationId, string languageId)
-        {
-            Location location = locationRepository.Get(locationId).ToServiceModel();
-            Language language = languageRepository.Get(languageId).ToServiceModel();
-
-            List<string> languagesToCheck = new List<string>() { language.Id };
-            languagesToCheck.AddRange(language.FallbackLanguages);
-
-            return location.Names.FirstOrDefault(x => languagesToCheck.Contains(x.LanguageId)).Value;
         }
     }
 }

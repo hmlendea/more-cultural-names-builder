@@ -8,6 +8,7 @@ using NuciDAL.Repositories;
 
 using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
+using MoreCulturalNamesModBuilder.Service;
 using MoreCulturalNamesModBuilder.Service.ModBuilders;
 using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2;
 using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3;
@@ -38,6 +39,8 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton(outputSettings)
                 .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(dataStoreSettings.LanguageStorePath))
                 .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(dataStoreSettings.TitleStorePath))
+                .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
+                .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()
                 .AddSingleton<ICK2HIPModBuilder, CK2HIPModBuilder>()
                 .AddSingleton<ICK3ModBuilder, CK3ModBuilder>()
