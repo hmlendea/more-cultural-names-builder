@@ -42,6 +42,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
                 $"name = \"{outputSettings.CK2HipModName}\"" + Environment.NewLine +
                 $"dependencies = {{ \"HIP - Historical Immersion Project\" }}" + Environment.NewLine +
+                $"picture = \"thumbnail.png\"" + Environment.NewLine +
                 $"tags = {{ map immersion HIP }}";
         }
     }
