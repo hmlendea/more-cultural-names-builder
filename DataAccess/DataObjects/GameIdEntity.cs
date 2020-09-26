@@ -21,6 +21,9 @@ namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
         
         [XmlAttribute("type")]
         public string Type { get; set; }
+        
+        [XmlAttribute("parent")]
+        public string Parent { get; set; }
 
         [XmlText]
         public string Id { get; set; }

@@ -13,6 +13,7 @@ namespace MoreCulturalNamesModBuilder.Service.Mapping
             GameId serviceModel = new GameId();
             serviceModel.Game = dataObject.Game;
             serviceModel.Type = dataObject.Type;
+            serviceModel.Parent = dataObject.Parent;
             serviceModel.Id = dataObject.Id;
 
             return serviceModel;
@@ -23,6 +24,7 @@ namespace MoreCulturalNamesModBuilder.Service.Mapping
             GameIdEntity dataObject = new GameIdEntity();
             dataObject.Game = serviceModel.Game;
             dataObject.Type = serviceModel.Type;
+            dataObject.Parent = serviceModel.Parent;
             dataObject.Id = serviceModel.Id;
 
             return dataObject;
