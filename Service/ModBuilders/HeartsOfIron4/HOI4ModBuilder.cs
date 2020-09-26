@@ -13,8 +13,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 {
     public sealed class HOI4ModBuilder : ModBuilder, IHOI4ModBuilder
     {
-        const string CityEventsFileName = "MoreCulturalNames_Cities.txt";
-        const string StateEventsFileName = "MoreCulturalNames_States.txt";
+        const string EventsFileName = "MoreCulturalNames.txt";
 
         public override string Game => "HOI4";
 
@@ -45,7 +44,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             Directory.CreateDirectory(eventsDirectoryPath);
 
             CreateDescriptorFiles();
-            CreateStateEventsFile(eventsDirectoryPath);
+            CreateEventsFile(eventsDirectoryPath);
         }
 
         void CreateDescriptorFiles()
@@ -60,9 +59,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        void CreateStateEventsFile(string eventsDirectoryPath)
+        void CreateEventsFile(string eventsDirectoryPath)
         {
-            string stateEventsFilePath = Path.Combine(eventsDirectoryPath, StateEventsFileName);
+            string eventsFilePath = Path.Combine(eventsDirectoryPath, EventsFileName);
 
             IEnumerable<GameId> gameLocationIds = locations.Values
                     .SelectMany(x => x.GameIds)
@@ -79,31 +78,61 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             }
 
             string eventsContent = string.Join(Environment.NewLine, eventContents);
-            File.WriteAllText(stateEventsFilePath, eventsContent);
+            File.WriteAllText(eventsFilePath, eventsContent);
         }
 
-        string GenerateStateEvents(GameId gameId)
+        string GenerateStateEvents(GameId stateGameId)
         {
-            IEnumerable<Localisation> localisations = localisationFetcher.GetGameLocationLocalisations(gameId.Id, Game);
+            IEnumerable<Localisation> stateLocalisations = localisationFetcher.GetGameLocationLocalisations(stateGameId.Id, Game);
 
-            string entireContent = $"##### MCN ##### State={gameId.Id}" + Environment.NewLine;
 
-            foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageGameId))
+            string entireContent = $"##### MCN ##### State={stateGameId.Id}" + Environment.NewLine;
+            Console.WriteLine(stateGameId.Id);
+
+            IEnumerable<GameId> cityGameIds = locations.Values
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game && x.Type == "City" && x.Parent == stateGameId.Id);
+
+            foreach (Localisation stateLocalisation in stateLocalisations.OrderBy(x => x.LanguageGameId))
             {
-                string eventId = $"mcn_{localisation.LanguageGameId}.{gameId.Id}";
-                string name = nameNormaliser.ToHOI4(localisation.Name);
+                string eventId = $"mcn_{stateLocalisation.LanguageGameId}.{stateGameId.Id}";
+                string stateName = nameNormaliser.ToHOI4(stateLocalisation.Name);
 
                 string eventContent =
-                    $"# State={gameId.Id}, Country={localisation.LanguageGameId}, InGameName=\"{name}\", RealName=\"{localisation.Name}\", Event={eventId}" + Environment.NewLine +
+                    $"# State={stateGameId.Id}, Country={stateLocalisation.LanguageGameId}, " +
+                    $"InGameName=\"{stateName}\", RealName=\"{stateLocalisation.Name}\", " +
+                    $"Event={eventId}" + Environment.NewLine +
                     $"country_event = {{" + Environment.NewLine +
                     $"    id = {eventId}" + Environment.NewLine +
                     $"    title = {eventId}.title" + Environment.NewLine +
                     $"    desc = {eventId}.description" + Environment.NewLine +
                     $"    picture = GFX_report_event_german_reichstag_gathering" + Environment.NewLine +
                     $"    hidden = yes" + Environment.NewLine +
-                    $"    trigger = {{ {localisation.LanguageGameId} = {{ owns_state = {gameId.Id} }} }}" + Environment.NewLine +
+                    $"    trigger = {{ {stateLocalisation.LanguageGameId} = {{ owns_state = {stateGameId.Id} }} }}" + Environment.NewLine +
                     $"    mean_time_to_happen = {{ days = 3 }}" + Environment.NewLine +
-                    $"    immediate = {{ hidden_effect = {{ {gameId.Id} = {{ set_state_name = \"{name}\" }} }} }}" + Environment.NewLine +
+                    $"    immediate = {{" + Environment.NewLine +
+                    $"        hidden_effect = {{" + Environment.NewLine +
+                    $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }}" + Environment.NewLine;
+                
+                foreach (GameId cityGameId in cityGameIds)
+                {
+                    Localisation cityLocalisation = localisationFetcher
+                        .GetGameLocationLocalisations(cityGameId.Id, Game)
+                        .FirstOrDefault(x => x.LanguageGameId == stateLocalisation.LanguageGameId);
+                    
+                    if (cityLocalisation is null)
+                    {
+                        continue;
+                    }
+
+                    string cityName = nameNormaliser.ToHOI4(cityLocalisation.Name);
+                    
+                    eventContent += $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}" + Environment.NewLine;
+                }
+
+                eventContent +=
+                    $"        }}" + Environment.NewLine +
+                    $"    }}" + Environment.NewLine +
                     $"    option = {{ name = {eventId}.option }}" + Environment.NewLine +
                     $"}}" + Environment.NewLine;
 
