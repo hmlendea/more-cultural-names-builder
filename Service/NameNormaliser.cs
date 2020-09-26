@@ -12,6 +12,18 @@ namespace MoreCulturalNamesModBuilder.Service
             windows1252cache = new ConcurrentDictionary<string, string>();
         }
 
+        public string ToHOI4(string name)
+        {
+            string processedName = name;
+
+            processedName = Regex.Replace(processedName, "[Ț]", "T");
+            processedName = Regex.Replace(processedName, "[Ș]", "Ş");
+            processedName = Regex.Replace(processedName, "[ț]", "ț");
+            processedName = Regex.Replace(processedName, "[ș]", "ş");
+
+            return processedName;
+        }
+
         public string ToWindows1252(string name)
         {
             string processedName = name;

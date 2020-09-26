@@ -2,31 +2,38 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 using NuciDAL.Repositories;
 
 using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
-using MoreCulturalNamesModBuilder.Service.Mapping;
 using MoreCulturalNamesModBuilder.Service.Models;
 
 namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 {
     public sealed class HOI4ModBuilder : ModBuilder, IHOI4ModBuilder
     {
-        public override string Game => "HOI4";
-
         const string CityEventsFileName = "MoreCulturalNames_Cities.txt";
-
         const string StateEventsFileName = "MoreCulturalNames_States.txt";
 
+        public override string Game => "HOI4";
+
+        readonly ILocalisationFetcher localisationFetcher;
+        readonly INameNormaliser nameNormaliser;
+
         public HOI4ModBuilder(
+            ILocalisationFetcher localisationFetcher,
+            INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, outputSettings)
+            : base(
+                languageRepository,
+                locationRepository,
+                outputSettings)
         {
+            this.localisationFetcher = localisationFetcher;
+            this.nameNormaliser = nameNormaliser;
         }
 
         protected override void BuildMod()
@@ -77,15 +84,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
         string GenerateStateEvents(GameId gameId)
         {
-            IEnumerable<Localisation> localisations = GetGameLocationLocalisations(gameId.Id);
+            IEnumerable<Localisation> localisations = localisationFetcher.GetGameLocationLocalisations(gameId.Id, Game);
 
             string entireContent = $"##### MCN ##### State={gameId.Id}" + Environment.NewLine;
 
             foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageGameId))
             {
                 string eventId = $"mcn_{localisation.LanguageGameId}.{gameId.Id}";
+                string name = nameNormaliser.ToHOI4(localisation.Name);
+
                 string eventContent =
-                    $"# State={gameId.Id}, Country={localisation.LanguageGameId}, Name=\"{localisation.Name}\", Event={eventId}" + Environment.NewLine +
+                    $"# State={gameId.Id}, Country={localisation.LanguageGameId}, InGameName=\"{name}\", RealName=\"{localisation.Name}\", Event={eventId}" + Environment.NewLine +
                     $"country_event = {{" + Environment.NewLine +
                     $"    id = {eventId}" + Environment.NewLine +
                     $"    title = {eventId}.title" + Environment.NewLine +
@@ -94,7 +103,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                     $"    hidden = yes" + Environment.NewLine +
                     $"    trigger = {{ {localisation.LanguageGameId} = {{ owns_state = {gameId.Id} }} }}" + Environment.NewLine +
                     $"    mean_time_to_happen = {{ days = 3 }}" + Environment.NewLine +
-                    $"    immediate = {{ hidden_effect = {{ {gameId.Id} = {{ set_state_name = \"{localisation.Name}\" }} }} }}" + Environment.NewLine +
+                    $"    immediate = {{ hidden_effect = {{ {gameId.Id} = {{ set_state_name = \"{name}\" }} }} }}" + Environment.NewLine +
                     $"    option = {{ name = {eventId}.option }}" + Environment.NewLine +
                     $"}}" + Environment.NewLine;
 
