@@ -1,9 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 using NuciDAL.Repositories;
 
@@ -21,10 +16,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         protected override string OutputLandedTitlesFileName => "swmh_landed_titles.txt";
 
         public CK2HIPModBuilder(
+            ILocalisationFetcher localisationFetcher,
+            INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, outputSettings)
+            : base(
+                localisationFetcher,
+                nameNormaliser,
+                languageRepository,
+                locationRepository,
+                outputSettings)
         {
         }
 

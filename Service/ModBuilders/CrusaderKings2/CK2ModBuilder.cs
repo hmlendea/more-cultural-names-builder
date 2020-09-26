@@ -22,12 +22,20 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected virtual string OutputLandedTitlesFileName => "landed_titles.txt";
 
+        readonly ILocalisationFetcher localisationFetcher;
+        readonly INameNormaliser nameNormaliser;
+
         public CK2ModBuilder(
+            ILocalisationFetcher localisationFetcher,
+            INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             OutputSettings outputSettings)
             : base(languageRepository, locationRepository, outputSettings)
         {
+            this.localisationFetcher = localisationFetcher;
+            this.nameNormaliser = nameNormaliser;
+            
             EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(encodingProvider);
         }
@@ -148,14 +156,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         string GetTitleLocalisationsContent(string line, string gameId)
         {
-            IEnumerable<Localisation> localisations = GetGameLocationLocalisations(gameId);
+            IEnumerable<Localisation> localisations = localisationFetcher.GetGameLocationLocalisations(gameId, Game);
 
             string indentation = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "\t";
             List<string> lines = new List<string>();
 
             foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageId))
             {
-                string transliteratedName = GetWindows1252Name(localisation.Name);
+                string transliteratedName = nameNormaliser.ToWindows1252(localisation.Name);
                 lines.Add($"{indentation}{localisation.LanguageId} = \"{transliteratedName}\"");
             }
 

@@ -15,17 +15,21 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 {
     public sealed class CK3ModBuilder : ModBuilder, ICK3ModBuilder
     {
-        public override string Game => "CK3";
-
         const string LandedTitlesFileName = "999_MoreCulturalNames.txt";
         const string NewLine = "\r\n";
 
+        public override string Game => "CK3";
+
+        readonly ILocalisationFetcher localisationFetcher;
+
         public CK3ModBuilder(
+            ILocalisationFetcher localisationFetcher,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             OutputSettings outputSettings)
             : base(languageRepository, locationRepository, outputSettings)
         {
+            this.localisationFetcher = localisationFetcher;
         }
 
         protected override void BuildMod()
@@ -89,7 +93,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
         string AddLocalisationsToTitle(string landedTitlesFile, string gameId)
         {
-            IEnumerable<Localisation> localisations = GetGameLocationLocalisations(gameId);
+            IEnumerable<Localisation> localisations = localisationFetcher.GetGameLocationLocalisations(gameId, Game);
 
             if (!localisations.Any())
             {
