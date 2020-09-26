@@ -16,9 +16,15 @@ namespace MoreCulturalNamesModBuilder.Service
         {
             string processedName = name;
 
-            processedName = Regex.Replace(processedName, "[Ț]", "T");
+            processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
+            processedName = Regex.Replace(processedName, "[Ə]", "E");
+            processedName = Regex.Replace(processedName, "[ƘḲ]", "K");
+            processedName = Regex.Replace(processedName, "[ȚṬТ]", "T");
             processedName = Regex.Replace(processedName, "[Ș]", "Ş");
-            processedName = Regex.Replace(processedName, "[ț]", "ț");
+            processedName = Regex.Replace(processedName, "[ḃḅ]", "b");
+            processedName = Regex.Replace(processedName, "[еə]", "e");
+            processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
+            processedName = Regex.Replace(processedName, "[țṭ]", "t");
             processedName = Regex.Replace(processedName, "[ș]", "ş");
 
             return processedName;

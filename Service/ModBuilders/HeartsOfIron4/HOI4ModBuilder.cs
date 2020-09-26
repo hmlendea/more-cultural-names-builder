@@ -13,7 +13,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 {
     public sealed class HOI4ModBuilder : ModBuilder, IHOI4ModBuilder
     {
-        const string EventsFileName = "MoreCulturalNames.txt";
+        const string EventsFileName = "873_MoreCulturalNames.txt";
 
         public override string Game => "HOI4";
 
@@ -85,9 +85,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
         {
             IEnumerable<Localisation> stateLocalisations = localisationFetcher.GetGameLocationLocalisations(stateGameId.Id, Game);
 
-
             string entireContent = $"##### MCN ##### State={stateGameId.Id}" + Environment.NewLine;
-            Console.WriteLine(stateGameId.Id);
 
             IEnumerable<GameId> cityGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
@@ -99,9 +97,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                 string stateName = nameNormaliser.ToHOI4(stateLocalisation.Name);
 
                 string eventContent =
-                    $"# State={stateGameId.Id}, Country={stateLocalisation.LanguageGameId}, " +
-                    $"InGameName=\"{stateName}\", RealName=\"{stateLocalisation.Name}\", " +
-                    $"Event={eventId}" + Environment.NewLine +
+                    $"# Event={eventId}, State={stateGameId.Id}, Country={stateLocalisation.LanguageGameId}, Name=\"{stateName}\"";
+
+                if (stateName != stateLocalisation.Name)
+                {
+                    eventContent += $" # {stateLocalisation.Name}";
+                }
+
+                eventContent += Environment.NewLine +
                     $"country_event = {{" + Environment.NewLine +
                     $"    id = {eventId}" + Environment.NewLine +
                     $"    title = {eventId}.title" + Environment.NewLine +
@@ -127,7 +130,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
                     string cityName = nameNormaliser.ToHOI4(cityLocalisation.Name);
                     
-                    eventContent += $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}" + Environment.NewLine;
+                    eventContent += $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }}";
+                    
+                    if (cityName != cityLocalisation.Name)
+                    {
+                        eventContent += " # {cityLocalisation.Name}";
+                    }
+
+                    eventContent += Environment.NewLine;
                 }
 
                 eventContent +=
