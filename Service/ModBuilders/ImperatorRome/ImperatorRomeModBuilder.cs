@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,7 +18,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
     {
         public override string Game => "ImperatorRome";
 
-        IEnumerable<string> cultureIds;
         IDictionary<string, IDictionary<string, Localisation>> localisations;
             
         readonly ILocalisationFetcher localisationFetcher;
@@ -30,6 +30,23 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             : base(languageRepository, locationRepository, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
+        }
+
+        protected override void LoadData()
+        {
+            ConcurrentDictionary<string, IDictionary<string, Localisation>> concurrentLocalisations =
+                new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
+
+            Parallel.ForEach(locationGameIds, locationGameId =>
+            {
+                IDictionary<string, Localisation> locationLocalisations = localisationFetcher
+                    .GetGameLocationLocalisations(locationGameId.Id, Game)
+                    .ToDictionary(x => x.LanguageGameId, x => x);
+
+                concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
+            });
+
+            localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
         }
 
         protected override void BuildMod()
@@ -50,49 +67,24 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             CreateDescriptorFiles();
         }
 
-        void LoadData()
-        {
-            IEnumerable<GameId> locationGameIds = locations.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game);
-
-            cultureIds = languages.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
-                .Select(x => x.Id)
-                .OrderBy(x => x)
-                .Distinct();
-            
-            localisations = new Dictionary<string, IDictionary<string, Localisation>>();
-
-            Parallel.ForEach(locationGameIds, locationGameId =>
-            {
-                IDictionary<string, Localisation> locationLocalisations = localisationFetcher
-                    .GetGameLocationLocalisations(locationGameId.Id, Game)
-                    .ToDictionary(x => x.LanguageGameId, x => x);
-
-                localisations.Add(locationGameId.Id, locationLocalisations);
-            });
-        }
-
         void CreateDataFiles(string provinceNamesDirectoryPath)
         {
-            foreach (string culture in cultureIds)
+            foreach (GameId languageGameId in languageGameIds)
             {
-                string path = Path.Combine(provinceNamesDirectoryPath, $"{culture.ToLower()}.txt");
-                string content = $"{culture} = {{" + Environment.NewLine;
+                string path = Path.Combine(provinceNamesDirectoryPath, $"{languageGameId.Id.ToLower()}.txt");
+                string content = $"{languageGameId.Id} = {{" + Environment.NewLine;
 
                 foreach (string provinceId in localisations.Keys)
                 {
-                    if (!localisations[provinceId].ContainsKey(culture))
+                    if (!localisations[provinceId].ContainsKey(languageGameId.Id))
                     {
                         continue;
                     }
 
-                    Localisation localisation = localisations[provinceId][culture];
+                    Localisation localisation = localisations[provinceId][languageGameId.Id];
 
                     content +=
-                        $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{culture}" +
+                        $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{languageGameId.Id}" +
                         $" # {localisation.Name}" + Environment.NewLine;
                 }
 

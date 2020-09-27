@@ -43,33 +43,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             this.nameNormaliser = nameNormaliser;
         }
 
-        protected override void BuildMod()
-        {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId);
-            string eventsDirectoryPath = Path.Combine(mainDirectoryPath, "events");
-
-            Directory.CreateDirectory(mainDirectoryPath);
-            Directory.CreateDirectory(eventsDirectoryPath);
-
-            LoadData();
-
-            CreateDescriptorFiles();
-            CreateEventsFile(eventsDirectoryPath);
-        }
-
-        void CreateDescriptorFiles()
-        {
-            string mainDescriptorContent = GenerateMainDescriptorContent();
-            string innerDescriptorContent = GenerateInnerDescriptorContent();
-
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.HOI4ModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId, $"descriptor.mod");
-
-            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
-            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
-        }
-
-        void LoadData()
+        protected override void LoadData()
         {
             countryTags = languages.Values
                 .SelectMany(x => x.GameIds)
@@ -110,6 +84,32 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
                 cityLocalisations.Add(cityGameId.Id, localisations);
             }
+        }
+
+        protected override void BuildMod()
+        {
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId);
+            string eventsDirectoryPath = Path.Combine(mainDirectoryPath, "events");
+
+            Directory.CreateDirectory(mainDirectoryPath);
+            Directory.CreateDirectory(eventsDirectoryPath);
+
+            LoadData();
+
+            CreateDescriptorFiles();
+            CreateEventsFile(eventsDirectoryPath);
+        }
+
+        void CreateDescriptorFiles()
+        {
+            string mainDescriptorContent = GenerateMainDescriptorContent();
+            string innerDescriptorContent = GenerateInnerDescriptorContent();
+
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.HOI4ModId}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId, $"descriptor.mod");
+
+            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
+            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
         void CreateEventsFile(string eventsDirectoryPath)

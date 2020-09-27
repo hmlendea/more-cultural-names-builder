@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -46,6 +47,18 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             
             EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(encodingProvider);
+        }
+
+        protected override void LoadData()
+        {
+            ConcurrentDictionary<string, IEnumerable<Localisation>> concurrentLocalisations = new ConcurrentDictionary<string, IEnumerable<Localisation>>();
+
+            Parallel.ForEach(locationGameIds, locationGameId =>
+            {
+                concurrentLocalisations.TryAdd(locationGameId.Id, localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Game));
+            });
+
+            localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
         }
 
         protected override void BuildMod()
@@ -115,20 +128,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 RegexOptions.Multiline);
         }
 
-        void LoadData()
-        {
-            IEnumerable<GameId> locationGameIds = locations.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game);
-            
-            localisations = new Dictionary<string, IEnumerable<Localisation>>();
-
-            Parallel.ForEach(locationGameIds, locationGameId =>
-            {
-                localisations.TryAdd(locationGameId.Id, localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Game));
-            });
-        }
-
         void CreateDescriptorFiles()
         {
             string mainDescriptorContent = GenerateMainDescriptorContent();
@@ -143,8 +142,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         void CreateDataFiles(string landedTitlesDirectoryPath)
         {
-            List<Localisation> localisations = GetLocalisations();
-            
             string content = BuildLandedTitlesFile();
             WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
         }
