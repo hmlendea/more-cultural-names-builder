@@ -51,11 +51,13 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected override void LoadData()
         {
-            ConcurrentDictionary<string, IEnumerable<Localisation>> concurrentLocalisations = new ConcurrentDictionary<string, IEnumerable<Localisation>>();
+            ConcurrentDictionary<string, IEnumerable<Localisation>> concurrentLocalisations =
+                new ConcurrentDictionary<string, IEnumerable<Localisation>>();
 
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
-                concurrentLocalisations.TryAdd(locationGameId.Id, localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Game));
+                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Game);
+                concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
             });
 
             localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);

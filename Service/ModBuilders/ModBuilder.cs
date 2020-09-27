@@ -58,14 +58,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         {
             locations = locationRepository
                 .GetAll()
-                .OrderBy(x => x.Id)
                 .ToServiceModels()
+                .OrderBy(x => x.Id)
                 .ToDictionary(key => key.Id, val => val);
 
             languages = languageRepository
                 .GetAll()
-                .OrderBy(x => x.Id)
                 .ToServiceModels()
+                .OrderBy(x => x.Id)
                 .ToDictionary(key => key.Id, val => val);
 
             locationGameIds = locations.Values
