@@ -61,7 +61,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
         }
 
-        protected override void BuildMod()
+        protected override void GenerateFiles()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, ModId);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");

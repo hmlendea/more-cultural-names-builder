@@ -86,7 +86,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             }
         }
 
-        protected override void BuildMod()
+        protected override void GenerateFiles()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId);
             string eventsDirectoryPath = Path.Combine(mainDirectoryPath, "events");

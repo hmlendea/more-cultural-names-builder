@@ -43,17 +43,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         public void Build()
         {
-            Console.WriteLine($"Started building for {Game}...");
 
-            Console.WriteLine($"   > Loading data...");
-            LoadAllData();
-            Console.WriteLine($"   > Building...");
-            BuildMod();
+            Console.WriteLine($" > Building the mod for {Game}...");
 
-            Console.WriteLine($"Finished building for {Game}!");
+            StartTimedOperation("Fetching the data", () => LoadAllData());
+            StartTimedOperation("Generating the files", () => GenerateFiles());
         }
 
-        protected abstract void BuildMod();
+        protected abstract void GenerateFiles();
 
         protected abstract void LoadData();
 
@@ -84,6 +81,19 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .ToList();
 
             LoadData();
+        }
+
+        void StartTimedOperation(string message, Action operation)
+        {
+            Console.Write($"   > {message}...");
+
+            DateTime start = DateTime.Now;
+            operation();
+            DateTime finish = DateTime.Now;
+
+            TimeSpan duration = finish - start;
+
+            Console.WriteLine($" (Finished in {Math.Round(duration.TotalSeconds)}s)");
         }
     }
 }

@@ -49,7 +49,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
         }
 
-        protected override void BuildMod()
+        protected override void GenerateFiles()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId);
             string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localization");
