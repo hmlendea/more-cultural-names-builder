@@ -43,33 +43,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             this.nameNormaliser = nameNormaliser;
         }
 
-        protected override void BuildMod()
-        {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId);
-            string eventsDirectoryPath = Path.Combine(mainDirectoryPath, "events");
-
-            Directory.CreateDirectory(mainDirectoryPath);
-            Directory.CreateDirectory(eventsDirectoryPath);
-
-            LoadData();
-
-            CreateDescriptorFiles();
-            CreateEventsFile(eventsDirectoryPath);
-        }
-
-        void CreateDescriptorFiles()
-        {
-            string mainDescriptorContent = GenerateMainDescriptorContent();
-            string innerDescriptorContent = GenerateInnerDescriptorContent();
-
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.HOI4ModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId, $"descriptor.mod");
-
-            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
-            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
-        }
-
-        void LoadData()
+        protected override void LoadData()
         {
             countryTags = languages.Values
                 .SelectMany(x => x.GameIds)
@@ -112,13 +86,39 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             }
         }
 
+        protected override void GenerateFiles()
+        {
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId);
+            string eventsDirectoryPath = Path.Combine(mainDirectoryPath, "events");
+
+            Directory.CreateDirectory(mainDirectoryPath);
+            Directory.CreateDirectory(eventsDirectoryPath);
+
+            LoadData();
+
+            CreateDescriptorFiles();
+            CreateEventsFile(eventsDirectoryPath);
+        }
+
+        void CreateDescriptorFiles()
+        {
+            string mainDescriptorContent = GenerateMainDescriptorContent();
+            string innerDescriptorContent = GenerateInnerDescriptorContent();
+
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.HOI4ModId}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId, $"descriptor.mod");
+
+            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
+            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
+        }
+
         void CreateEventsFile(string eventsDirectoryPath)
         {
             string eventsFilePath = Path.Combine(eventsDirectoryPath, EventsFileName);
 
             IList<string> eventContents = new List<string>();
             
-            foreach (GameId gameLocationId in stateGameIds.Where(x => x.Type == "State"))
+            foreach (GameId gameLocationId in stateGameIds.OrderBy(x => int.Parse(x.Id)))
             {
                 string locationEvents = GenerateStateEvents(gameLocationId);
 
@@ -162,10 +162,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
             if (!(stateLocalisation is null))
             {
-                stateName = nameNormaliser.ToHOI4(stateLocalisation.Name);
+                stateName = nameNormaliser.ToHOI4Charset(stateLocalisation.Name);
                 
-                eventContent += $", Name=\"{stateName}\"";
-                nameSetsEventContent += $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }}" + Environment.NewLine;
+                eventContent += $", LocalisedName=\"{stateName}\"";
+                nameSetsEventContent +=
+                    $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }}" + 
+                    $" # Name={stateLocalisation.Name}, Language={stateLocalisation.LanguageId}" + Environment.NewLine;
 
                 if (stateName != stateLocalisation.Name)
                 {
@@ -189,7 +191,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             
             if (!EnumerableExt.IsNullOrEmpty(currentStateCities))
             {
-                foreach (GameId cityGameId in currentStateCities)
+                foreach (GameId cityGameId in currentStateCities.OrderBy(x => int.Parse(x.Id)))
                 {
                     Localisation cityLocalisation = cityLocalisations
                         .TryGetValue(cityGameId.Id)
@@ -200,16 +202,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                         continue;
                     }
 
-                    string cityName = nameNormaliser.ToHOI4(cityLocalisation.Name);
+                    string cityName = nameNormaliser.ToHOI4Charset(cityLocalisation.Name);
                     
-                    nameSetsEventContent += $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }}";
-                    
-                    if (cityName != cityLocalisation.Name)
-                    {
-                        nameSetsEventContent += " # {cityLocalisation.Name}";
-                    }
-
-                    nameSetsEventContent += Environment.NewLine;
+                    nameSetsEventContent +=
+                        $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }}" +
+                        $" # Name={cityLocalisation.Name}, Language={cityLocalisation.LanguageId}" + Environment.NewLine;
                 }
             }
 

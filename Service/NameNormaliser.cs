@@ -6,15 +6,33 @@ namespace MoreCulturalNamesModBuilder.Service
     public sealed class NameNormaliser : INameNormaliser
     {
         ConcurrentDictionary<string, string> windows1252cache;
+        ConcurrentDictionary<string, string> ck3cache;
         ConcurrentDictionary<string, string> hoi4cache;
 
         public NameNormaliser()
         {
             windows1252cache = new ConcurrentDictionary<string, string>();
+            ck3cache = new ConcurrentDictionary<string, string>();
             hoi4cache = new ConcurrentDictionary<string, string>();
         }
 
-        public string ToHOI4(string name)
+        public string ToCK3Charset(string name)
+        {
+            string processedName = name;
+
+            if (ck3cache.ContainsKey(name))
+            {
+                return ck3cache[name];
+            }
+
+            processedName = Regex.Replace(processedName, "[ɬ]", "ł");
+
+            ck3cache.TryAdd(name, processedName);
+
+            return processedName;
+        }
+
+        public string ToHOI4Charset(string name)
         {
             string processedName = name;
 
@@ -31,6 +49,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ḃḅ]", "b");
             processedName = Regex.Replace(processedName, "[еə]", "e");
             processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
+            processedName = Regex.Replace(processedName, "[ɬ]", "ł");
             processedName = Regex.Replace(processedName, "[țṭ]", "t");
             processedName = Regex.Replace(processedName, "[ș]", "ş");
 
@@ -83,6 +102,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ī]", "ï");
             processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
             processedName = Regex.Replace(processedName, "[ł]", "l");
+            processedName = Regex.Replace(processedName, "[ɬ]", "thl");
             processedName = Regex.Replace(processedName, "[ń]", "n");
             processedName = Regex.Replace(processedName, "[ō]", "ö");
             processedName = Regex.Replace(processedName, "[ř]", "rz");

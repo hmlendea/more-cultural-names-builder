@@ -28,6 +28,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         protected IDictionary<string, Location> locations;
         protected IDictionary<string, Language> languages;
 
+        protected IEnumerable<GameId> locationGameIds;
+        protected IEnumerable<GameId> languageGameIds;
+
         public ModBuilder(
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
@@ -35,9 +38,24 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         {
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;
-
             this.outputSettings = outputSettings;
+        }
 
+        public void Build()
+        {
+
+            Console.WriteLine($" > Building the mod for {Game}...");
+
+            StartTimedOperation("Fetching the data", () => LoadAllData());
+            StartTimedOperation("Generating the files", () => GenerateFiles());
+        }
+
+        protected abstract void GenerateFiles();
+
+        protected abstract void LoadData();
+
+        void LoadAllData()
+        {
             locations = locationRepository
                 .GetAll()
                 .ToServiceModels()
@@ -47,77 +65,33 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .GetAll()
                 .ToServiceModels()
                 .ToDictionary(key => key.Id, val => val);
-        }
 
-        public void Build()
-        {
-            Console.WriteLine($"Started building for {Game}...");
-
-            BuildMod();
-
-            Console.WriteLine($"Finished building for {Game}!");
-        }
-
-        protected virtual void BuildMod()
-        {
-
-        }
-
-        protected List<Localisation> GetLocalisations()
-        {
-            IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
-            IEnumerable<Language> languages = languageRepository.GetAll().ToServiceModels();
-
-            List<Localisation> localisations = new List<Localisation>();
-
-            foreach (Location location in locations.Where(x => x.GameIds.Any(y => y.Game == Game)))
-            {
-                List<Localisation> locationLocalisations = GetLocationLocalisations(location.Id);
-                localisations.AddRange(locationLocalisations);
-            }
-
-            return localisations
-                .OrderBy(x => x.LocationGameId.PadLeft(64, ' '))
-                .ThenBy(x => x.LanguageId)
+            locationGameIds = locations.Values
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game)
+                .OrderBy(x => x.Id)
                 .ToList();
+
+            languageGameIds = languages.Values
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game)
+                .OrderBy(x => x.Id)
+                .ToList();
+
+            LoadData();
         }
 
-        protected virtual List<Localisation> GetLocationLocalisations(string locationId)
+        void StartTimedOperation(string message, Action operation)
         {
-            List<Localisation> localisations = new List<Localisation>();
-            Location location = locationRepository.Get(locationId).ToServiceModel();
-            IEnumerable<Language> languages = languageRepository.GetAll().ToServiceModels();
+            Console.Write($"   > {message}...");
 
-            foreach (Language language in languages.Where(x => x.GameIds.Any(y => y.Game == Game)))
-            {
-                List<string> languagesToCheck = new List<string>() { language.Id };
-                languagesToCheck.AddRange(language.FallbackLanguages);
+            DateTime start = DateTime.Now;
+            operation();
+            DateTime finish = DateTime.Now;
 
-                foreach (string languageIdToCheck in languagesToCheck)
-                {
-                    LocationName locationName = location.Names.FirstOrDefault(x => x.LanguageId == languageIdToCheck);
+            TimeSpan duration = finish - start;
 
-                    if (!(locationName is null))
-                    {
-                        foreach (GameId locationGameId in location.GameIds.Where(x => x.Game == Game))
-                        {
-                            foreach (GameId languageGameId in language.GameIds.Where(x => x.Game == Game))
-                            {
-                                Localisation localisation = new Localisation();
-                                localisation.LocationGameId = locationGameId.Id;
-                                localisation.LanguageGameId = languageGameId.Id;
-                                localisation.Name = locationName.Value;
-
-                                localisations.Add(localisation);
-                            }
-                        }
-
-                        break;
-                    }
-                }
-            }
-
-            return localisations;
+            Console.WriteLine($" (Finished in {Math.Round(duration.TotalSeconds)}s)");
         }
     }
 }

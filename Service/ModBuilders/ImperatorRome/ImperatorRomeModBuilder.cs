@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 
@@ -16,15 +18,38 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
     {
         public override string Game => "ImperatorRome";
 
+        IDictionary<string, IDictionary<string, Localisation>> localisations;
+            
+        readonly ILocalisationFetcher localisationFetcher;
+
         public ImperatorRomeModBuilder(
+            ILocalisationFetcher localisationFetcher,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             OutputSettings outputSettings)
             : base(languageRepository, locationRepository, outputSettings)
         {
+            this.localisationFetcher = localisationFetcher;
         }
 
-        protected override void BuildMod()
+        protected override void LoadData()
+        {
+            ConcurrentDictionary<string, IDictionary<string, Localisation>> concurrentLocalisations =
+                new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
+
+            Parallel.ForEach(locationGameIds, locationGameId =>
+            {
+                IDictionary<string, Localisation> locationLocalisations = localisationFetcher
+                    .GetGameLocationLocalisations(locationGameId.Id, Game)
+                    .ToDictionary(x => x.LanguageGameId, x => x);
+
+                concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
+            });
+
+            localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        protected override void GenerateFiles()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId);
             string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localization");
@@ -32,11 +57,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             string provinceNamesDirectoryPath = Path.Combine(commonDirectoryPath, "province_names");
 
             Directory.CreateDirectory(mainDirectoryPath);
+            Directory.CreateDirectory(commonDirectoryPath);
             Directory.CreateDirectory(localisationDirectoryPath);
             Directory.CreateDirectory(provinceNamesDirectoryPath);
 
-            Directory.CreateDirectory(commonDirectoryPath);
-
+            LoadData();
             CreateDataFiles(provinceNamesDirectoryPath);
             CreateLocalisationFiles(localisationDirectoryPath);
             CreateDescriptorFiles();
@@ -44,18 +69,23 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
         void CreateDataFiles(string provinceNamesDirectoryPath)
         {
-            List<Localisation> localisations = GetLocalisations();
-
-            foreach (string culture in localisations.Select(x => x.LanguageGameId).Distinct())
+            foreach (GameId languageGameId in languageGameIds)
             {
-                string path = Path.Combine(provinceNamesDirectoryPath, $"{culture.ToLower()}.txt");
-                string content = $"{culture} = {{" + Environment.NewLine;
+                string path = Path.Combine(provinceNamesDirectoryPath, $"{languageGameId.Id.ToLower()}.txt");
+                string content = $"{languageGameId.Id} = {{" + Environment.NewLine;
 
-                foreach (Localisation localisation in localisations.Where(x => x.LanguageGameId == culture))
+                foreach (string provinceId in localisations.Keys.OrderBy(x => int.Parse(x)))
                 {
+                    if (!localisations[provinceId].ContainsKey(languageGameId.Id))
+                    {
+                        continue;
+                    }
+
+                    Localisation localisation = localisations[provinceId][languageGameId.Id];
+
                     content +=
-                        $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{culture}" +
-                        $" # {localisation.Name}" + Environment.NewLine;
+                        $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{languageGameId.Id}" +
+                        $" # Name={localisation.Name}, Language={localisation.LanguageId}" + Environment.NewLine;
                 }
 
                 content += "}";
@@ -95,12 +125,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
         string GenerateLocalisationFileContent(string language)
         {
-            List<Localisation> localisations = GetLocalisations();
             string content = $"l_{language}:{Environment.NewLine}";
 
-            foreach(Localisation localisation in localisations)
+            foreach (string provinceId in localisations.Keys.OrderBy(x => int.Parse(x)))
             {
-                content += $" PROV{localisation.LocationGameId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"{Environment.NewLine}";
+                foreach (string culture in localisations[provinceId].Keys.OrderBy(x => x))
+                {
+                    Localisation localisation = localisations[provinceId][culture];
+                    content +=
+                        $" PROV{provinceId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"" +
+                        $" # Language={localisation.LanguageId}" + Environment.NewLine;
+                }
             }
 
             return content;
@@ -115,6 +150,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         string GenerateInnerDescriptorContent()
         {
             return
+                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine +
                 $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
                 $"supported_version=\"{outputSettings.CK3GameVersion}\"" + Environment.NewLine +
