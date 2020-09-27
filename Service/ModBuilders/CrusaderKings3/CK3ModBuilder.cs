@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
+using NuciExtensions;
 
 using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
@@ -20,6 +22,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         public override string Game => "CK3";
 
         readonly ILocalisationFetcher localisationFetcher;
+
+        IDictionary<string, IEnumerable<Localisation>> localisations;
 
         public CK3ModBuilder(
             ILocalisationFetcher localisationFetcher,
@@ -42,8 +46,23 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
             Directory.CreateDirectory(commonDirectoryPath);
 
+            LoadData();
             CreateDataFiles(landedTitlesDirectoryPath);
             CreateDescriptorFiles();
+        }
+
+        void LoadData()
+        {
+            IEnumerable<GameId> locationGameIds = locations.Values
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game);
+            
+            localisations = new Dictionary<string, IEnumerable<Localisation>>();
+
+            Parallel.ForEach(locationGameIds, locationGameId =>
+            {
+                localisations.TryAdd(locationGameId.Id, localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Game));
+            });
         }
 
         void CreateDataFiles(string landedTitlesDirectoryPath)
@@ -76,15 +95,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             string landedTitlesFile = ReadLandedTitlesFile();
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
 
+            List<string> content = new List<string> { string.Empty };
             List<string> landedTitlesFileLines = landedTitlesFile.Split('\n').ToList();
             landedTitlesFileLines.Add(string.Empty);
 
-            IEnumerable<GameId> gameLocationIds = locations.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
-                .OrderBy(x => x.Id);
+            List<string> forbiddenTokensForPreviousLine = new List<string> { "allow", "dejure_liege_title", "gain_effect", "limit", "trigger" };
+            List<string> forbiddenTokensForNextLine = new List<string> { "any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change" };
+            
+            string forbiddenTokensForPreviousLinePattern = "^.*" + string.Join('|', forbiddenTokensForPreviousLine) + ".*$";
+            string forbiddenTokensForNextLinePattern = "^.*" + string.Join('|', forbiddenTokensForNextLine) + ".*$";
 
-            List<string> content = new List<string> { string.Empty };
 
             for (int i = 0; i < landedTitlesFileLines.Count - 1; i++)
             {
@@ -108,7 +128,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 {
                     continue;
                 }
-
                 Console.WriteLine(titleId);
 
                 string titleLocalisationsContent = GetTitleLocalisationsContent(line, titleId);
@@ -124,9 +143,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
         string GetTitleLocalisationsContent(string line, string gameId)
         {
-            IEnumerable<Localisation> localisations = localisationFetcher.GetGameLocationLocalisations(gameId, Game);
+            IEnumerable<Localisation> titleLocalisations = localisations.TryGetValue(gameId);
 
-            if (localisations.Count() == 0)
+            if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
             {
                 return null;
             }
@@ -137,7 +156,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
             lines.Add($"{indentation1}cultural_names = {{");
 
-            foreach (Localisation localisation in localisations.OrderBy(x => x.LanguageId))
+            foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
                 lines.Add($"{indentation2}{localisation.LanguageGameId} = \"{localisation.Name}\"");
             }

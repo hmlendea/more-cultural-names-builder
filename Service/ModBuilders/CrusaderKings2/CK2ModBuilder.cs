@@ -166,7 +166,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         {
             IEnumerable<Localisation> titleLocalisations = localisations.TryGetValue(gameId);
 
-            if (titleLocalisations is null)
+            if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
             {
                 return null;
             }
