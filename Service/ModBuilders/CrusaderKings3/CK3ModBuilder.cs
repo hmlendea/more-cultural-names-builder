@@ -85,6 +85,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             return string.Join(Environment.NewLine, lines);
         }
 
+        protected override string ReadLandedTitlesFile(string filePath)
+        {
+            return File.ReadAllText(filePath);
+        }
+
+        protected override void WriteLandedTitlesFile(string filePath, string content)
+        {
+            File.WriteAllText(filePath, content);
+        }
+
         protected override string DoCleanLandedTitlesFile(string content)
         {
             return Regex.Replace( // Remove empty cultural_names blocks
@@ -92,18 +102,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
                 "",
                 RegexOptions.Multiline);
-        }
-
-        string ReadLandedTitlesFile()
-        {
-            return File.ReadAllText(Path.Combine(ApplicationPaths.DataDirectory, InputLandedTitlesFileName));
-        }
-
-        void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
-        {
-            string filePath = Path.Combine(landedTitlesDirectoryPath, OutputLandedTitlesFileName);
-
-            File.WriteAllText(filePath, content);
         }
     }
 }

@@ -112,14 +112,24 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             return string.Join(Environment.NewLine, lines);
         }
 
+        protected virtual string ReadLandedTitlesFile(string filePath)
+        {
+            Encoding encoding = Encoding.GetEncoding("windows-1252");
+            
+            return File.ReadAllText(filePath, encoding);
+        }
+
+        protected virtual void WriteLandedTitlesFile(string filePath, string content)
+        {
+            Encoding encoding = Encoding.GetEncoding("windows-1252");
+            byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
+            
+            File.WriteAllBytes(filePath, contentBytes);
+        }
+
         protected virtual string DoCleanLandedTitlesFile(string content)
         {
-            IEnumerable<GameId> gameLanguageIds = languages.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
-                .OrderBy(x => x.Id);
-
-            string culturesPattern = string.Join('|', gameLanguageIds.Select(x => x.Id));
+            string culturesPattern = string.Join('|', languageGameIds.Select(x => x.Id));
 
             return Regex.Replace( // Break inline cultural name into multiple lines
                 content,
@@ -142,8 +152,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         void CreateDataFiles(string landedTitlesDirectoryPath)
         {
-            string content = BuildLandedTitlesFile();
-            WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
+            string landedTitlesFileContent = BuildLandedTitlesFile();
+            string landedTitlesFilePath = Path.Combine(landedTitlesDirectoryPath, OutputLandedTitlesFileName);
+
+            WriteLandedTitlesFile(landedTitlesFilePath, landedTitlesFileContent);
         }
 
         string BuildLandedTitlesFile()
@@ -192,17 +204,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         string CleanLandedTitlesFile(string content)
         {
-            IEnumerable<GameId> gameLanguageIds = languages.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
-                .OrderBy(x => x.Id);
+            string culturesPattern = string.Join('|', languageGameIds.Select(x => x.Id));
 
-            string culturesPattern = string.Join('|', gameLanguageIds.Select(x => x.Id));
-
-            string newContent = content;
+            string newContent = content.Replace("\r", ""); // Remove carriage returns
             newContent = Regex.Replace(newContent, "\\t", "    ", RegexOptions.Multiline); // Replace tabs
             newContent = Regex.Replace(newContent, "\\s*=\\s*", " = ", RegexOptions.Multiline); // Standardise spacings aroung equals
-            newContent = Regex.Replace(newContent, "\\s*#[^\r\n]*", "", RegexOptions.Multiline); // Remove comments
+            newContent = Regex.Replace(newContent, "\\s*#[^\n]*", "", RegexOptions.Multiline); // Remove comments
             newContent = Regex.Replace(newContent, "^\\s*\n", "", RegexOptions.Multiline); // Remove empty/whitespace lines
             newContent = Regex.Replace(newContent, "\\s+$", "", RegexOptions.Multiline); // Remove trailing whitespaces
 
@@ -214,7 +221,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             
             newContent = Regex.Replace( // Remove cultural names
                 newContent,
-                "^\\s*(" + culturesPattern + ")\\s*=\\s*\"*[^\"\r\n]*\"*[^\r\n]*\r*\n",
+                "^\\s*(" + culturesPattern + ")\\s*=\\s*\"*[^\"\n]*\"*[^\n]*\n",
                 "",
                 RegexOptions.Multiline);
 
@@ -225,26 +232,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 RegexOptions.Multiline);
             
             newContent = DoCleanLandedTitlesFile(newContent);
-            newContent = newContent.Replace("\r", "");
             
             return newContent;
-        }
-
-        string ReadLandedTitlesFile(string filePath)
-        {
-            Encoding encoding = Encoding.GetEncoding("windows-1252");
-            
-            return File.ReadAllText(filePath, encoding);
-        }
-
-        void WriteLandedTitlesFile(string content, string landedTitlesDirectoryPath)
-        {
-            string filePath = Path.Combine(landedTitlesDirectoryPath, OutputLandedTitlesFileName);
-
-            Encoding encoding = Encoding.GetEncoding("windows-1252");
-            byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
-            
-            File.WriteAllBytes(filePath, contentBytes);
         }
     }
 }
