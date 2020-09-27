@@ -11,7 +11,6 @@ using NuciExtensions;
 
 using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
-using MoreCulturalNamesModBuilder.Service.Mapping;
 using MoreCulturalNamesModBuilder.Service.Models;
 
 namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
@@ -21,9 +20,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         public override string Game => "CK2";
 
         protected virtual string InputLandedTitlesFileName => "ck2_landed_titles.txt";
-
         protected virtual string OutputLandedTitlesFileName => "landed_titles.txt";
 
+        protected virtual List<string> ForbiddenTokensForPreviousLine => new List<string>
+            { "allow", "dejure_liege_title", "gain_effect", "limit", "trigger" };
+
+        protected virtual List<string> ForbiddenTokensForNextLine => new List<string>
+            { "any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change" };
+            
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
 
@@ -51,8 +55,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
 
             Directory.CreateDirectory(mainDirectoryPath);
-            Directory.CreateDirectory(landedTitlesDirectoryPath);
             Directory.CreateDirectory(commonDirectoryPath);
+            Directory.CreateDirectory(landedTitlesDirectoryPath);
 
             LoadData();
             CreateDataFiles(landedTitlesDirectoryPath);
@@ -74,6 +78,43 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 $"path = \"mod/{outputSettings.CK2ModId}\"";
         }
 
+        protected virtual string GetTitleLocalisationsContent(string line, string gameId)
+        {
+            IEnumerable<Localisation> titleLocalisations = localisations.TryGetValue(gameId);
+
+            if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
+            {
+                return null;
+            }
+
+            string indentation = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "    ";
+            List<string> lines = new List<string>();
+
+            foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageGameId))
+            {
+                string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
+                lines.Add($"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\"");
+            }
+
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        protected virtual string DoCleanLandedTitlesFile(string content)
+        {
+            IEnumerable<GameId> gameLanguageIds = languages.Values
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game)
+                .OrderBy(x => x.Id);
+
+            string culturesPattern = string.Join('|', gameLanguageIds.Select(x => x.Id));
+
+            return Regex.Replace( // Break inline cultural name into multiple lines
+                content,
+                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
+                "$1$2 = {\n$1\t$3\n$1}",
+                RegexOptions.Multiline);
+        }
+
         void LoadData()
         {
             IEnumerable<GameId> locationGameIds = locations.Values
@@ -88,21 +129,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             });
         }
 
-        void CreateDataFiles(string landedTitlesDirectoryPath)
-        {
-            List<Localisation> localisations = GetLocalisations();
-
-            Dictionary<string, List<Localisation>> localisationsByLocation = localisations
-                .GroupBy(x => x.LocationGameId)
-                .OrderBy(x => x.Key)
-                .ToDictionary(x => x.Key, x => x.ToList());
-
-            IEnumerable<Location> locations = locationRepository.GetAll().ToServiceModels();
-            
-            string content = BuildLandedTitlesFile();
-            WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
-        }
-
         void CreateDescriptorFiles()
         {
             string mainDescriptorContent = GenerateMainDescriptorContent();
@@ -115,20 +141,25 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
+        void CreateDataFiles(string landedTitlesDirectoryPath)
+        {
+            List<Localisation> localisations = GetLocalisations();
+            
+            string content = BuildLandedTitlesFile();
+            WriteLandedTitlesFile(content, landedTitlesDirectoryPath);
+        }
+
         string BuildLandedTitlesFile()
         {
             string landedTitlesFile = ReadLandedTitlesFile(Path.Combine(ApplicationPaths.DataDirectory, InputLandedTitlesFileName));
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
-
+            
             List<string> content = new List<string> { string.Empty };
             List<string> landedTitlesFileLines = landedTitlesFile.Split('\n').ToList();
             landedTitlesFileLines.Add(string.Empty);
 
-            List<string> forbiddenTokensForPreviousLine = new List<string> { "allow", "dejure_liege_title", "gain_effect", "limit", "trigger" };
-            List<string> forbiddenTokensForNextLine = new List<string> { "any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change" };
-            
-            string forbiddenTokensForPreviousLinePattern = "^.*" + string.Join('|', forbiddenTokensForPreviousLine) + ".*$";
-            string forbiddenTokensForNextLinePattern = "^.*" + string.Join('|', forbiddenTokensForNextLine) + ".*$";
+            string forbiddenTokensForPreviousLinePattern = "^.*" + string.Join('|', ForbiddenTokensForPreviousLine) + ".*$";
+            string forbiddenTokensForNextLinePattern = "^.*" + string.Join('|', ForbiddenTokensForNextLine) + ".*$";
 
             for (int i = 0; i < landedTitlesFileLines.Count - 1; i++)
             {
@@ -160,27 +191,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             }
 
             return string.Join(Environment.NewLine, content.Skip(1));
-        }
-
-        string GetTitleLocalisationsContent(string line, string gameId)
-        {
-            IEnumerable<Localisation> titleLocalisations = localisations.TryGetValue(gameId);
-
-            if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
-            {
-                return null;
-            }
-
-            string indentation = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "    ";
-            List<string> lines = new List<string>();
-
-            foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageGameId))
-            {
-                string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
-                lines.Add($"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\"");
-            }
-
-            return string.Join(Environment.NewLine, lines);
         }
 
         string CleanLandedTitlesFile(string content)
@@ -216,7 +226,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 "(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}",
                 "$1$2\n$1}",
                 RegexOptions.Multiline);
-
+            
+            newContent = DoCleanLandedTitlesFile(newContent);
             newContent = newContent.Replace("\r", "");
             
             return newContent;

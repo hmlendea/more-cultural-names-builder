@@ -12,7 +12,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         public override string Game => "CK2HIP";
 
         protected override string InputLandedTitlesFileName => "ck2hip_landed_titles.txt";
-
         protected override string OutputLandedTitlesFileName => "swmh_landed_titles.txt";
 
         public CK2HIPModBuilder(
