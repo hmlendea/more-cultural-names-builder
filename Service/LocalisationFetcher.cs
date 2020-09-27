@@ -61,25 +61,23 @@ namespace MoreCulturalNamesModBuilder.Service
             
             Parallel.ForEach(languageGameIds, languageGameId => 
             {
-                string name = GetLocationName(location, languageGameId.Value);
-                
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    Localisation localisation = new Localisation();
-                    localisation.LocationId = location.Id;
-                    localisation.LocationGameId = locationGameId;
-                    localisation.LanguageId = languageGameId.Value;
-                    localisation.LanguageGameId = languageGameId.Key;
-                    localisation.Name = name;
+                Localisation localisation = GetLocationLocalisation(location, languageGameId.Value);
 
-                    localisations.Add(localisation);
+                if (localisation is null)
+                {
+                    return;
                 }
+                
+                localisation.LocationGameId = locationGameId;
+                localisation.LanguageGameId = languageGameId.Key;
+
+                localisations.Add(localisation);
             });
 
             return localisations;
         }
 
-        string GetLocationName(Location location, string languageId)
+        Localisation GetLocationLocalisation(Location location, string languageId)
         {
             if (location.IsEmpty())
             {
@@ -102,7 +100,12 @@ namespace MoreCulturalNamesModBuilder.Service
                     {
                         if (name.LanguageId == languageIdToCheck)
                         {
-                            return name.Value;
+                            Localisation localisation = new Localisation();
+                            localisation.LocationId = locationIdToCheck;
+                            localisation.LanguageId = languageIdToCheck;
+                            localisation.Name = name.Value;
+
+                            return localisation;
                         }
                     }
                 }
