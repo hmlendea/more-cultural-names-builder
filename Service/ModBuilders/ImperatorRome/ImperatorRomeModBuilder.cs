@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 
@@ -16,12 +17,19 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
     {
         public override string Game => "ImperatorRome";
 
+        IEnumerable<string> cultureIds;
+        IDictionary<string, IDictionary<string, Localisation>> localisations;
+            
+        readonly ILocalisationFetcher localisationFetcher;
+
         public ImperatorRomeModBuilder(
+            ILocalisationFetcher localisationFetcher,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             OutputSettings outputSettings)
             : base(languageRepository, locationRepository, outputSettings)
         {
+            this.localisationFetcher = localisationFetcher;
         }
 
         protected override void BuildMod()
@@ -32,27 +40,57 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             string provinceNamesDirectoryPath = Path.Combine(commonDirectoryPath, "province_names");
 
             Directory.CreateDirectory(mainDirectoryPath);
+            Directory.CreateDirectory(commonDirectoryPath);
             Directory.CreateDirectory(localisationDirectoryPath);
             Directory.CreateDirectory(provinceNamesDirectoryPath);
 
-            Directory.CreateDirectory(commonDirectoryPath);
-
+            LoadData();
             CreateDataFiles(provinceNamesDirectoryPath);
             CreateLocalisationFiles(localisationDirectoryPath);
             CreateDescriptorFiles();
         }
 
+        void LoadData()
+        {
+            IEnumerable<GameId> locationGameIds = locations.Values
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game);
+
+            cultureIds = languages.Values
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game)
+                .Select(x => x.Id)
+                .OrderBy(x => x)
+                .Distinct();
+            
+            localisations = new Dictionary<string, IDictionary<string, Localisation>>();
+
+            Parallel.ForEach(locationGameIds, locationGameId =>
+            {
+                IDictionary<string, Localisation> locationLocalisations = localisationFetcher
+                    .GetGameLocationLocalisations(locationGameId.Id, Game)
+                    .ToDictionary(x => x.LanguageGameId, x => x);
+
+                localisations.Add(locationGameId.Id, locationLocalisations);
+            });
+        }
+
         void CreateDataFiles(string provinceNamesDirectoryPath)
         {
-            List<Localisation> localisations = GetLocalisations();
-
-            foreach (string culture in localisations.Select(x => x.LanguageGameId).Distinct())
+            foreach (string culture in cultureIds)
             {
                 string path = Path.Combine(provinceNamesDirectoryPath, $"{culture.ToLower()}.txt");
                 string content = $"{culture} = {{" + Environment.NewLine;
 
-                foreach (Localisation localisation in localisations.Where(x => x.LanguageGameId == culture))
+                foreach (string provinceId in localisations.Keys)
                 {
+                    if (!localisations[provinceId].ContainsKey(culture))
+                    {
+                        continue;
+                    }
+
+                    Localisation localisation = localisations[provinceId][culture];
+
                     content +=
                         $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{culture}" +
                         $" # {localisation.Name}" + Environment.NewLine;
@@ -95,12 +133,15 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
         string GenerateLocalisationFileContent(string language)
         {
-            List<Localisation> localisations = GetLocalisations();
             string content = $"l_{language}:{Environment.NewLine}";
 
-            foreach(Localisation localisation in localisations)
+            foreach (string provinceId in localisations.Keys)
             {
-                content += $" PROV{localisation.LocationGameId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"{Environment.NewLine}";
+                foreach (string culture in localisations[provinceId].Keys)
+                {
+                    Localisation localisation = localisations[provinceId][culture];
+                    content += $" PROV{provinceId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"{Environment.NewLine}";
+                }
             }
 
             return content;
