@@ -2,7 +2,9 @@ namespace MoreCulturalNamesModBuilder.Service
 {
     public interface INameNormaliser
     {
-        string ToHOI4(string name);
+        string ToHOI4Charset(string name);
+        
+        string ToCK3Charset(string name);
         
         string ToWindows1252(string name);
     }

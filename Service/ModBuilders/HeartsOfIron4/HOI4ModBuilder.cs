@@ -162,7 +162,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
             if (!(stateLocalisation is null))
             {
-                stateName = nameNormaliser.ToHOI4(stateLocalisation.Name);
+                stateName = nameNormaliser.ToHOI4Charset(stateLocalisation.Name);
                 
                 eventContent += $", Name=\"{stateName}\"";
                 nameSetsEventContent += $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }}" + Environment.NewLine;
@@ -200,7 +200,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                         continue;
                     }
 
-                    string cityName = nameNormaliser.ToHOI4(cityLocalisation.Name);
+                    string cityName = nameNormaliser.ToHOI4Charset(cityLocalisation.Name);
                     
                     nameSetsEventContent += $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }}";
                     

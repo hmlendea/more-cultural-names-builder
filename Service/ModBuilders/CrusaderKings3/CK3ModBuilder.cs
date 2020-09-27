@@ -25,7 +25,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         protected override List<string> ForbiddenTokensForPreviousLine => new List<string> { "allow", "limit", "trigger" };
         protected override List<string> ForbiddenTokensForNextLine => new List<string> { "has_holder" };
 
-        IDictionary<string, IEnumerable<Localisation>> localisations;
+        readonly INameNormaliser nameNormaliser;
 
         public CK3ModBuilder(
             ILocalisationFetcher localisationFetcher,
@@ -35,6 +35,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             OutputSettings outputSettings)
             : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, outputSettings)
         {
+            this.nameNormaliser = nameNormaliser;
         }
 
         protected override string GenerateMainDescriptorContent()
@@ -57,7 +58,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 $"    \"Translation\"" + Environment.NewLine +
                 $"}}";
         }
-        
+
         protected override string GetTitleLocalisationsContent(string line, string gameId)
         {
             IEnumerable<Localisation> titleLocalisations = localisations.TryGetValue(gameId);
@@ -75,7 +76,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
-                lines.Add($"{indentation2}{localisation.LanguageGameId} = \"{localisation.Name}\"");
+                string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
+                lines.Add($"{indentation2}{localisation.LanguageGameId} = \"{normalisedName}\"");
             }
 
             lines.Add($"{indentation1}}}");

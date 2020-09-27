@@ -31,7 +31,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
 
-        IDictionary<string, IEnumerable<Localisation>> localisations;
+        protected IDictionary<string, IEnumerable<Localisation>> localisations;
 
         public CK2ModBuilder(
             ILocalisationFetcher localisationFetcher,
