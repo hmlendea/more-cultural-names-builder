@@ -85,7 +85,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
                     content +=
                         $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{languageGameId.Id}" +
-                        $" # {localisation.Name}" + Environment.NewLine;
+                        $" # Name={localisation.Name}, Language={localisation.LanguageId}" + Environment.NewLine;
                 }
 
                 content += "}";

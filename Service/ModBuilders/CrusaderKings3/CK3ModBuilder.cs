@@ -77,7 +77,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
                 string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
-                lines.Add($"{indentation2}{localisation.LanguageGameId} = \"{normalisedName}\"");
+                lines.Add($"{indentation2}{localisation.LanguageGameId} = \"{normalisedName}\" # Language={localisation.LanguageId}");
             }
 
             lines.Add($"{indentation1}}}");

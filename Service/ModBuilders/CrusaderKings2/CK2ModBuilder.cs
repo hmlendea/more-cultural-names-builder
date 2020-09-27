@@ -108,7 +108,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageGameId))
             {
                 string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
-                lines.Add($"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\"");
+                lines.Add($"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\" # Language={localisation.LanguageId}");
             }
 
             return string.Join(Environment.NewLine, lines);

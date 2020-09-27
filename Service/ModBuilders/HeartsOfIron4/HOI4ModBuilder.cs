@@ -164,8 +164,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             {
                 stateName = nameNormaliser.ToHOI4Charset(stateLocalisation.Name);
                 
-                eventContent += $", Name=\"{stateName}\"";
-                nameSetsEventContent += $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }}" + Environment.NewLine;
+                eventContent += $", LocalisedName=\"{stateName}\"";
+                nameSetsEventContent +=
+                    $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }}" + 
+                    $" # Name={stateLocalisation.Name}, Language={stateLocalisation.LanguageId}" + Environment.NewLine;
 
                 if (stateName != stateLocalisation.Name)
                 {
@@ -202,14 +204,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
                     string cityName = nameNormaliser.ToHOI4Charset(cityLocalisation.Name);
                     
-                    nameSetsEventContent += $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }}";
-                    
-                    if (cityName != cityLocalisation.Name)
-                    {
-                        nameSetsEventContent += " # {cityLocalisation.Name}";
-                    }
-
-                    nameSetsEventContent += Environment.NewLine;
+                    nameSetsEventContent +=
+                        $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }}" +
+                        $" # Name={cityLocalisation.Name}, Language={cityLocalisation.LanguageId}" + Environment.NewLine;
                 }
             }
 
