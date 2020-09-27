@@ -118,7 +118,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
             IList<string> eventContents = new List<string>();
             
-            foreach (GameId gameLocationId in stateGameIds.Where(x => x.Type == "State"))
+            foreach (GameId gameLocationId in stateGameIds.OrderBy(x => int.Parse(x.Id)))
             {
                 string locationEvents = GenerateStateEvents(gameLocationId);
 
@@ -191,7 +191,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             
             if (!EnumerableExt.IsNullOrEmpty(currentStateCities))
             {
-                foreach (GameId cityGameId in currentStateCities)
+                foreach (GameId cityGameId in currentStateCities.OrderBy(x => int.Parse(x.Id)))
                 {
                     Localisation cityLocalisation = cityLocalisations
                         .TryGetValue(cityGameId.Id)
