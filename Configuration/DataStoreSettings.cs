@@ -6,6 +6,8 @@ namespace MoreCulturalNamesModBuilder.Configuration
 
         public string LocationStorePath { get; set; }
 
+        public string TitleStorePath { get; set; }
+
         public string ModOutputDirectory { get; set; }
     }
 }

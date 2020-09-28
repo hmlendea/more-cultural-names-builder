@@ -24,6 +24,7 @@ namespace MoreCulturalNamesModBuilder
 
         static string[] LanguageStorePathOptions = { "--lang", "--languages" };
         static string[] LocationsStorePathOptions = { "--loc", "--locations" };
+        static string[] TitleStorePathOptions = { "-t", "--titles" };
         static string[] VersionOptions = { "-v", "--ver", "--version" };
         static string[] OutputDirectoryPathOptions = { "-o", "--out", "--output" };
 
@@ -40,6 +41,7 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton(outputSettings)
                 .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(dataStoreSettings.LanguageStorePath))
                 .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(dataStoreSettings.LocationStorePath))
+                .AddSingleton<IRepository<TitleEntity>>(s => new XmlRepository<TitleEntity>(dataStoreSettings.TitleStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()

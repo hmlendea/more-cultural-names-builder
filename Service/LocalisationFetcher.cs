@@ -96,7 +96,7 @@ namespace MoreCulturalNamesModBuilder.Service
             {
                 foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    foreach (LocationName name in locations[locationIdToCheck].Names)
+                    foreach (Name name in locations[locationIdToCheck].Names)
                     {
                         if (name.LanguageId == languageIdToCheck)
                         {

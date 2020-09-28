@@ -1,6 +1,6 @@
 namespace MoreCulturalNamesModBuilder.Service.Models
 {
-    public class LocationName
+    public class Name
     {
         public string LanguageId { get; set; }
 

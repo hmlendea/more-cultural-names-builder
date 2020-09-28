@@ -5,12 +5,10 @@ using NuciDAL.DataObjects;
 
 namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
 {
-    public class LocationEntity : EntityBase
+    public class TitleEntity : EntityBase
     {
-        public string GeoNamesId { get; set; }
-
-        [XmlArrayItem("LocationId")]
-        public List<string> FallbackLocations { get; set; }
+        [XmlArrayItem("TitleId")]
+        public List<string> FallbackTitles { get; set; }
 
         public List<GameIdEntity> GameIds { get; set; }
 
