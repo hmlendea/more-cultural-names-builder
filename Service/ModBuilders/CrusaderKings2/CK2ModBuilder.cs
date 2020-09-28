@@ -147,7 +147,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 }
             }
 
-            return string.Join(Environment.NewLine, lines.OrderBy(x => x));
+            lines = lines.OrderBy(x => x).ToList();
+            lines.Add(string.Empty);
+
+            return string.Join(Environment.NewLine, lines);
         }
 
         protected virtual string ReadLandedTitlesFile(string filePath)
@@ -184,7 +187,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             foreach (GameId languageGameId in languageGameIds)
             {
-                string filePath = Path.Combine(localisationsDirectoryPath, $"MCN_titles_{languageGameId.Id}.txt");
+                string filePath = Path.Combine(localisationsDirectoryPath, $"zzz_MCN_titles_{languageGameId.Id}.csv");
                 string content = GenerateTitlesLocalisationFile(languageGameId);
 
                 if (string.IsNullOrWhiteSpace(content))
