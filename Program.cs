@@ -78,6 +78,7 @@ namespace MoreCulturalNamesModBuilder
 
             dataStoreSettings.LanguageStorePath = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
             dataStoreSettings.LocationStorePath = CliArgumentsReader.GetOptionValue(args, LocationsStorePathOptions);
+            dataStoreSettings.TitleStorePath = CliArgumentsReader.GetOptionValue(args, TitleStorePathOptions);
             outputSettings.ModVersion = CliArgumentsReader.GetOptionValue(args, VersionOptions);
             outputSettings.ModOutputDirectory = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
         }

@@ -33,10 +33,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository,
             OutputSettings outputSettings)
             : base(
                 languageRepository,
                 locationRepository,
+                titleRepository,
                 outputSettings)
         {
             this.localisationFetcher = localisationFetcher;

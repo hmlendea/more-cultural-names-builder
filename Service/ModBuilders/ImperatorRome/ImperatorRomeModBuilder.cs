@@ -26,8 +26,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             ILocalisationFetcher localisationFetcher,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository,
             OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, outputSettings)
+            : base(languageRepository, locationRepository, titleRepository, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
         }

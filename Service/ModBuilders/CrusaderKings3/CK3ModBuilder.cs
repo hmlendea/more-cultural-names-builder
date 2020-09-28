@@ -32,8 +32,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository,
             OutputSettings outputSettings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, outputSettings)
+            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, outputSettings)
         {
             this.nameNormaliser = nameNormaliser;
         }

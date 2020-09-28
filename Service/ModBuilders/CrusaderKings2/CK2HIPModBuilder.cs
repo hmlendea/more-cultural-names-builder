@@ -19,12 +19,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository,
             OutputSettings outputSettings)
             : base(
                 localisationFetcher,
                 nameNormaliser,
                 languageRepository,
                 locationRepository,
+                titleRepository,
                 outputSettings)
         {
         }
