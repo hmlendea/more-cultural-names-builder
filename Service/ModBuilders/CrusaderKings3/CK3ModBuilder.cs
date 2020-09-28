@@ -104,5 +104,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 "",
                 RegexOptions.Multiline);
         }
+
+        protected override void CreateTitlesLocalisationFiles()
+        {
+            
+        }
     }
 }

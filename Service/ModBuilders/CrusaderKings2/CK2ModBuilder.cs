@@ -69,14 +69,18 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, ModId);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
+            string localisationsDirectoryPath = Path.Combine(mainDirectoryPath, "localisation");
 
             Directory.CreateDirectory(mainDirectoryPath);
             Directory.CreateDirectory(commonDirectoryPath);
             Directory.CreateDirectory(landedTitlesDirectoryPath);
+            Directory.CreateDirectory(localisationsDirectoryPath);
 
             LoadData();
-            CreateDataFiles(landedTitlesDirectoryPath);
+
             CreateDescriptorFiles();
+            CreateLandedTitlesFile(landedTitlesDirectoryPath);
+            CreateTitlesLocalisationFiles();
         }
 
         protected virtual string GenerateDescriptorContent()
@@ -115,6 +119,37 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             return string.Join(Environment.NewLine, lines);
         }
 
+        protected virtual string GenerateTitlesLocalisationFile(GameId languageGameId)
+        {
+            IList<string> lines = new List<string>();
+
+            foreach (Title title in titles.Values)
+            {
+                IEnumerable<GameId> titleGameIds = title.GameIds
+                    .Where(x => x.Game == Game)
+                    .OrderBy(x => x.Id);
+
+                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, Game);
+
+                if (localisation is null)
+                {
+                    continue;
+                }
+
+                foreach (GameId titleGameId in titleGameIds)
+                {
+                    string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
+                    string line =
+                        $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x" +
+                        $" # Language={localisation.LanguageId}";
+                    
+                    lines.Add(line);
+                }
+            }
+
+            return string.Join(Environment.NewLine, lines.OrderBy(x => x));
+        }
+
         protected virtual string ReadLandedTitlesFile(string filePath)
         {
             Encoding encoding = Encoding.GetEncoding("windows-1252");
@@ -124,10 +159,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected virtual void WriteLandedTitlesFile(string filePath, string content)
         {
-            Encoding encoding = Encoding.GetEncoding("windows-1252");
-            byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
-            
-            File.WriteAllBytes(filePath, contentBytes);
+            WriteWindows1252File(filePath, content);
+        }
+
+        protected virtual void WriteTitlesLocalisationFile(string filePath, string content)
+        {
+            WriteWindows1252File(filePath, content);
         }
 
         protected virtual string DoCleanLandedTitlesFile(string content)
@@ -139,6 +176,24 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
                 "$1$2 = {\n$1\t$3\n$1}",
                 RegexOptions.Multiline);
+        }
+
+        protected virtual void CreateTitlesLocalisationFiles()
+        {
+            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, ModId, "localisation");
+
+            foreach (GameId languageGameId in languageGameIds)
+            {
+                string filePath = Path.Combine(localisationsDirectoryPath, $"MCN_titles_{languageGameId.Id}.txt");
+                string content = GenerateTitlesLocalisationFile(languageGameId);
+
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    continue;
+                }
+
+                WriteTitlesLocalisationFile(filePath, content);
+            }
         }
 
         void CreateDescriptorFiles()
@@ -153,7 +208,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        void CreateDataFiles(string landedTitlesDirectoryPath)
+        void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
         {
             string landedTitlesFileContent = BuildLandedTitlesFile();
             string landedTitlesFilePath = Path.Combine(landedTitlesDirectoryPath, OutputLandedTitlesFileName);
@@ -237,6 +292,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             newContent = DoCleanLandedTitlesFile(newContent);
             
             return newContent;
+        }
+
+        void WriteWindows1252File(string filePath, string content)
+        {
+            Encoding encoding = Encoding.GetEncoding("windows-1252");
+            byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
+            
+            File.WriteAllBytes(filePath, contentBytes);
         }
     }
 }

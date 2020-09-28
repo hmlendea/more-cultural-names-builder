@@ -85,7 +85,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
                     Localisation localisation = localisations[provinceId][languageGameId.Id];
 
                     content +=
-                        $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{languageGameId.Id}" +
+                        $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id}" +
                         $" # Name={localisation.Name}, Language={localisation.LanguageId}" + Environment.NewLine;
                 }
 
