@@ -96,7 +96,10 @@ namespace MoreCulturalNamesModBuilder.Service
                 return null;
             }
 
-            Language language = languages.Values.First(x => x.GameIds.Any(y => y.Id == languageGameId));
+            Language language = languages.Values.
+                First(lang => lang.GameIds.Any(langGameId =>
+                    langGameId.Game == game &&
+                    langGameId.Id == languageGameId));
 
             List<string> titleIdsToCheck = new List<string>() { title.Id };
             List<string> languageIdsToCheck = new List<string>() { language.Id };
