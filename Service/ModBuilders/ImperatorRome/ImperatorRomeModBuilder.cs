@@ -154,7 +154,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
                 $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine +
                 $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
-                $"supported_version=\"{outputSettings.CK3GameVersion}\"" + Environment.NewLine +
+                $"supported_version=\"{outputSettings.ImperatorRomeGameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}";
