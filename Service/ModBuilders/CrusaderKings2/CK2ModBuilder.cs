@@ -69,12 +69,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, ModId);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
-            string localisationsDirectoryPath = Path.Combine(mainDirectoryPath, "localisation");
 
             Directory.CreateDirectory(mainDirectoryPath);
             Directory.CreateDirectory(commonDirectoryPath);
             Directory.CreateDirectory(landedTitlesDirectoryPath);
-            Directory.CreateDirectory(localisationsDirectoryPath);
 
             LoadData();
 
@@ -165,11 +163,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             WriteWindows1252File(filePath, content);
         }
 
-        protected virtual void WriteTitlesLocalisationFile(string filePath, string content)
-        {
-            WriteWindows1252File(filePath, content);
-        }
-
         protected virtual string DoCleanLandedTitlesFile(string content)
         {
             string culturesPattern = string.Join('|', languageGameIds.Select(x => x.Id));
@@ -195,7 +188,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                     continue;
                 }
 
-                WriteTitlesLocalisationFile(filePath, content);
+                WriteWindows1252File(filePath, content);
             }
         }
 

@@ -25,6 +25,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         protected override List<string> ForbiddenTokensForPreviousLine => new List<string> { "allow", "limit", "trigger" };
         protected override List<string> ForbiddenTokensForNextLine => new List<string> { "has_holder" };
 
+        readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
 
         public CK3ModBuilder(
@@ -36,6 +37,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             OutputSettings outputSettings)
             : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, outputSettings)
         {
+            this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
         }
 
@@ -105,9 +107,72 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 RegexOptions.Multiline);
         }
 
+        protected override string GenerateTitlesLocalisationFile(GameId languageGameId)
+        {
+            IList<string> lines = new List<string>();
+
+            foreach (Title title in titles.Values)
+            {
+                IEnumerable<GameId> titleGameIds = title.GameIds
+                    .Where(x => x.Game == Game)
+                    .OrderBy(x => x.Id);
+
+                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, Game);
+
+                if (localisation is null)
+                {
+                    continue;
+                }
+
+                foreach (GameId titleGameId in titleGameIds)
+                {
+                    string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
+                    string localisationKey = $"{titleGameId.Id}_{languageGameId.Id}";
+
+                    if (!string.IsNullOrWhiteSpace(titleGameId.Type))
+                    {
+                        localisationKey += $"_{titleGameId.Type}";
+                    }
+
+                    string line = $" {localisationKey}:0 \"{normalisedName}\" # Language={localisation.LanguageId}";
+                    
+                    lines.Add(line);
+                }
+            }
+
+            lines = lines.OrderBy(x => x).ToList();
+            lines.Add(string.Empty);
+
+            return string.Join(Environment.NewLine, lines);
+        }
+
         protected override void CreateTitlesLocalisationFiles()
         {
-            
+            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, ModId, "localization");
+
+            Directory.CreateDirectory(localisationsDirectoryPath);
+
+            List<string> localisationDirectories = new List<string> { "english", "french", "german", "spanish" };
+            localisationDirectories = localisationDirectories.Select(x => Path.Combine(localisationsDirectoryPath, x)).ToList();
+            localisationDirectories.ForEach(x => Directory.CreateDirectory(x));
+
+            foreach (GameId languageGameId in languageGameIds)
+            {
+                foreach (string localisationDirectory in localisationDirectories)
+                {
+                    string filePath = Path.Combine(localisationDirectory, $"873_MCN_titles_{languageGameId.Id}.yml");
+                    string content = GenerateTitlesLocalisationFile(languageGameId);
+
+                    if (string.IsNullOrWhiteSpace(content))
+                    {
+                        continue;
+                    }
+                    
+                    content = $"l_{localisationDirectory}:" + Environment.NewLine + content;
+
+                    File.WriteAllText(filePath, content);
+                }
+            }
         }
     }
 }
