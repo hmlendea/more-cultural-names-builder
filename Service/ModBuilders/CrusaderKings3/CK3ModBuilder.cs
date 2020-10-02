@@ -62,6 +62,25 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 $"}}";
         }
 
+        protected override string ReadLandedTitlesFile(string filePath)
+        {
+            return File.ReadAllText(filePath);
+        }
+
+        protected override void WriteLandedTitlesFile(string filePath, string content)
+        {
+            File.WriteAllText(filePath, content);
+        }
+
+        protected override string DoCleanLandedTitlesFile(string content)
+        {
+            return Regex.Replace( // Remove empty cultural_names blocks
+                content,
+                "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
+                "",
+                RegexOptions.Multiline);
+        }
+
         protected override string GetTitleLocalisationsContent(string line, string gameId)
         {
             IEnumerable<Localisation> titleLocalisations = localisations.TryGetValue(gameId);
@@ -88,95 +107,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             return string.Join(Environment.NewLine, lines);
         }
 
-        protected override string ReadLandedTitlesFile(string filePath)
-        {
-            return File.ReadAllText(filePath);
-        }
-
-        protected override void WriteLandedTitlesFile(string filePath, string content)
-        {
-            File.WriteAllText(filePath, content);
-        }
-
-        protected override string DoCleanLandedTitlesFile(string content)
-        {
-            return Regex.Replace( // Remove empty cultural_names blocks
-                content,
-                "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
-                "",
-                RegexOptions.Multiline);
-        }
-
+        // TODO: This shouldn't exist
         protected override string GenerateTitlesLocalisationFile(GameId languageGameId)
         {
-            IList<string> lines = new List<string>();
-
-            foreach (Title title in titles.Values)
-            {
-                IEnumerable<GameId> titleGameIds = title.GameIds
-                    .Where(x => x.Game == Game)
-                    .OrderBy(x => x.Id);
-
-                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, Game);
-
-                if (localisation is null)
-                {
-                    continue;
-                }
-
-                foreach (GameId titleGameId in titleGameIds)
-                {
-                    string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
-                    string localisationKey = $"{titleGameId.Id}_{languageGameId.Id}";
-
-                    if (!string.IsNullOrWhiteSpace(titleGameId.Type))
-                    {
-                        localisationKey += $"_{titleGameId.Type}";
-                    }
-
-                    string line = $" {localisationKey}:0 \"{normalisedName}\"";// # Language={localisation.LanguageId}";
-                    
-                    lines.Add(line);
-                }
-            }
-
-            lines = lines.OrderBy(x => x).ToList();
-            lines.Add(string.Empty);
-
-            return string.Join(Environment.NewLine, lines);
+            return null;
         }
 
+        // TODO: This shouldn't exist
         protected override void CreateTitlesLocalisationFiles()
         {
-            List<string> localisationLanguages = new List<string> { "english", "french", "german", "spanish" };
-            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, ModId, "localization");
-
-            Directory.CreateDirectory(localisationsDirectoryPath);
-
-            foreach (string localisationLanguage in localisationLanguages)
-            {
-                string localisationLanguageDirectoryPath = Path.Combine(localisationsDirectoryPath, localisationLanguage, "culture");
-                Directory.CreateDirectory(localisationLanguageDirectoryPath);
-            }
-
-            foreach (GameId languageGameId in languageGameIds)
-            {
-                string content = GenerateTitlesLocalisationFile(languageGameId);
-
-                if (string.IsNullOrWhiteSpace(content))
-                {
-                    continue;
-                }
-
-                foreach (string localisationLanguage in localisationLanguages)
-                {
-                    string fileName = $"mcn_titles_{languageGameId.Id}_l_{localisationLanguage}.yml";
-                    string filePath = Path.Combine(localisationsDirectoryPath, localisationLanguage, "culture", fileName);
-                    string fileContent = $"l_{localisationLanguage}:" + Environment.NewLine + content;
-
-                    File.WriteAllText(filePath, fileContent, Encoding.UTF8);
-                }
-            }
+            
         }
 
         void WriteFileWithByteOrderMark(string filePath, string content)
