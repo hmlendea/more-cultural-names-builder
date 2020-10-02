@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 using NuciExtensions;
@@ -134,7 +134,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                         localisationKey += $"_{titleGameId.Type}";
                     }
 
-                    string line = $" {localisationKey}:0 \"{normalisedName}\" # Language={localisation.LanguageId}";
+                    string line = $" {localisationKey}:0 \"{normalisedName}\"";// # Language={localisation.LanguageId}";
                     
                     lines.Add(line);
                 }
@@ -148,31 +148,40 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
         protected override void CreateTitlesLocalisationFiles()
         {
+            List<string> localisationLanguages = new List<string> { "english", "french", "german", "spanish" };
             string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, ModId, "localization");
 
             Directory.CreateDirectory(localisationsDirectoryPath);
 
-            List<string> localisationDirectories = new List<string> { "english", "french", "german", "spanish" };
-            localisationDirectories = localisationDirectories.Select(x => Path.Combine(localisationsDirectoryPath, x)).ToList();
-            localisationDirectories.ForEach(x => Directory.CreateDirectory(x));
+            foreach (string localisationLanguage in localisationLanguages)
+            {
+                string localisationLanguageDirectoryPath = Path.Combine(localisationsDirectoryPath, localisationLanguage, "culture");
+                Directory.CreateDirectory(localisationLanguageDirectoryPath);
+            }
 
             foreach (GameId languageGameId in languageGameIds)
             {
-                foreach (string localisationDirectory in localisationDirectories)
+                string content = GenerateTitlesLocalisationFile(languageGameId);
+
+                if (string.IsNullOrWhiteSpace(content))
                 {
-                    string filePath = Path.Combine(localisationDirectory, $"873_MCN_titles_{languageGameId.Id}.yml");
-                    string content = GenerateTitlesLocalisationFile(languageGameId);
+                    continue;
+                }
 
-                    if (string.IsNullOrWhiteSpace(content))
-                    {
-                        continue;
-                    }
-                    
-                    content = $"l_{localisationDirectory}:" + Environment.NewLine + content;
+                foreach (string localisationLanguage in localisationLanguages)
+                {
+                    string fileName = $"mcn_titles_{languageGameId.Id}_l_{localisationLanguage}.yml";
+                    string filePath = Path.Combine(localisationsDirectoryPath, localisationLanguage, "culture", fileName);
+                    string fileContent = $"l_{localisationLanguage}:" + Environment.NewLine + content;
 
-                    File.WriteAllText(filePath, content);
+                    File.WriteAllText(filePath, fileContent, Encoding.UTF8);
                 }
             }
+        }
+
+        void WriteFileWithByteOrderMark(string filePath, string content)
+        {
+            File.WriteAllText(filePath, content + '\uFEFF');
         }
     }
 }
