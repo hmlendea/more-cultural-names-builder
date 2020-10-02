@@ -177,6 +177,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         protected virtual void CreateTitlesLocalisationFiles()
         {
             string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, ModId, "localisation");
+            Directory.CreateDirectory(localisationsDirectoryPath);
 
             foreach (GameId languageGameId in languageGameIds)
             {
