@@ -22,22 +22,27 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected readonly IRepository<LanguageEntity> languageRepository;
         protected readonly IRepository<LocationEntity> locationRepository;
+        protected readonly IRepository<TitleEntity> titleRepository;
 
         protected readonly OutputSettings outputSettings;
         
         protected IDictionary<string, Location> locations;
         protected IDictionary<string, Language> languages;
+        protected IDictionary<string, Title> titles;
 
         protected IEnumerable<GameId> locationGameIds;
         protected IEnumerable<GameId> languageGameIds;
+        protected IEnumerable<GameId> titleGameIds;
 
         public ModBuilder(
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository,
             OutputSettings outputSettings)
         {
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;
+            this.titleRepository = titleRepository;
             this.outputSettings = outputSettings;
         }
 
@@ -66,6 +71,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .ToServiceModels()
                 .ToDictionary(key => key.Id, val => val);
 
+            titles = titleRepository
+                .GetAll()
+                .ToServiceModels()
+                .ToDictionary(key => key.Id, val => val);
+
             locationGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
                 .Where(x => x.Game == Game)
@@ -73,6 +83,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 .ToList();
 
             languageGameIds = languages.Values
+                .SelectMany(x => x.GameIds)
+                .Where(x => x.Game == Game)
+                .OrderBy(x => x.Id)
+                .ToList();
+
+            titleGameIds = titles.Values
                 .SelectMany(x => x.GameIds)
                 .Where(x => x.Game == Game)
                 .OrderBy(x => x.Id)

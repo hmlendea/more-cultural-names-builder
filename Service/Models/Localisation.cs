@@ -2,9 +2,9 @@ namespace MoreCulturalNamesModBuilder.Service.Models
 {
     public sealed class Localisation
     {
-        public string LocationId { get; set; }
+        public string Id { get; set; }
 
-        public string LocationGameId { get; set; }
+        public string GameId { get; set; }
 
         public string LanguageId { get; set; }
 

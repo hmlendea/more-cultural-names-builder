@@ -26,8 +26,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             ILocalisationFetcher localisationFetcher,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository,
             OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, outputSettings)
+            : base(languageRepository, locationRepository, titleRepository, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
         }
@@ -84,7 +85,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
                     Localisation localisation = localisations[provinceId][languageGameId.Id];
 
                     content +=
-                        $"    {localisation.LocationGameId} = PROV{localisation.LocationGameId}_{languageGameId.Id}" +
+                        $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id}" +
                         $" # Name={localisation.Name}, Language={localisation.LanguageId}" + Environment.NewLine;
                 }
 
@@ -153,7 +154,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
                 $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine +
                 $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
-                $"supported_version=\"{outputSettings.CK3GameVersion}\"" + Environment.NewLine +
+                $"supported_version=\"{outputSettings.ImperatorRomeGameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}";

@@ -3,18 +3,16 @@ using System.Linq;
 
 namespace MoreCulturalNamesModBuilder.Service.Models
 {
-    public sealed class Location
+    public sealed class Title
     {
         public string Id { get; set; }
 
-        public string GeoNamesId { get; set; }
-
         public IEnumerable<GameId> GameIds { get; set; }
 
-        public IEnumerable<string> FallbackLocations { get; set; }
+        public IEnumerable<string> FallbackTitles { get; set; }
 
         public IEnumerable<Name> Names { get; set; }
 
-        public bool IsEmpty() => Names.Count() == 0 && FallbackLocations.Count() == 0;
+        public bool IsEmpty() => Names.Count() == 0 && FallbackTitles.Count() == 0;
     }
 }

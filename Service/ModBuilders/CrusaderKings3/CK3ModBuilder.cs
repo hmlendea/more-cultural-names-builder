@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 using NuciExtensions;
@@ -25,6 +25,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         protected override List<string> ForbiddenTokensForPreviousLine => new List<string> { "allow", "limit", "trigger" };
         protected override List<string> ForbiddenTokensForNextLine => new List<string> { "has_holder" };
 
+        readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
 
         public CK3ModBuilder(
@@ -32,9 +33,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository,
             OutputSettings outputSettings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, outputSettings)
+            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, outputSettings)
         {
+            this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
         }
 
@@ -57,6 +60,25 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 $"    \"Map\"" + Environment.NewLine +
                 $"    \"Translation\"" + Environment.NewLine +
                 $"}}";
+        }
+
+        protected override string ReadLandedTitlesFile(string filePath)
+        {
+            return File.ReadAllText(filePath);
+        }
+
+        protected override void WriteLandedTitlesFile(string filePath, string content)
+        {
+            File.WriteAllText(filePath, content);
+        }
+
+        protected override string DoCleanLandedTitlesFile(string content)
+        {
+            return Regex.Replace( // Remove empty cultural_names blocks
+                content,
+                "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
+                "",
+                RegexOptions.Multiline);
         }
 
         protected override string GetTitleLocalisationsContent(string line, string gameId)
@@ -85,23 +107,21 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             return string.Join(Environment.NewLine, lines);
         }
 
-        protected override string ReadLandedTitlesFile(string filePath)
+        // TODO: This shouldn't exist
+        protected override string GenerateTitlesLocalisationFile(GameId languageGameId)
         {
-            return File.ReadAllText(filePath);
+            return null;
         }
 
-        protected override void WriteLandedTitlesFile(string filePath, string content)
+        // TODO: This shouldn't exist
+        protected override void CreateTitlesLocalisationFiles()
         {
-            File.WriteAllText(filePath, content);
+            
         }
 
-        protected override string DoCleanLandedTitlesFile(string content)
+        void WriteFileWithByteOrderMark(string filePath, string content)
         {
-            return Regex.Replace( // Remove empty cultural_names blocks
-                content,
-                "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
-                "",
-                RegexOptions.Multiline);
+            File.WriteAllText(filePath, content + '\uFEFF');
         }
     }
 }

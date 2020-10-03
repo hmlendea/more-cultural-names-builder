@@ -7,5 +7,7 @@ namespace MoreCulturalNamesModBuilder.Service
     public interface ILocalisationFetcher
     {
         IEnumerable<Localisation> GetGameLocationLocalisations(string locationGameId, string gameId);
+
+        Localisation GetTitleLocalisation(string titleId, string languageId, string game);
     }
 }

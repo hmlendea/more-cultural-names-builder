@@ -22,8 +22,9 @@ namespace MoreCulturalNamesModBuilder
         static DataStoreSettings dataStoreSettings = null;
         static OutputSettings outputSettings = null;
 
-        static string[] LanguageStorePathOptions = { "-l", "--languages" };
-        static string[] TitlesStorePathOptions = { "-t", "--titles" };
+        static string[] LanguageStorePathOptions = { "--lang", "--languages" };
+        static string[] LocationsStorePathOptions = { "--loc", "--locations" };
+        static string[] TitleStorePathOptions = { "-t", "--titles" };
         static string[] VersionOptions = { "-v", "--ver", "--version" };
         static string[] OutputDirectoryPathOptions = { "-o", "--out", "--output" };
 
@@ -39,7 +40,8 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton(dataStoreSettings)
                 .AddSingleton(outputSettings)
                 .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(dataStoreSettings.LanguageStorePath))
-                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(dataStoreSettings.TitleStorePath))
+                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(dataStoreSettings.LocationStorePath))
+                .AddSingleton<IRepository<TitleEntity>>(s => new XmlRepository<TitleEntity>(dataStoreSettings.TitleStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()
@@ -75,7 +77,8 @@ namespace MoreCulturalNamesModBuilder
             config.Bind(nameof(OutputSettings), outputSettings);
 
             dataStoreSettings.LanguageStorePath = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
-            dataStoreSettings.TitleStorePath = CliArgumentsReader.GetOptionValue(args, TitlesStorePathOptions);
+            dataStoreSettings.LocationStorePath = CliArgumentsReader.GetOptionValue(args, LocationsStorePathOptions);
+            dataStoreSettings.TitleStorePath = CliArgumentsReader.GetOptionValue(args, TitleStorePathOptions);
             outputSettings.ModVersion = CliArgumentsReader.GetOptionValue(args, VersionOptions);
             outputSettings.ModOutputDirectory = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
         }

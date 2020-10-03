@@ -15,18 +15,22 @@ namespace MoreCulturalNamesModBuilder.Service
     {
         readonly IRepository<LanguageEntity> languageRepository;
         readonly IRepository<LocationEntity> locationRepository;
+        readonly IRepository<TitleEntity> titleRepository;
 
         readonly ConcurrentDictionary<string, IDictionary<string, string>> languageGameIdsCache;
 
         IDictionary<string, Location> locations;
         IDictionary<string, Language> languages;
+        IDictionary<string, Title> titles;
 
         public LocalisationFetcher(
             IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository)
+            IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository)
         {
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;
+            this.titleRepository = titleRepository;
 
             languageGameIdsCache = new ConcurrentDictionary<string, IDictionary<string, string>>();
 
@@ -41,6 +45,11 @@ namespace MoreCulturalNamesModBuilder.Service
                 .ToDictionary(key => key.Id, val => val);
 
             languages = languageRepository
+                .GetAll()
+                .ToServiceModels()
+                .ToDictionary(key => key.Id, val => val);
+
+            titles = titleRepository
                 .GetAll()
                 .ToServiceModels()
                 .ToDictionary(key => key.Id, val => val);
@@ -68,13 +77,56 @@ namespace MoreCulturalNamesModBuilder.Service
                     return;
                 }
                 
-                localisation.LocationGameId = locationGameId;
+                localisation.GameId = locationGameId;
                 localisation.LanguageGameId = languageGameId.Key;
 
                 localisations.Add(localisation);
             });
 
             return localisations;
+        }
+
+        public Localisation GetTitleLocalisation(string titleId, string languageGameId, string game)
+        {
+            IList<Localisation> localisations = new List<Localisation>();
+            Title title = titles[titleId];
+
+            if (title.IsEmpty())
+            {
+                return null;
+            }
+
+            Language language = languages.Values.
+                First(lang => lang.GameIds.Any(langGameId =>
+                    langGameId.Game == game &&
+                    langGameId.Id == languageGameId));
+
+            List<string> titleIdsToCheck = new List<string>() { title.Id };
+            List<string> languageIdsToCheck = new List<string>() { language.Id };
+
+            titleIdsToCheck.AddRange(title.FallbackTitles);
+            languageIdsToCheck.AddRange(language.FallbackLanguages);
+
+            foreach (string titleIdToCheck in titleIdsToCheck)
+            {
+                foreach (string languageIdToCheck in languageIdsToCheck)
+                {
+                    foreach (Name name in titles[titleIdToCheck].Names)
+                    {
+                        if (name.LanguageId == languageIdToCheck)
+                        {
+                            Localisation localisation = new Localisation();
+                            localisation.Id = titleIdToCheck;
+                            localisation.LanguageId = languageIdToCheck;
+                            localisation.Name = name.Value;
+
+                            return localisation;
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         Localisation GetLocationLocalisation(Location location, string languageId)
@@ -96,12 +148,12 @@ namespace MoreCulturalNamesModBuilder.Service
             {
                 foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    foreach (LocationName name in locations[locationIdToCheck].Names)
+                    foreach (Name name in locations[locationIdToCheck].Names)
                     {
                         if (name.LanguageId == languageIdToCheck)
                         {
                             Localisation localisation = new Localisation();
-                            localisation.LocationId = locationIdToCheck;
+                            localisation.Id = locationIdToCheck;
                             localisation.LanguageId = languageIdToCheck;
                             localisation.Name = name.Value;
 

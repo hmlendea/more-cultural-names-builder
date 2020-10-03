@@ -3,14 +3,14 @@ using System.Xml.Serialization;
 namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
 {
     [XmlType("Name")]
-    public class LocationNameEntity
+    public class NameEntity
     {
-        public LocationNameEntity()
+        public NameEntity()
         {
 
         }
 
-        public LocationNameEntity(string language, string value)
+        public NameEntity(string language, string value)
         {
             LanguageId = language;
             Value = value;
