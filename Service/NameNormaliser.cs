@@ -72,6 +72,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[Ć]", "C");
             processedName = Regex.Replace(processedName, "[Č]", "Ch");
             processedName = Regex.Replace(processedName, "[ĐƊḌ]", "D");
+            processedName = Regex.Replace(processedName, "[Đ]", "Dj");
             processedName = Regex.Replace(processedName, "[Ē]", "Ë");
             processedName = Regex.Replace(processedName, "[ĘƏ]", "E");
             processedName = Regex.Replace(processedName, "[Ğ]", "G");
@@ -81,6 +82,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[Ł]", "L");
             processedName = Regex.Replace(processedName, "[Ń]", "N");
             processedName = Regex.Replace(processedName, "[Ō]", "Ö");
+            processedName = Regex.Replace(processedName, "[Ő]", "Õ");
             processedName = Regex.Replace(processedName, "[ȘŞṢŚ]", "S");
             processedName = Regex.Replace(processedName, "[ȚṬТ]", "T");
             processedName = Regex.Replace(processedName, "[Ť]", "Ty");
@@ -105,13 +107,14 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ɬ]", "thl");
             processedName = Regex.Replace(processedName, "[ń]", "n");
             processedName = Regex.Replace(processedName, "[ō]", "ö");
+            processedName = Regex.Replace(processedName, "[ő]", "õ");
             processedName = Regex.Replace(processedName, "[ř]", "rz");
             processedName = Regex.Replace(processedName, "[șşṣś]", "s");
             processedName = Regex.Replace(processedName, "[țṭ]", "t");
             processedName = Regex.Replace(processedName, "[ū]", "ü");
             processedName = Regex.Replace(processedName, "[źż]", "z");
 
-            processedName = Regex.Replace(processedName, "[ʻ]", "'");
+            processedName = Regex.Replace(processedName, "[ʻʿ]", "'");
 
             windows1252cache.TryAdd(name, processedName);
 
