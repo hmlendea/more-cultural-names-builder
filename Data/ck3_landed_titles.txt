@@ -1278,7 +1278,7 @@ e_britannia = {
 				b_furness = {
 					province = 1642
 
-					color = { 250 55 5 }
+					color = { 240 25 25 }
 					color2 = { 255 255 255 }
 				}
 			}
@@ -2002,7 +2002,7 @@ e_britannia = {
 				}
 			}
 			c_oxfordshire = {
-				color = { 184 21 0 }
+				color = { 255 115 15 }
 				color2 = { 255 255 255 }
 				
 				b_oxford = {
@@ -3838,25 +3838,25 @@ e_britannia = {
 
 
 			c_athlone = {
-				color = { 0 80 20 }
+				color = { 35 122 49 }
 				color2 = { 255 255 255 }
 
 				b_athlone = {
 					province = 34
 
-					color = { 55 250 85 }
+					color = { 35 122 49 }
 					color2 = { 255 255 255 }
 				}
 				b_birr = { #Historical note: monastery
 					province = 33
 
-					color = { 55 250 85 }
+					color = { 35 122 49 }
 					color2 = { 255 255 255 }
 				}
 				b_uisneach = {
 					province = 36
 
-					color = { 55 250 85 }
+					color = { 35 122 49 }
 					color2 = { 255 255 255 }
 				}
 			}
@@ -4347,10 +4347,14 @@ e_germany = {
 	capital = c_nassau
 
 	can_create = {
-		NOT = {
-			faith = {
-				religion_tag = christianity_religion
-				has_doctrine = doctrine_spiritual_head
+		custom_description = {
+			text = form_germania_christian_trigger
+			
+			NOT = {
+				faith = {
+					religion_tag = christianity_religion
+					has_doctrine = doctrine_spiritual_head
+				}
 			}
 		}
 	}
@@ -8095,7 +8099,7 @@ e_germany = {
 		}
 		
 		d_east_franconia = {
-			color = { 255 255 255 }
+			color = { 245 245 255 }
 			color2 = { 255 255 255 }
 			
 			capital = c_wurzburg #Würzburg
@@ -18280,7 +18284,7 @@ e_scandinavia = {
 				b_kungahalla = {
 					province = 318
 					
-					color = { 220 4 40 }
+					color = { 20 70 215 }
 					color2 = { 255 255 255 }
 				}
 				b_opensten = {
@@ -21596,13 +21600,6 @@ e_wendish_empire = {
 #		allow = {
 #			k_bohemia = { has_holder = no }
 #		}
-	}
-
-	k_winideheim = {
-		color = { 158 102 36 }
-		color2 = { 200 0 0 }
-
-		capital = c_praha # Praha
 	}
 
 	k_poland = {
@@ -35803,12 +35800,12 @@ e_tartaria = {
 					color = { 160 40 25 }
 					color2= { 255 255 255 }
 				}
-			}				
-			c_orenburg = {
+			}
+			c_orenburg = { #Or
 				color = { 170 53 43 }
 				color2 = { 255 255 255 }
 			
-				b_orenburg = {
+				b_orenburg = { #Or
 					province = 5501
 
 					color = { 170 53 43 }
@@ -36474,7 +36471,7 @@ e_tartaria = {
 				color = { 195 140 135 }
 				color2= { 255 255 255 }
 				
-				b_astana = {
+				b_astana = { #Akmola
 					province = 1435
 					
 					color = { 195 140 135 }
@@ -52329,7 +52326,7 @@ e_spain = {
 					color = { 175 75 15 }
 					color2 = { 255 255 255 }
 				}
-				b_miranda_do_duoro = {
+				b_miranda_do_duoro = { #Miranda do Douro
 					province = 1764
 
 					color = { 175 75 15 }
@@ -60714,7 +60711,7 @@ e_ajuraan = {
 				b_hudur = {
 					province = 8474
 
-					color = { 224 124 55 }
+					color = { 238 114 43 }
 					color2 = { 255 255 255 }
 				}
 			}
@@ -80065,10 +80062,22 @@ k_adiukru = {
 	color2 = { 255 255 255 }
 	
 	capital = c_attie
+	
+	can_create = { always = no }
 }
 k_toro = {
 	color = { 110 40 57 }
 	color2 = { 255 255 255 }
 	
 	capital = c_toro
+	
+	can_create = { always = no }
+}
+k_winideheim = {
+	color = { 158 102 36 }
+	color2 = { 200 0 0 }
+
+	capital = c_praha # Praha
+	
+	can_create = { always = no }
 }
