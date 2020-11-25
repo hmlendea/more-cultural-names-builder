@@ -195,14 +195,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         void CreateDescriptorFiles()
         {
-            string mainDescriptorContent = GenerateMainDescriptorContent();
-            string innerDescriptorContent = GenerateDescriptorContent();
+            string filePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
+            string content = GenerateMainDescriptorContent();
 
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, ModId, "descriptor.mod");
-
-            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
-            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
+            File.WriteAllText(filePath, content);
         }
 
         void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
