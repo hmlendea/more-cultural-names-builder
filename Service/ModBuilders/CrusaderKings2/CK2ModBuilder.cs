@@ -193,7 +193,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             }
         }
 
-        void CreateDescriptorFiles()
+        protected virtual void CreateDescriptorFiles()
         {
             string filePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
             string content = GenerateMainDescriptorContent();

@@ -119,6 +119,18 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             
         }
 
+        protected override void CreateDescriptorFiles()   
+        {	
+            string mainDescriptorContent = GenerateMainDescriptorContent();
+            string innerDescriptorContent = GenerateDescriptorContent();
+            
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, ModId, "descriptor.mod");	
+
+            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);	
+            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);	
+        }
+
         void WriteFileWithByteOrderMark(string filePath, string content)
         {
             File.WriteAllText(filePath, content + '\uFEFF');
