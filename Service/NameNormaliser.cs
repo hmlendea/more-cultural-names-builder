@@ -26,6 +26,8 @@ namespace MoreCulturalNamesModBuilder.Service
             }
 
             processedName = Regex.Replace(processedName, "[Ḗ]", "É");
+            processedName = Regex.Replace(processedName, "[Ḫ]", "H");
+            processedName = Regex.Replace(processedName, "[ḫ]", "h");
             processedName = Regex.Replace(processedName, "[ɬ]", "ł");
 
             ck3cache.TryAdd(name, processedName);
@@ -78,6 +80,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[Ḗ]", "É");
             processedName = Regex.Replace(processedName, "[ĘƏ]", "E");
             processedName = Regex.Replace(processedName, "[Ğ]", "G");
+            processedName = Regex.Replace(processedName, "[Ḫ]", "H");
             processedName = Regex.Replace(processedName, "[İ]", "I");
             processedName = Regex.Replace(processedName, "[Ī]", "Ï");
             processedName = Regex.Replace(processedName, "[ƘḲ]", "K");
@@ -102,6 +105,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ė]", "è");
             processedName = Regex.Replace(processedName, "[ęеə]", "e");
             processedName = Regex.Replace(processedName, "[ğ]", "g");
+            processedName = Regex.Replace(processedName, "[ḫ]", "h");
             processedName = Regex.Replace(processedName, "[ı]", "i");
             processedName = Regex.Replace(processedName, "[ī]", "ï");
             processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
