@@ -25,6 +25,7 @@ namespace MoreCulturalNamesModBuilder.Service
                 return ck3cache[name];
             }
 
+            processedName = Regex.Replace(processedName, "[Ḗ]", "É");
             processedName = Regex.Replace(processedName, "[ɬ]", "ł");
 
             ck3cache.TryAdd(name, processedName);
@@ -71,9 +72,10 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
             processedName = Regex.Replace(processedName, "[Ć]", "C");
             processedName = Regex.Replace(processedName, "[Č]", "Ch");
-            processedName = Regex.Replace(processedName, "[ĐƊḌ]", "D");
+            processedName = Regex.Replace(processedName, "[ƊḌ]", "D");
             processedName = Regex.Replace(processedName, "[Đ]", "Dj");
             processedName = Regex.Replace(processedName, "[Ē]", "Ë");
+            processedName = Regex.Replace(processedName, "[Ḗ]", "É");
             processedName = Regex.Replace(processedName, "[ĘƏ]", "E");
             processedName = Regex.Replace(processedName, "[Ğ]", "G");
             processedName = Regex.Replace(processedName, "[İ]", "I");
@@ -106,12 +108,13 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ł]", "l");
             processedName = Regex.Replace(processedName, "[ɬ]", "thl");
             processedName = Regex.Replace(processedName, "[ń]", "n");
-            processedName = Regex.Replace(processedName, "[ō]", "ö");
-            processedName = Regex.Replace(processedName, "[ő]", "õ");
+            processedName = Regex.Replace(processedName, "[ō]", "õ");
+            processedName = Regex.Replace(processedName, "[ő]", "ö");
             processedName = Regex.Replace(processedName, "[ř]", "rz");
             processedName = Regex.Replace(processedName, "[șşṣś]", "s");
             processedName = Regex.Replace(processedName, "[țṭ]", "t");
             processedName = Regex.Replace(processedName, "[ū]", "ü");
+            processedName = Regex.Replace(processedName, "[ύ]", "ú");
             processedName = Regex.Replace(processedName, "[źż]", "z");
 
             processedName = Regex.Replace(processedName, "[ʻʿ]", "'");
