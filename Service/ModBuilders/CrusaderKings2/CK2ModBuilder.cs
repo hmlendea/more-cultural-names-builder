@@ -148,6 +148,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                         $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x" +
                         $" # Language={localisation.LanguageId}";
                     
+                    if (!string.IsNullOrWhiteSpace(localisation.Comment))
+                    {
+                        line += $", Comment=${localisation.Comment}";
+                    }
+                    
                     lines.Add(line);
                 }
             }
