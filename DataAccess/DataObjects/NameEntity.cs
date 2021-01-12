@@ -24,5 +24,8 @@ namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
 
         [XmlAttribute("adjective")]
         public string Adjective { get; set; }
+
+        [XmlAttribute("comment")]
+        public string Comment { get; set; }
     }
 }

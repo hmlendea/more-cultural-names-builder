@@ -133,9 +133,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
                 foreach (string culture in localisations[provinceId].Keys.OrderBy(x => x))
                 {
                     Localisation localisation = localisations[provinceId][culture];
-                    content +=
-                        $" PROV{provinceId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"" +
-                        $" # Language={localisation.LanguageId}" + Environment.NewLine;
+
+                    string provinceLocalisationDefinition = $" PROV{provinceId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"";
+                    string comment = $"Language={localisation.LanguageId}";
+
+                    if (!string.IsNullOrWhiteSpace(localisation.Comment))
+                    {
+                        comment += $", Comment={localisation.Comment}";
+                    }
+
+                    content += $"{provinceLocalisationDefinition} # {comment}{Environment.NewLine}";
                 }
             }
 
