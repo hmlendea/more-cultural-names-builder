@@ -19,7 +19,7 @@ namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
         [XmlAttribute("language")]
         public string LanguageId { get; set; }
 
-        [XmlText]
+        [XmlAttribute("value")]
         public string Value { get; set; }
     }
 }
