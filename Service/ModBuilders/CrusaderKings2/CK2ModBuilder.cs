@@ -111,7 +111,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageGameId))
             {
                 string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
-                lines.Add($"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\" # Language={localisation.LanguageId}");
+                string lineToAdd = $"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\" # Language={localisation.LanguageId}";
+
+                if (!string.IsNullOrWhiteSpace(localisation.Comment))
+                {
+                    lineToAdd += $", Comment={localisation.Comment}";
+                }
+
+                lines.Add(lineToAdd);
             }
 
             return string.Join(Environment.NewLine, lines);
@@ -140,6 +147,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                     string line =
                         $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x" +
                         $" # Language={localisation.LanguageId}";
+                    
+                    if (!string.IsNullOrWhiteSpace(localisation.Comment))
+                    {
+                        line += $", Comment=${localisation.Comment}";
+                    }
                     
                     lines.Add(line);
                 }

@@ -20,6 +20,11 @@ namespace MoreCulturalNamesModBuilder.Service
         {
             string processedName = name;
 
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return string.Empty;
+            }
+
             if (ck3cache.ContainsKey(name))
             {
                 return ck3cache[name];
@@ -38,6 +43,11 @@ namespace MoreCulturalNamesModBuilder.Service
         public string ToHOI4Charset(string name)
         {
             string processedName = name;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return string.Empty;
+            }
 
             if (hoi4cache.ContainsKey(name))
             {
@@ -64,6 +74,11 @@ namespace MoreCulturalNamesModBuilder.Service
         public string ToWindows1252(string name)
         {
             string processedName = name;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return string.Empty;
+            }
 
             if (windows1252cache.ContainsKey(name))
             {
