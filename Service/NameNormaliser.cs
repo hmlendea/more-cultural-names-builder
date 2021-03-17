@@ -34,6 +34,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[Ḫ]", "H");
             processedName = Regex.Replace(processedName, "[ḫ]", "h");
             processedName = Regex.Replace(processedName, "[ɬ]", "ł");
+            processedName = Regex.Replace(processedName, "[ṓ]", "ö");
 
             ck3cache.TryAdd(name, processedName);
 
