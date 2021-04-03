@@ -150,16 +150,6 @@ namespace MoreCulturalNamesModBuilder.Service
         {
             string processedName = name;
 
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return string.Empty;
-            }
-
-            if (windows1252cache.ContainsKey(name))
-            {
-                return windows1252cache[name];
-            }
-
             processedName = Regex.Replace(processedName, "[α]", "a");
             processedName = Regex.Replace(processedName, "[ὰ]", "à");
             processedName = Regex.Replace(processedName, "[ά]", "á");
@@ -170,8 +160,6 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ό]", "ó");
             processedName = Regex.Replace(processedName, "[ύ]", "ú");
             processedName = Regex.Replace(processedName, "[ʻʿ]", "'");
-
-            windows1252cache.TryAdd(name, processedName);
 
             return processedName;
         }
