@@ -99,11 +99,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
                 string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
-                string lineToAdd = $"{indentation2}{localisation.LanguageGameId} = \"{normalisedName}\" # Language={localisation.LanguageId}";
+                string lineToAdd = $"{indentation2}{localisation.LanguageGameId} = \"{normalisedName}\"";
+
+                if (outputSettings.AreVerboseCommentsEnabled)
+                {
+                    lineToAdd += $" # Language={localisation.LanguageId}";
+                }
 
                 if (!string.IsNullOrWhiteSpace(localisation.Comment))
                 {
-                    lineToAdd += $", Comment={localisation.Comment}";
+                    lineToAdd += $" # {localisation.Comment}";
                 }
 
                 lines.Add(lineToAdd);
