@@ -177,7 +177,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
                 if (!string.IsNullOrWhiteSpace(stateLocalisation.Comment))
                 {
-                    nameSetsEventContent += $" # {stateLocalisation.Comment}";
+                    nameSetsEventContent += $" # {nameNormaliser.ToHOI4Charset(stateLocalisation.Comment)}";
                 }
 
                 nameSetsEventContent += Environment.NewLine;
@@ -227,7 +227,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
                     if (!string.IsNullOrWhiteSpace(cityLocalisation.Comment))
                     {
-                        nameSetsEventContent += $" # {cityLocalisation.Comment}";
+                        nameSetsEventContent += $" # {nameNormaliser.ToHOI4Charset(cityLocalisation.Comment)}";
                     }
 
                     nameSetsEventContent += Environment.NewLine;

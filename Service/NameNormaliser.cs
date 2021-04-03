@@ -18,8 +18,6 @@ namespace MoreCulturalNamesModBuilder.Service
 
         public string ToCK3Charset(string name)
         {
-            string processedName = name;
-
             if (string.IsNullOrWhiteSpace(name))
             {
                 return string.Empty;
@@ -29,6 +27,8 @@ namespace MoreCulturalNamesModBuilder.Service
             {
                 return ck3cache[name];
             }
+
+            string processedName = ApplyCommonReplacements(name);
 
             processedName = Regex.Replace(processedName, "[Ḏ]", "D");
             processedName = Regex.Replace(processedName, "[Ḗ]", "É");
@@ -47,8 +47,6 @@ namespace MoreCulturalNamesModBuilder.Service
 
         public string ToHOI4Charset(string name)
         {
-            string processedName = name;
-
             if (string.IsNullOrWhiteSpace(name))
             {
                 return string.Empty;
@@ -59,14 +57,16 @@ namespace MoreCulturalNamesModBuilder.Service
                 return hoi4cache[name];
             }
 
+            string processedName = ApplyCommonReplacements(name);
+
             processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
             processedName = Regex.Replace(processedName, "[Ə]", "E");
             processedName = Regex.Replace(processedName, "[ƘḲ]", "K");
             processedName = Regex.Replace(processedName, "[ȚṬТ]", "T");
             processedName = Regex.Replace(processedName, "[Ș]", "Ş");
             processedName = Regex.Replace(processedName, "[ḃḅ]", "b");
-            processedName = Regex.Replace(processedName, "[еə]", "e");
-            processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
+            processedName = Regex.Replace(processedName, "[ə]", "e");
+            processedName = Regex.Replace(processedName, "[ƙḳ]", "k");
             processedName = Regex.Replace(processedName, "[ɬ]", "ł");
             processedName = Regex.Replace(processedName, "[țṭ]", "t");
             processedName = Regex.Replace(processedName, "[ș]", "ş");
@@ -78,8 +78,6 @@ namespace MoreCulturalNamesModBuilder.Service
 
         public string ToWindows1252(string name)
         {
-            string processedName = name;
-
             if (string.IsNullOrWhiteSpace(name))
             {
                 return string.Empty;
@@ -89,6 +87,8 @@ namespace MoreCulturalNamesModBuilder.Service
             {
                 return windows1252cache[name];
             }
+
+            string processedName = ApplyCommonReplacements(name);
 
             processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
             processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
@@ -123,12 +123,12 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ě]", "ie");
             processedName = Regex.Replace(processedName, "[ē]", "ë");
             processedName = Regex.Replace(processedName, "[ė]", "è");
-            processedName = Regex.Replace(processedName, "[ęеə]", "e");
+            processedName = Regex.Replace(processedName, "[ęə]", "e");
             processedName = Regex.Replace(processedName, "[ğ]", "g");
             processedName = Regex.Replace(processedName, "[ḫ]", "h");
             processedName = Regex.Replace(processedName, "[ı]", "i");
             processedName = Regex.Replace(processedName, "[ī]", "ï");
-            processedName = Regex.Replace(processedName, "[ƙкḳ]", "k");
+            processedName = Regex.Replace(processedName, "[ƙḳ]", "k");
             processedName = Regex.Replace(processedName, "[ł]", "l");
             processedName = Regex.Replace(processedName, "[ɬ]", "thl");
             processedName = Regex.Replace(processedName, "[ń]", "n");
@@ -139,9 +139,36 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[șşṣś]", "s");
             processedName = Regex.Replace(processedName, "[țṭ]", "t");
             processedName = Regex.Replace(processedName, "[ū]", "ü");
-            processedName = Regex.Replace(processedName, "[ύ]", "ú");
             processedName = Regex.Replace(processedName, "[źżẓʐ]", "z");
 
+            windows1252cache.TryAdd(name, processedName);
+
+            return processedName;
+        }
+
+        private string ApplyCommonReplacements(string name)
+        {
+            string processedName = name;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return string.Empty;
+            }
+
+            if (windows1252cache.ContainsKey(name))
+            {
+                return windows1252cache[name];
+            }
+
+            processedName = Regex.Replace(processedName, "[α]", "a");
+            processedName = Regex.Replace(processedName, "[ὰ]", "à");
+            processedName = Regex.Replace(processedName, "[ά]", "á");
+            processedName = Regex.Replace(processedName, "[е]", "e");
+            processedName = Regex.Replace(processedName, "[έ]", "é");
+            processedName = Regex.Replace(processedName, "[ι]", "i");
+            processedName = Regex.Replace(processedName, "[к]", "k");
+            processedName = Regex.Replace(processedName, "[ό]", "ó");
+            processedName = Regex.Replace(processedName, "[ύ]", "ú");
             processedName = Regex.Replace(processedName, "[ʻʿ]", "'");
 
             windows1252cache.TryAdd(name, processedName);
