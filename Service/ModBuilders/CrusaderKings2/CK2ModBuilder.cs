@@ -120,7 +120,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
                 if (!string.IsNullOrWhiteSpace(localisation.Comment))
                 {
-                    lineToAdd += $" # {localisation.Comment}";
+                    lineToAdd += $" # {nameNormaliser.ToWindows1252(localisation.Comment)}";
                 }
 
                 lines.Add(lineToAdd);
@@ -158,7 +158,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
                     if (!string.IsNullOrWhiteSpace(localisation.Comment))
                     {
-                        line += $" # ${localisation.Comment}";
+                        line += $" # ${nameNormaliser.ToWindows1252(localisation.Comment)}";
                     }
                     
                     lines.Add(line);

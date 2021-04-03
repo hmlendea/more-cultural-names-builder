@@ -108,7 +108,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
                 if (!string.IsNullOrWhiteSpace(localisation.Comment))
                 {
-                    lineToAdd += $" # {localisation.Comment}";
+                    lineToAdd += $" # {nameNormaliser.ToCK3Charset(localisation.Comment)}";
                 }
 
                 lines.Add(lineToAdd);
