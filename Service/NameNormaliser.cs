@@ -115,7 +115,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[Ư]", "U'");
             processedName = Regex.Replace(processedName, "[ŹŻ]", "Z");
             processedName = Regex.Replace(processedName, "[ą]", "a");
-            processedName = Regex.Replace(processedName, "[ăā]", "ã");
+            processedName = Regex.Replace(processedName, "[ăǎā]", "ã");
             processedName = Regex.Replace(processedName, "[ḃḅ]", "b");
             processedName = Regex.Replace(processedName, "[ć]", "c");
             processedName = Regex.Replace(processedName, "[č]", "ch");
