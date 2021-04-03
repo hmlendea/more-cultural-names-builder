@@ -88,7 +88,7 @@ namespace MoreCulturalNamesModBuilder.Service
 
             string processedName = ApplyCommonReplacements(name);
 
-            processedName = Regex.Replace(processedName, "[A̓]", "Á");
+            processedName = processedName.Replace("A̓", "Á");
             processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
             processedName = Regex.Replace(processedName, "[ḂḄ]", "B");
             processedName = Regex.Replace(processedName, "[Ć]", "C");
