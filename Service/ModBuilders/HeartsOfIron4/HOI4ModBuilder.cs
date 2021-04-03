@@ -168,12 +168,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                 
                 eventContent += $", LocalisedName=\"{stateName}\"";
                 nameSetsEventContent +=
-                    $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }}" + 
-                    $" # Name={stateLocalisation.Name}, Language={stateLocalisation.LanguageId}";
+                    $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }} # {stateLocalisation.Name}";
                 
+                if (outputSettings.AreVerboseCommentsEnabled)
+                {
+                    nameSetsEventContent += $" # Language={stateLocalisation.LanguageId}";
+                }
+
                 if (!string.IsNullOrWhiteSpace(stateLocalisation.Comment))
                 {
-                    nameSetsEventContent += $", Comment={stateLocalisation.Comment}";
+                    nameSetsEventContent += $" # {stateLocalisation.Comment}";
                 }
 
                 nameSetsEventContent += Environment.NewLine;
@@ -214,12 +218,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                     string cityName = nameNormaliser.ToHOI4Charset(cityLocalisation.Name);
                     
                     nameSetsEventContent +=
-                        $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }}" +
-                        $" # Name={cityLocalisation.Name}, Language={cityLocalisation.LanguageId}";
+                        $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}";
                 
+                    if (outputSettings.AreVerboseCommentsEnabled)
+                    {
+                        nameSetsEventContent += $" # Language={cityLocalisation.LanguageId}";
+                    }
+
                     if (!string.IsNullOrWhiteSpace(cityLocalisation.Comment))
                     {
-                        nameSetsEventContent += $", Comment={cityLocalisation.Comment}";
+                        nameSetsEventContent += $" # {cityLocalisation.Comment}";
                     }
 
                     nameSetsEventContent += Environment.NewLine;

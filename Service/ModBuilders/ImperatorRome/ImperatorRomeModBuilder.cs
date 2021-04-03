@@ -84,9 +84,19 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
                     Localisation localisation = localisations[provinceId][languageGameId.Id];
 
-                    content +=
-                        $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id}" +
-                        $" # Name={localisation.Name}, Language={localisation.LanguageId}" + Environment.NewLine;
+                    content += $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id} # {localisation.Name}";
+
+                    if (outputSettings.AreVerboseCommentsEnabled)
+                    {
+                        content += $" # Language={localisation.LanguageId}";
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(localisation.Comment))
+                    {
+                        content += $" # {localisation.Comment}";
+                    }
+
+                    content += Environment.NewLine;
                 }
 
                 content += "}";
@@ -135,14 +145,18 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
                     Localisation localisation = localisations[provinceId][culture];
 
                     string provinceLocalisationDefinition = $" PROV{provinceId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"";
-                    string comment = $"Language={localisation.LanguageId}";
+
+                    if (outputSettings.AreVerboseCommentsEnabled)
+                    {
+                        provinceLocalisationDefinition += $" # Language={localisation.LanguageId}";
+                    }
 
                     if (!string.IsNullOrWhiteSpace(localisation.Comment))
                     {
-                        comment += $", Comment={localisation.Comment}";
+                        provinceLocalisationDefinition += $" # {localisation.Comment}";
                     }
 
-                    content += $"{provinceLocalisationDefinition} # {comment}{Environment.NewLine}";
+                    content += $"{provinceLocalisationDefinition}{Environment.NewLine}";
                 }
             }
 

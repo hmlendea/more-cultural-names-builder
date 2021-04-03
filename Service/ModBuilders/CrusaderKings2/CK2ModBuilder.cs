@@ -111,11 +111,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageGameId))
             {
                 string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
-                string lineToAdd = $"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\" # Language={localisation.LanguageId}";
+                string lineToAdd = $"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\"";
+
+                if (outputSettings.AreVerboseCommentsEnabled)
+                {
+                    lineToAdd += $" # Language={localisation.LanguageId}";
+                }
 
                 if (!string.IsNullOrWhiteSpace(localisation.Comment))
                 {
-                    lineToAdd += $", Comment={localisation.Comment}";
+                    lineToAdd += $" # {localisation.Comment}";
                 }
 
                 lines.Add(lineToAdd);
@@ -144,13 +149,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 foreach (GameId titleGameId in titleGameIds)
                 {
                     string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
-                    string line =
-                        $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x" +
-                        $" # Language={localisation.LanguageId}";
+                    string line = $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x";
                     
+                    if (outputSettings.AreVerboseCommentsEnabled)
+                    {
+                        line += $" # Language={localisation.LanguageId}";
+                    }
+
                     if (!string.IsNullOrWhiteSpace(localisation.Comment))
                     {
-                        line += $", Comment=${localisation.Comment}";
+                        line += $" # ${localisation.Comment}";
                     }
                     
                     lines.Add(line);

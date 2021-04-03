@@ -7,6 +7,8 @@ namespace MoreCulturalNamesModBuilder.Configuration
         public string ModOutputDirectory { get; set; }
         public string ModVersion { get; set; }
 
+        public bool AreVerboseCommentsEnabled { get; set; }
+
         public string CK2ModId { get; set; }
         public string CK2ModName { get; set; }
 
