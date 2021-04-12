@@ -14,7 +14,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 {
     public sealed class HOI4ModBuilder : ModBuilder, IHOI4ModBuilder
     {
-        const string EventsFileName = "873_MoreCulturalNames.txt";
+        const string EventsFileNameFormat = "873_mcn_{0}.txt";
 
         public override string Game => "HOI4";
 
@@ -99,7 +99,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             LoadData();
 
             CreateDescriptorFiles();
-            CreateEventsFile(eventsDirectoryPath);
+            CreateEventsFiles(eventsDirectoryPath);
         }
 
         void CreateDescriptorFiles()
@@ -114,30 +114,26 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        void CreateEventsFile(string eventsDirectoryPath)
+        void CreateEventsFiles(string eventsDirectoryPath)
         {
-            string eventsFilePath = Path.Combine(eventsDirectoryPath, EventsFileName);
-
-            IList<string> eventContents = new List<string>();
-            
-            foreach (GameId gameLocationId in stateGameIds.OrderBy(x => int.Parse(x.Id)))
+            foreach (string countryTag in countryTags)
             {
-                string locationEvents = GenerateStateEvents(gameLocationId);
+                string eventsFileName = string.Format(EventsFileNameFormat, countryTag);
+                string eventsFilePath = Path.Combine(eventsDirectoryPath, eventsFileName);
 
-                eventContents.Add(locationEvents);
+                string countryEvents = GenerateCountryEvents(countryTag);
+
+                File.WriteAllText(eventsFilePath, countryEvents);
             }
-
-            string eventsContent = string.Join(Environment.NewLine, eventContents);
-            File.WriteAllText(eventsFilePath, eventsContent);
         }
 
-        string GenerateStateEvents(GameId stateGameId)
+        string GenerateCountryEvents(string countryTag)
         {
             string entireContent =
-                $"############### MCN ############### State={stateGameId.Id} ###############" +
+                $"############### MCN ############### Country={countryTag} ###############" +
                 Environment.NewLine + Environment.NewLine + Environment.NewLine;
 
-            foreach (string countryTag in countryTags)
+            foreach (GameId stateGameId in stateGameIds.OrderBy(x => int.Parse(x.Id)))
             {
                 string stateEventContentForCountry = GenerateStateEventForCountry(stateGameId, countryTag);
 
@@ -155,7 +151,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             string eventId = $"mcn_{countryTag}.{stateGameId.Id}";
             string stateName = string.Empty;
 
-            string eventContent = $"# Event={eventId}, State={stateGameId.Id}, Country={countryTag}";
+            string eventContent = $"# Event={eventId}, State={stateGameId.Id}";
             string nameSetsEventContent = string.Empty;
             
             Localisation stateLocalisation = stateLocalisations
