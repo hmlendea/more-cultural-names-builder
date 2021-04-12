@@ -164,7 +164,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
             if (!(stateLocalisation is null))
             {
-                stateName = nameNormaliser.ToHOI4Charset(stateLocalisation.Name);
+                stateName = nameNormaliser.ToHOI4StateCharset(stateLocalisation.Name);
                 
                 eventContent += $", LocalisedName=\"{stateName}\"";
                 nameSetsEventContent +=
@@ -177,7 +177,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
                 if (!string.IsNullOrWhiteSpace(stateLocalisation.Comment))
                 {
-                    nameSetsEventContent += $" # {nameNormaliser.ToHOI4Charset(stateLocalisation.Comment)}";
+                    nameSetsEventContent += $" # {stateLocalisation.Comment}";
                 }
 
                 nameSetsEventContent += Environment.NewLine;
@@ -215,7 +215,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                         continue;
                     }
 
-                    string cityName = nameNormaliser.ToHOI4Charset(cityLocalisation.Name);
+                    string cityName = nameNormaliser.ToHOI4CityCharset(cityLocalisation.Name);
                     
                     nameSetsEventContent +=
                         $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}";
@@ -227,7 +227,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
                     if (!string.IsNullOrWhiteSpace(cityLocalisation.Comment))
                     {
-                        nameSetsEventContent += $" # {nameNormaliser.ToHOI4Charset(cityLocalisation.Comment)}";
+                        nameSetsEventContent += $" # {cityLocalisation.Comment}";
                     }
 
                     nameSetsEventContent += Environment.NewLine;
