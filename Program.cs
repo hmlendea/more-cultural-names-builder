@@ -49,19 +49,18 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton<ICK3ModBuilder, CK3ModBuilder>()
                 .AddSingleton<IHOI4ModBuilder, HOI4ModBuilder>()
                 .AddSingleton<IImperatorRomeModBuilder, ImperatorRomeModBuilder>()
+                .AddSingleton<IModBuilderFactory, ModBuilderFactory>()
                 .BuildServiceProvider();
-            
-            IModBuilder ck2Builder = serviceProvider.GetService<ICK2ModBuilder>();
-            IModBuilder ck2hipBuilder = serviceProvider.GetService<ICK2HIPModBuilder>();
-            IModBuilder ck3Builder = serviceProvider.GetService<ICK3ModBuilder>();
-            IModBuilder hoi4Builder = serviceProvider.GetService<IHOI4ModBuilder>();
-            IModBuilder imperatorRomeBuilder = serviceProvider.GetService<IImperatorRomeModBuilder>();
-            
-            ck2Builder.Build();
-            ck2hipBuilder.Build();
-            ck3Builder.Build();
-            hoi4Builder.Build();
-            imperatorRomeBuilder.Build();
+
+            string games = NuciCLI.CliArgumentsReader.GetOptionValue(args, "--games");
+
+            foreach (string game in games.Split(','))
+            {
+                serviceProvider
+                    .GetService<IModBuilderFactory>()
+                    .GetModBuilder(game)
+                    .Build();
+            }
         }
 
         static void LoadConfiguration(string[] args)
