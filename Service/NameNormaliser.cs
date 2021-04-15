@@ -350,7 +350,8 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ύ]", "ú");
             processedName = Regex.Replace(processedName, "[ǜ]", "ü");
             processedName = Regex.Replace(processedName, "[ƶ]", "z");
-            processedName = Regex.Replace(processedName, "[‘ʻ’ʼʿʾʹ]", "'");
+            processedName = Regex.Replace(processedName, "[‘ʻ’ʼʿʾʹʲ]", "'");
+            processedName = Regex.Replace(processedName, "[ⁿ]", "\"");
             processedName = Regex.Replace(processedName, "[–]", "-");
             processedName = Regex.Replace(processedName, "[‎·]", "");
             processedName = Regex.Replace(processedName, "[‎‎]", ""); // Invisible characters
@@ -359,3 +360,5 @@ namespace MoreCulturalNamesModBuilder.Service
         }
     }
 }
+
+// ƣƢ
