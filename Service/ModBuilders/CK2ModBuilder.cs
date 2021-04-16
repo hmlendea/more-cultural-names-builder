@@ -18,6 +18,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
     public class CK2ModBuilder : ModBuilder
     {
+        protected virtual string LocalisationDirectoryName => "localisation";
+
         protected virtual List<string> ForbiddenTokensForPreviousLine => new List<string>
             { "allow", "dejure_liege_title", "gain_effect", "limit", "trigger" };
 
@@ -64,15 +66,18 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
+            string localisationDirectoryPath = Path.Combine(mainDirectoryPath, LocalisationDirectoryName);
 
             Directory.CreateDirectory(mainDirectoryPath);
             Directory.CreateDirectory(commonDirectoryPath);
             Directory.CreateDirectory(landedTitlesDirectoryPath);
+            Directory.CreateDirectory(localisationDirectoryPath);
 
             LoadData();
 
             CreateDescriptorFiles();
             CreateLandedTitlesFile(landedTitlesDirectoryPath);
+            CreateLocalisationFiles(localisationDirectoryPath);
             CreateTitlesLocalisationFiles();
         }
 
@@ -226,6 +231,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             File.WriteAllText(filePath, content);
         }
 
+        protected virtual void CreateLocalisationFiles(string localisationDirectoryPath)
+        {
+        }
+        
         void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
         {
             string landedTitlesFileContent = BuildLandedTitlesFile();

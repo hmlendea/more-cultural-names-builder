@@ -13,6 +13,7 @@ namespace MoreCulturalNamesModBuilder.Service.Mapping
             Name serviceModel = new Name();
             serviceModel.LanguageId = dataObject.LanguageId;
             serviceModel.Value = dataObject.Value;
+            serviceModel.Adjective = dataObject.Adjective;
             serviceModel.Comment = dataObject.Comment;
 
             return serviceModel;
@@ -23,6 +24,7 @@ namespace MoreCulturalNamesModBuilder.Service.Mapping
             NameEntity dataObject = new NameEntity();
             dataObject.LanguageId = serviceModel.LanguageId;
             dataObject.Value = serviceModel.Value;
+            dataObject.Adjective = serviceModel.Adjective;
             dataObject.Comment = serviceModel.Comment;
 
             return dataObject;
