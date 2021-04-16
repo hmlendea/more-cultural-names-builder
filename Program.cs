@@ -10,20 +10,17 @@ using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service;
 using MoreCulturalNamesModBuilder.Service.ModBuilders;
-using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2;
-using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3;
-using MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4;
-using MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome;
 
 namespace MoreCulturalNamesModBuilder
 {
     public class Program
     {
+        public static IServiceProvider ServiceProvider;
+
         static ModSettings modSettings = null;
         static InputSettings inputSettings = null;
         static OutputSettings outputSettings = null;
 
-        static string[] VersionOptions = { "-v", "--ver", "--version" };
         static string[] OutputDirectoryPathOptions = { "-o", "--out", "--output" };
 
         /// <summary>
@@ -33,24 +30,9 @@ namespace MoreCulturalNamesModBuilder
         public static void Main(string[] args)
         {
             LoadConfiguration(args);
+            BuildServiceProvider();
 
-            IServiceProvider serviceProvider = new ServiceCollection()
-                .AddSingleton(modSettings)
-                .AddSingleton(inputSettings)
-                .AddSingleton(outputSettings)
-                .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(inputSettings.LanguageStorePath))
-                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(inputSettings.LocationStorePath))
-                .AddSingleton<IRepository<TitleEntity>>(s => new XmlRepository<TitleEntity>(inputSettings.TitleStorePath))
-                .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
-                .AddSingleton<INameNormaliser, NameNormaliser>()
-                .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()
-                .AddSingleton<ICK3ModBuilder, CK3ModBuilder>()
-                .AddSingleton<IHOI4ModBuilder, HOI4ModBuilder>()
-                .AddSingleton<IImperatorRomeModBuilder, ImperatorRomeModBuilder>()
-                .AddSingleton<IModBuilderFactory, ModBuilderFactory>()
-                .BuildServiceProvider();
-
-            serviceProvider
+            ServiceProvider
                 .GetService<IModBuilderFactory>()
                 .GetModBuilder(modSettings.Game)
                 .Build();
@@ -70,6 +52,22 @@ namespace MoreCulturalNamesModBuilder
             config.Bind(nameof(OutputSettings), outputSettings);
 
             outputSettings.ModOutputDirectory = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
+        }
+
+        static void BuildServiceProvider()
+        {
+            IServiceCollection serviceCollection = new ServiceCollection()
+                .AddSingleton(modSettings)
+                .AddSingleton(inputSettings)
+                .AddSingleton(outputSettings)
+                .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(inputSettings.LanguageStorePath))
+                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(inputSettings.LocationStorePath))
+                .AddSingleton<IRepository<TitleEntity>>(s => new XmlRepository<TitleEntity>(inputSettings.TitleStorePath))
+                .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
+                .AddSingleton<INameNormaliser, NameNormaliser>()
+                .AddSingleton<IModBuilderFactory, ModBuilderFactory>();
+
+            ServiceProvider = serviceCollection.BuildServiceProvider();
         }
     }
 }

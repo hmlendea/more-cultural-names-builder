@@ -1,10 +1,10 @@
 using System;
 
 using Microsoft.Extensions.DependencyInjection;
+using NuciDAL.Repositories;
 
-using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2;
-using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3;
-using MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome;
+using MoreCulturalNamesModBuilder.Configuration;
+using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 
 namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
@@ -21,25 +21,63 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         {
             string normalisedGame = game.ToUpperInvariant().Trim();
 
+            ILocalisationFetcher localisationFetcher = Program.ServiceProvider.GetService<ILocalisationFetcher>();
+            INameNormaliser nameNormaliser = Program.ServiceProvider.GetService<INameNormaliser>();
+            IRepository<LanguageEntity> languageRepository = Program.ServiceProvider.GetService<IRepository<LanguageEntity>>();
+            IRepository<LocationEntity> locationRepository = Program.ServiceProvider.GetService<IRepository<LocationEntity>>();
+            IRepository<TitleEntity> titleRepository = Program.ServiceProvider.GetService<IRepository<TitleEntity>>();
+            ModSettings modSettings = Program.ServiceProvider.GetService<ModSettings>();
+            InputSettings inputSettings = Program.ServiceProvider.GetService<InputSettings>();
+            OutputSettings outputSettings = Program.ServiceProvider.GetService<OutputSettings>();
+
             if (normalisedGame.StartsWith("CK2"))
             {
-                return serviceProvider.GetService<ICK2ModBuilder>();
+                return new CK2ModBuilder(
+                    localisationFetcher,
+                    nameNormaliser,
+                    languageRepository,
+                    locationRepository,
+                    titleRepository,
+                    modSettings,
+                    inputSettings,
+                    outputSettings);
             }
             
             if (normalisedGame.StartsWith("CK3"))
             {
-                return serviceProvider.GetService<ICK3ModBuilder>();
+                return new CK3ModBuilder(
+                    localisationFetcher,
+                    nameNormaliser,
+                    languageRepository,
+                    locationRepository,
+                    titleRepository,
+                    modSettings,
+                    inputSettings,
+                    outputSettings);
             }
             
             if (normalisedGame.StartsWith("HOI4"))
             {
-                return serviceProvider.GetService<ICK3ModBuilder>();
+                return new HOI4ModBuilder(
+                    localisationFetcher,
+                    nameNormaliser,
+                    languageRepository,
+                    locationRepository,
+                    titleRepository,
+                    modSettings,
+                    outputSettings);
             }
             
             if (normalisedGame.StartsWith("IR") ||
                 normalisedGame.StartsWith("IMPERATORROME"))
             {
-                return serviceProvider.GetService<IImperatorRomeModBuilder>();
+                return new ImperatorRomeModBuilder(
+                    localisationFetcher,
+                    languageRepository,
+                    locationRepository,
+                    titleRepository,
+                    modSettings,
+                    outputSettings);
             }
             
             throw new NotImplementedException($"The game \"{game}\" is not supported");

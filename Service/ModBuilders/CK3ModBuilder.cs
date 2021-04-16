@@ -10,11 +10,10 @@ using NuciExtensions;
 using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Models;
-using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
-    public sealed class CK3ModBuilder : CK2ModBuilder, ICK3ModBuilder
+    public sealed class CK3ModBuilder : CK2ModBuilder
     {
         protected override string OutputLandedTitlesFileName => "999_MoreCulturalNames.txt";
 

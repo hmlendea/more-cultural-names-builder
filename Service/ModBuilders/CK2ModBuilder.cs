@@ -14,9 +14,9 @@ using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
-    public class CK2ModBuilder : ModBuilder, ICK2ModBuilder
+    public class CK2ModBuilder : ModBuilder
     {
         protected virtual string OutputLandedTitlesFileName => "landed_titles.txt";
 

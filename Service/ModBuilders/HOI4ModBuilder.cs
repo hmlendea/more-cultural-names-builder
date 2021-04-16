@@ -10,9 +10,9 @@ using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
-    public sealed class HOI4ModBuilder : ModBuilder, IHOI4ModBuilder
+    public sealed class HOI4ModBuilder : ModBuilder
     {
         const string EventsFileNameFormat = "873_mcn_{0}.txt";
 

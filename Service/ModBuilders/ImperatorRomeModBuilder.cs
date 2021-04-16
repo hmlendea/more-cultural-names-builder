@@ -12,9 +12,9 @@ using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
-    public sealed class ImperatorRomeModBuilder : ModBuilder, IImperatorRomeModBuilder
+    public sealed class ImperatorRomeModBuilder : ModBuilder
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
             
