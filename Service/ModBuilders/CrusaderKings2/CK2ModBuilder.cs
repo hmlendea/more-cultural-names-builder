@@ -84,12 +84,21 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected virtual string GenerateDescriptorContent()
         {
-            return
+            string content =
                 $"# Version {modSettings.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"# for {modSettings.Game} {modSettings.GameVersion}" + Environment.NewLine +
-                $"name = \"{modSettings.Name}\"" + Environment.NewLine +
+                $"name = \"{modSettings.Name}\"" + Environment.NewLine;
+
+            if (!string.IsNullOrWhiteSpace(modSettings.Dependency))
+            {
+                content += $"dependencies = {{ \"{modSettings.Dependency}\" }}" + Environment.NewLine;
+            }
+            
+            content +=
                 $"picture = \"thumbnail.png\"" + Environment.NewLine +
                 $"tags = {{ map immersion }}";
+
+            return content;
         }
 
         protected virtual string GenerateMainDescriptorContent()

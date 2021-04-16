@@ -10,6 +10,8 @@ namespace MoreCulturalNamesModBuilder.Configuration
 
         static string[] VersionOptions = { "-v", "--ver", "--version" };
 
+        static string[] DependencyOptions = { "--dep", "--dependency" };
+
         static string[] GameOptions = { "-g", "--game" };
 
         static string[] GameVersionOptions = { "--game-ver", "--game-version" };
@@ -19,6 +21,7 @@ namespace MoreCulturalNamesModBuilder.Configuration
             Id = CliArgumentsReader.GetOptionValue(args, IdOptions);
             Name = CliArgumentsReader.GetOptionValue(args, NameOptions);
             Version = CliArgumentsReader.GetOptionValue(args, VersionOptions);
+            Dependency = CliArgumentsReader.TryGetOptionValue(args, DependencyOptions);
             Game = CliArgumentsReader.GetOptionValue(args, GameOptions);
             GameVersion = CliArgumentsReader.GetOptionValue(args, GameVersionOptions);
         }
@@ -28,6 +31,8 @@ namespace MoreCulturalNamesModBuilder.Configuration
         public string Name { get; }
 
         public string Version { get; set; }
+
+        public string Dependency { get; set; }
 
         public string Game { get; }
 
