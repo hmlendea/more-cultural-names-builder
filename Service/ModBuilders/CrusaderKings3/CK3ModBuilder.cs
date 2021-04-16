@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using NuciDAL.Repositories;
@@ -17,7 +16,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 {
     public sealed class CK3ModBuilder : CK2ModBuilder, ICK3ModBuilder
     {
-        protected override string InputLandedTitlesFileName => "ck3_landed_titles.txt";
         protected override string OutputLandedTitlesFileName => "999_MoreCulturalNames.txt";
 
         protected override List<string> ForbiddenTokensForPreviousLine => new List<string> { "allow", "limit", "trigger" };
@@ -25,6 +23,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
+        readonly InputSettings inputSettings;
 
         public CK3ModBuilder(
             ILocalisationFetcher localisationFetcher,
@@ -33,11 +32,13 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
             BuildSettings buildSettings,
+            InputSettings inputSettings,
             OutputSettings outputSettings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, buildSettings, outputSettings)
+            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, buildSettings, inputSettings, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
+            this.inputSettings = inputSettings;
         }
 
         protected override string GenerateMainDescriptorContent()
@@ -61,9 +62,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 $"}}";
         }
 
-        protected override string ReadLandedTitlesFile(string filePath)
+        protected override string ReadLandedTitlesFile()
         {
-            return File.ReadAllText(filePath);
+            return File.ReadAllText(inputSettings.LandedTitlesFilePath);
         }
 
         protected override void WriteLandedTitlesFile(string filePath, string content)

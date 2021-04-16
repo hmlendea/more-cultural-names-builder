@@ -20,12 +20,9 @@ namespace MoreCulturalNamesModBuilder
     public class Program
     {
         static BuildSettings buildSettings = null;
-        static DataStoreSettings dataStoreSettings = null;
+        static InputSettings inputSettings = null;
         static OutputSettings outputSettings = null;
 
-        static string[] LanguageStorePathOptions = { "--lang", "--languages" };
-        static string[] LocationsStorePathOptions = { "--loc", "--locations" };
-        static string[] TitleStorePathOptions = { "-t", "--titles" };
         static string[] VersionOptions = { "-v", "--ver", "--version" };
         static string[] OutputDirectoryPathOptions = { "-o", "--out", "--output" };
 
@@ -39,11 +36,11 @@ namespace MoreCulturalNamesModBuilder
 
             IServiceProvider serviceProvider = new ServiceCollection()
                 .AddSingleton(buildSettings)
-                .AddSingleton(dataStoreSettings)
+                .AddSingleton(inputSettings)
                 .AddSingleton(outputSettings)
-                .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(dataStoreSettings.LanguageStorePath))
-                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(dataStoreSettings.LocationStorePath))
-                .AddSingleton<IRepository<TitleEntity>>(s => new XmlRepository<TitleEntity>(dataStoreSettings.TitleStorePath))
+                .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(inputSettings.LanguageStorePath))
+                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(inputSettings.LocationStorePath))
+                .AddSingleton<IRepository<TitleEntity>>(s => new XmlRepository<TitleEntity>(inputSettings.TitleStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()
@@ -66,15 +63,12 @@ namespace MoreCulturalNamesModBuilder
                 .Build();
 
             buildSettings = new BuildSettings(args);
-            dataStoreSettings = new DataStoreSettings();
+            inputSettings = new InputSettings(args);
             outputSettings = new OutputSettings();
 
-            config.Bind(nameof(DataStoreSettings), dataStoreSettings);
+            config.Bind(nameof(InputSettings), inputSettings);
             config.Bind(nameof(OutputSettings), outputSettings);
 
-            dataStoreSettings.LanguageStorePath = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
-            dataStoreSettings.LocationStorePath = CliArgumentsReader.GetOptionValue(args, LocationsStorePathOptions);
-            dataStoreSettings.TitleStorePath = CliArgumentsReader.GetOptionValue(args, TitleStorePathOptions);
             outputSettings.ModVersion = CliArgumentsReader.GetOptionValue(args, VersionOptions);
             outputSettings.ModOutputDirectory = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
         }

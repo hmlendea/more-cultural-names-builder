@@ -18,7 +18,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 {
     public class CK2ModBuilder : ModBuilder, ICK2ModBuilder
     {
-        protected virtual string InputLandedTitlesFileName => "ck2_landed_titles.txt";
         protected virtual string OutputLandedTitlesFileName => "landed_titles.txt";
 
         protected virtual List<string> ForbiddenTokensForPreviousLine => new List<string>
@@ -29,6 +28,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
+        readonly InputSettings inputSettings;
 
         protected IDictionary<string, IEnumerable<Localisation>> localisations;
 
@@ -39,11 +39,13 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
             BuildSettings buildSettings,
+            InputSettings inputSettings,
             OutputSettings outputSettings)
             : base(languageRepository, locationRepository, titleRepository, buildSettings, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
+            this.inputSettings = inputSettings;
             
             EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(encodingProvider);
@@ -170,11 +172,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             return string.Join(Environment.NewLine, lines);
         }
 
-        protected virtual string ReadLandedTitlesFile(string filePath)
+        protected virtual string ReadLandedTitlesFile()
         {
             Encoding encoding = Encoding.GetEncoding("windows-1252");
             
-            return File.ReadAllText(filePath, encoding);
+            return File.ReadAllText(inputSettings.LandedTitlesFilePath, encoding);
         }
 
         protected virtual void WriteLandedTitlesFile(string filePath, string content)
@@ -230,7 +232,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         string BuildLandedTitlesFile()
         {
-            string landedTitlesFile = ReadLandedTitlesFile(Path.Combine(ApplicationPaths.DataDirectory, InputLandedTitlesFileName));
+            string landedTitlesFile = ReadLandedTitlesFile();
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
             
             List<string> content = new List<string> { string.Empty };
