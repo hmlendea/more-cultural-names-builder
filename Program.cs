@@ -21,8 +21,6 @@ namespace MoreCulturalNamesModBuilder
         static InputSettings inputSettings = null;
         static OutputSettings outputSettings = null;
 
-        static string[] OutputDirectoryPathOptions = { "-o", "--out", "--output" };
-
         /// <summary>
         /// The entry point of the program, where the program control starts and ends.
         /// </summary>
@@ -40,18 +38,9 @@ namespace MoreCulturalNamesModBuilder
 
         static void LoadConfiguration(string[] args)
         {
-            IConfiguration config =new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", true, true)
-                .Build();
-
             modSettings = new ModSettings(args);
             inputSettings = new InputSettings(args);
-            outputSettings = new OutputSettings();
-
-            config.Bind(nameof(InputSettings), inputSettings);
-            config.Bind(nameof(OutputSettings), outputSettings);
-
-            outputSettings.ModOutputDirectory = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
+            outputSettings = new OutputSettings(args);
         }
 
         static void BuildServiceProvider()

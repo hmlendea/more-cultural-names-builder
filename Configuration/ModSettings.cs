@@ -16,16 +16,6 @@ namespace MoreCulturalNamesModBuilder.Configuration
 
         static string[] GameVersionOptions = { "--game-ver", "--game-version" };
 
-        public ModSettings(string[] args)
-        {
-            Id = CliArgumentsReader.GetOptionValue(args, IdOptions);
-            Name = CliArgumentsReader.GetOptionValue(args, NameOptions);
-            Version = CliArgumentsReader.GetOptionValue(args, VersionOptions);
-            Dependency = CliArgumentsReader.TryGetOptionValue(args, DependencyOptions);
-            Game = CliArgumentsReader.GetOptionValue(args, GameOptions);
-            GameVersion = CliArgumentsReader.GetOptionValue(args, GameVersionOptions);
-        }
-
         public string Id { get; }
 
         public string Name { get; }
@@ -37,5 +27,15 @@ namespace MoreCulturalNamesModBuilder.Configuration
         public string Game { get; }
 
         public string GameVersion { get; }
+
+        public ModSettings(string[] args)
+        {
+            Id = CliArgumentsReader.GetOptionValue(args, IdOptions);
+            Name = CliArgumentsReader.GetOptionValue(args, NameOptions);
+            Version = CliArgumentsReader.GetOptionValue(args, VersionOptions);
+            Dependency = CliArgumentsReader.TryGetOptionValue(args, DependencyOptions);
+            Game = CliArgumentsReader.GetOptionValue(args, GameOptions);
+            GameVersion = CliArgumentsReader.GetOptionValue(args, GameVersionOptions);
+        }
     }
 }

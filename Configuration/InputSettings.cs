@@ -9,14 +9,6 @@ namespace MoreCulturalNamesModBuilder.Configuration
         static string[] TitleStorePathOptions = { "-t", "--titles" };
         static string[] LandedTitlesFilePathOptions = { "--landed-titles" };
 
-        public InputSettings(string[] args)
-        {
-            LanguageStorePath = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
-            LocationStorePath = CliArgumentsReader.GetOptionValue(args, LocationsStorePathOptions);
-            TitleStorePath = CliArgumentsReader.GetOptionValue(args, TitleStorePathOptions);
-            LandedTitlesFilePath = CliArgumentsReader.TryGetOptionValue(args, LandedTitlesFilePathOptions);
-        }
-
         public string LanguageStorePath { get; set; }
 
         public string LocationStorePath { get; set; }
@@ -24,5 +16,13 @@ namespace MoreCulturalNamesModBuilder.Configuration
         public string TitleStorePath { get; set; }
 
         public string LandedTitlesFilePath { get; set; }
+
+        public InputSettings(string[] args)
+        {
+            LanguageStorePath = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
+            LocationStorePath = CliArgumentsReader.GetOptionValue(args, LocationsStorePathOptions);
+            TitleStorePath = CliArgumentsReader.GetOptionValue(args, TitleStorePathOptions);
+            LandedTitlesFilePath = CliArgumentsReader.TryGetOptionValue(args, LandedTitlesFilePathOptions);
+        }
     }
 }
