@@ -20,7 +20,7 @@ namespace MoreCulturalNamesModBuilder.Configuration
         {
             ModOutputDirectory = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
             AreVerboseCommentsEnabled = CliArgumentsReader.HasOption(args, VerboseCommentsOptions);
-            LandedTitlesFileName = CliArgumentsReader.GetOptionValue(args, LandedTitlesFileNameOptions);
+            LandedTitlesFileName = CliArgumentsReader.TryGetOptionValue(args, LandedTitlesFileNameOptions);
         }
     }
 }
