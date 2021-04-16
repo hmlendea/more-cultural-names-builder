@@ -206,12 +206,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected virtual void CreateTitlesLocalisationFiles()
         {
-            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, "localisation");
+            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, LocalisationDirectoryName);
             Directory.CreateDirectory(localisationsDirectoryPath);
 
             foreach (GameId languageGameId in languageGameIds)
             {
-                string filePath = Path.Combine(localisationsDirectoryPath, $"zzz_MCN_titles_{languageGameId.Id}.csv");
+                string filePath = Path.Combine(localisationsDirectoryPath, $"000_{Settings.Mod.Id}_titles_{languageGameId.Id}.csv");
                 string content = GenerateTitlesLocalisationFile(languageGameId);
 
                 if (string.IsNullOrWhiteSpace(content))
@@ -233,6 +233,21 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected virtual void CreateLocalisationFiles(string localisationDirectoryPath)
         {
+            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, LocalisationDirectoryName);
+            Directory.CreateDirectory(localisationsDirectoryPath);
+
+            foreach (GameId languageGameId in languageGameIds)
+            {
+                string filePath = Path.Combine(localisationsDirectoryPath, $"000_{Settings.Mod.Id}_landed_titles.csv");
+                string content = GenerateLocalisationFileContent();
+
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    continue;
+                }
+
+                WriteWindows1252File(filePath, content);
+            }
         }
         
         void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
@@ -319,6 +334,31 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             newContent = DoCleanLandedTitlesFile(newContent);
             
             return newContent;
+        }
+
+        string GenerateLocalisationFileContent()
+        {
+            ConcurrentBag<string> lines = new ConcurrentBag<string>();
+
+            Parallel.ForEach(localisations.Keys, locationGameId =>
+            {
+                foreach (Localisation localisation in localisations[locationGameId])
+                {
+                    if (string.IsNullOrWhiteSpace(localisation.Adjective))
+                    {
+                        continue;
+                    }
+
+                    string normalisedAdjective = nameNormaliser.ToWindows1252(localisation.Adjective);
+                    string line =
+                        $"{locationGameId}_adj_{localisation.LanguageGameId}" +
+                        $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x";
+
+                    lines.Add(line);
+                };
+            });
+
+            return string.Join(Environment.NewLine, lines.OrderBy(x => x));
         }
 
         void WriteWindows1252File(string filePath, string content)
