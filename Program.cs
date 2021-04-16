@@ -47,7 +47,6 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<ICK2ModBuilder, CK2ModBuilder>()
-                .AddSingleton<ICK2HIPModBuilder, CK2HIPModBuilder>()
                 .AddSingleton<ICK3ModBuilder, CK3ModBuilder>()
                 .AddSingleton<IHOI4ModBuilder, HOI4ModBuilder>()
                 .AddSingleton<IImperatorRomeModBuilder, ImperatorRomeModBuilder>()

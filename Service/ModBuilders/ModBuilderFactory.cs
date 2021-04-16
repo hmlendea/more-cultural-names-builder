@@ -26,11 +26,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 return serviceProvider.GetService<ICK2ModBuilder>();
             }
             
-            if (normalisedGame.StartsWith("CK2HIP"))
-            {
-                return serviceProvider.GetService<ICK2HIPModBuilder>();
-            }
-            
             if (normalisedGame.StartsWith("CK3"))
             {
                 return serviceProvider.GetService<ICK3ModBuilder>();
