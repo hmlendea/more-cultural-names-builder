@@ -15,8 +15,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
     public sealed class CK3ModBuilder : CK2ModBuilder
     {
-        protected override string OutputLandedTitlesFileName => "999_MoreCulturalNames.txt";
-
         protected override List<string> ForbiddenTokensForPreviousLine => new List<string> { "allow", "limit", "trigger" };
         protected override List<string> ForbiddenTokensForNextLine => new List<string> { "has_holder" };
 

@@ -7,7 +7,7 @@ namespace MoreCulturalNamesModBuilder.Configuration
         static string[] LanguageStorePathOptions = { "--lang", "--languages" };
         static string[] LocationsStorePathOptions = { "--loc", "--locations" };
         static string[] TitleStorePathOptions = { "-t", "--titles" };
-        static string[] LandedTitlesFilePathOptions = { "--landed-titles" };
+        static string[] LandedTitlesFilePathOptions = { "--landed-titles", "--landed-titles-in", "--landed-titles-input" };
 
         public string LanguageStorePath { get; set; }
 

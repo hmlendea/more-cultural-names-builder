@@ -18,8 +18,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
     public class CK2ModBuilder : ModBuilder
     {
-        protected virtual string OutputLandedTitlesFileName => "landed_titles.txt";
-
         protected virtual List<string> ForbiddenTokensForPreviousLine => new List<string>
             { "allow", "dejure_liege_title", "gain_effect", "limit", "trigger" };
 
@@ -231,7 +229,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
         {
             string landedTitlesFileContent = BuildLandedTitlesFile();
-            string landedTitlesFilePath = Path.Combine(landedTitlesDirectoryPath, OutputLandedTitlesFileName);
+            string landedTitlesFilePath = Path.Combine(landedTitlesDirectoryPath, Settings.Output.LandedTitlesFileName);
 
             WriteLandedTitlesFile(landedTitlesFilePath, landedTitlesFileContent);
         }
