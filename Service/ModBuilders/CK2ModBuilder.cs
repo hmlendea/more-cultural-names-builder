@@ -14,15 +14,10 @@ using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
-    public class CK2ModBuilder : ModBuilder, ICK2ModBuilder
+    public class CK2ModBuilder : ModBuilder
     {
-        public override string Game => "CK2";
-
-        protected virtual string InputLandedTitlesFileName => "ck2_landed_titles.txt";
-        protected virtual string OutputLandedTitlesFileName => "landed_titles.txt";
-
         protected virtual List<string> ForbiddenTokensForPreviousLine => new List<string>
             { "allow", "dejure_liege_title", "gain_effect", "limit", "trigger" };
 
@@ -40,8 +35,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, titleRepository, outputSettings)
+            Settings settings)
+            : base(languageRepository, locationRepository, titleRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -57,7 +52,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
-                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Game);
+                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Settings.Mod.Game);
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
             });
 
@@ -66,7 +61,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, ModId);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
 
@@ -83,17 +78,27 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected virtual string GenerateDescriptorContent()
         {
-            return
-                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
-                $"name = \"{outputSettings.CK2ModName}\"" + Environment.NewLine +
+            string content =
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"# for {Settings.Mod.Game} {Settings.Mod.GameVersion}" + Environment.NewLine +
+                $"name = \"{Settings.Mod.Name}\"" + Environment.NewLine;
+
+            if (!string.IsNullOrWhiteSpace(Settings.Mod.Dependency))
+            {
+                content += $"dependencies = {{ \"{Settings.Mod.Dependency}\" }}" + Environment.NewLine;
+            }
+            
+            content +=
                 $"picture = \"thumbnail.png\"" + Environment.NewLine +
                 $"tags = {{ map immersion }}";
+
+            return content;
         }
 
         protected virtual string GenerateMainDescriptorContent()
         {
             return GenerateDescriptorContent() + Environment.NewLine +
-                $"path = \"mod/{outputSettings.CK2ModId}\"";
+                $"path = \"mod/{Settings.Mod.Id}\"";
         }
 
         protected virtual string GetTitleLocalisationsContent(string line, string gameId)
@@ -113,7 +118,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
                 string lineToAdd = $"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\"";
 
-                if (outputSettings.AreVerboseCommentsEnabled)
+                if (Settings.Output.AreVerboseCommentsEnabled)
                 {
                     lineToAdd += $" # Language={localisation.LanguageId}";
                 }
@@ -136,10 +141,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             foreach (Title title in titles.Values)
             {
                 IEnumerable<GameId> titleGameIds = title.GameIds
-                    .Where(x => x.Game == Game)
+                    .Where(x => x.Game == Settings.Mod.Game)
                     .OrderBy(x => x.Id);
 
-                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, Game);
+                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, Settings.Mod.Game);
 
                 if (localisation is null)
                 {
@@ -151,7 +156,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                     string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
                     string line = $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x";
                     
-                    if (outputSettings.AreVerboseCommentsEnabled)
+                    if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         line += $" # Language={localisation.LanguageId}";
                     }
@@ -171,11 +176,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             return string.Join(Environment.NewLine, lines);
         }
 
-        protected virtual string ReadLandedTitlesFile(string filePath)
+        protected virtual string ReadLandedTitlesFile()
         {
             Encoding encoding = Encoding.GetEncoding("windows-1252");
             
-            return File.ReadAllText(filePath, encoding);
+            return File.ReadAllText(Settings.Input.LandedTitlesFilePath, encoding);
         }
 
         protected virtual void WriteLandedTitlesFile(string filePath, string content)
@@ -196,7 +201,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected virtual void CreateTitlesLocalisationFiles()
         {
-            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, ModId, "localisation");
+            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, "localisation");
             Directory.CreateDirectory(localisationsDirectoryPath);
 
             foreach (GameId languageGameId in languageGameIds)
@@ -215,7 +220,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected virtual void CreateDescriptorFiles()
         {
-            string filePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
+            string filePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
             string content = GenerateMainDescriptorContent();
 
             File.WriteAllText(filePath, content);
@@ -224,14 +229,14 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
         {
             string landedTitlesFileContent = BuildLandedTitlesFile();
-            string landedTitlesFilePath = Path.Combine(landedTitlesDirectoryPath, OutputLandedTitlesFileName);
+            string landedTitlesFilePath = Path.Combine(landedTitlesDirectoryPath, Settings.Output.LandedTitlesFileName);
 
             WriteLandedTitlesFile(landedTitlesFilePath, landedTitlesFileContent);
         }
 
         string BuildLandedTitlesFile()
         {
-            string landedTitlesFile = ReadLandedTitlesFile(Path.Combine(ApplicationPaths.DataDirectory, InputLandedTitlesFileName));
+            string landedTitlesFile = ReadLandedTitlesFile();
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
             
             List<string> content = new List<string> { string.Empty };

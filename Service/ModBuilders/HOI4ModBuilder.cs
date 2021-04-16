@@ -10,13 +10,11 @@ using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
-    public sealed class HOI4ModBuilder : ModBuilder, IHOI4ModBuilder
+    public sealed class HOI4ModBuilder : ModBuilder
     {
         const string EventsFileNameFormat = "873_mcn_{0}.txt";
-
-        public override string Game => "HOI4";
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
@@ -34,12 +32,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            OutputSettings outputSettings)
+            Settings settings)
             : base(
                 languageRepository,
                 locationRepository,
                 titleRepository,
-                outputSettings)
+                settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -49,17 +47,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
         {
             countryTags = languages.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
+                .Where(x => x.Game == Settings.Mod.Game)
                 .Select(x => x.Id);
 
             stateGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game && x.Type == "State")
+                .Where(x => x.Game == Settings.Mod.Game && x.Type == "State")
                 .OrderBy(x => int.Parse(x.Id));
 
             cityGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game && x.Type == "City")
+                .Where(x => x.Game == Settings.Mod.Game && x.Type == "City")
                 .OrderBy(x => int.Parse(x.Id));
 
             stateCities = cityGameIds
@@ -72,7 +70,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             foreach (GameId stateGameId in stateGameIds)
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
-                    .GetGameLocationLocalisations(stateGameId.Id, Game)
+                    .GetGameLocationLocalisations(stateGameId.Id, Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 stateLocalisations.Add(stateGameId.Id, localisations);
@@ -81,7 +79,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             foreach (GameId cityGameId in cityGameIds)
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
-                    .GetGameLocationLocalisations(cityGameId.Id, Game)
+                    .GetGameLocationLocalisations(cityGameId.Id, Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 cityLocalisations.Add(cityGameId.Id, localisations);
@@ -90,7 +88,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
             string eventsDirectoryPath = Path.Combine(mainDirectoryPath, "events");
 
             Directory.CreateDirectory(mainDirectoryPath);
@@ -107,8 +105,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateInnerDescriptorContent();
 
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.HOI4ModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.HOI4ModId, $"descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, $"descriptor.mod");
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
@@ -166,7 +164,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                 nameSetsEventContent +=
                     $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }} # {stateLocalisation.Name}";
                 
-                if (outputSettings.AreVerboseCommentsEnabled)
+                if (Settings.Output.AreVerboseCommentsEnabled)
                 {
                     nameSetsEventContent += $" # Language={stateLocalisation.LanguageId}";
                 }
@@ -216,7 +214,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
                     nameSetsEventContent +=
                         $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}";
                 
-                    if (outputSettings.AreVerboseCommentsEnabled)
+                    if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         nameSetsEventContent += $" # Language={cityLocalisation.LanguageId}";
                     }
@@ -247,16 +245,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.HeartsOfIron4
         string GenerateMainDescriptorContent()
         {
             return GenerateInnerDescriptorContent() + Environment.NewLine +
-                $"path=\"mod/{outputSettings.HOI4ModId}\"";
+                $"path=\"mod/{Settings.Mod.Id}\"";
         }
 
         string GenerateInnerDescriptorContent()
         {
             return
-                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{outputSettings.HOI4ModName}\"" + Environment.NewLine +
-                $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
-                $"supported_version=\"{outputSettings.HOI4GameVersion}\"" + Environment.NewLine +
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
+                $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
+                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"    \"Map\"" + Environment.NewLine +

@@ -14,17 +14,13 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
     public abstract class ModBuilder : IModBuilder
     {
-        public virtual string Game { get; protected set; }
-
-        public string ModId => outputSettings.GetModId(Game);
-
-        protected string OutputDirectoryPath => Path.Combine(outputSettings.ModOutputDirectory, Game);
+        protected string OutputDirectoryPath => Path.Combine(Settings.Output.ModOutputDirectory, Settings.Mod.Game);
 
         protected readonly IRepository<LanguageEntity> languageRepository;
         protected readonly IRepository<LocationEntity> locationRepository;
         protected readonly IRepository<TitleEntity> titleRepository;
 
-        protected readonly OutputSettings outputSettings;
+        protected readonly Settings Settings;
         
         protected IDictionary<string, Location> locations;
         protected IDictionary<string, Language> languages;
@@ -38,18 +34,19 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            OutputSettings outputSettings)
+            Settings settings)
         {
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;
             this.titleRepository = titleRepository;
-            this.outputSettings = outputSettings;
+            
+            Settings = settings;
         }
 
         public void Build()
         {
 
-            Console.WriteLine($" > Building the mod for {Game}...");
+            Console.WriteLine($" > Building the mod for {Settings.Mod.Game}...");
 
             StartTimedOperation("Fetching the data", () => LoadAllData());
             StartTimedOperation("Generating the files", () => GenerateFiles());
@@ -78,19 +75,19 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
             locationGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
+                .Where(x => x.Game == Settings.Mod.Game)
                 .OrderBy(x => x.Id)
                 .ToList();
 
             languageGameIds = languages.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
+                .Where(x => x.Game == Settings.Mod.Game)
                 .OrderBy(x => x.Id)
                 .ToList();
 
             titleGameIds = titles.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
+                .Where(x => x.Game == Settings.Mod.Game)
                 .OrderBy(x => x.Id)
                 .ToList();
 

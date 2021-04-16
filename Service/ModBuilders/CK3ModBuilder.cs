@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 using NuciDAL.Repositories;
@@ -11,17 +10,11 @@ using NuciExtensions;
 using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Models;
-using MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
-    public sealed class CK3ModBuilder : CK2ModBuilder, ICK3ModBuilder
+    public sealed class CK3ModBuilder : CK2ModBuilder
     {
-        public override string Game => "CK3";
-
-        protected override string InputLandedTitlesFileName => "ck3_landed_titles.txt";
-        protected override string OutputLandedTitlesFileName => "999_MoreCulturalNames.txt";
-
         protected override List<string> ForbiddenTokensForPreviousLine => new List<string> { "allow", "limit", "trigger" };
         protected override List<string> ForbiddenTokensForNextLine => new List<string> { "has_holder" };
 
@@ -34,8 +27,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            OutputSettings outputSettings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, outputSettings)
+            Settings settings)
+            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -44,16 +37,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         protected override string GenerateMainDescriptorContent()
         {
             return GenerateDescriptorContent() + Environment.NewLine +
-                $"path=\"mod/{outputSettings.CK3ModId}\"";
+                $"path=\"mod/{Settings.Mod.Id}\"";
         }
 
         protected override string GenerateDescriptorContent()
         {
             return
-                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{outputSettings.CK3ModName}\"" + Environment.NewLine +
-                $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
-                $"supported_version=\"{outputSettings.CK3GameVersion}\"" + Environment.NewLine +
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
+                $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
+                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Culture\"" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
@@ -62,9 +55,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 $"}}";
         }
 
-        protected override string ReadLandedTitlesFile(string filePath)
+        protected override string ReadLandedTitlesFile()
         {
-            return File.ReadAllText(filePath);
+            return File.ReadAllText(Settings.Input.LandedTitlesFilePath);
         }
 
         protected override void WriteLandedTitlesFile(string filePath, string content)
@@ -101,7 +94,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
                 string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
                 string lineToAdd = $"{indentation2}{localisation.LanguageGameId} = \"{normalisedName}\"";
 
-                if (outputSettings.AreVerboseCommentsEnabled)
+                if (Settings.Output.AreVerboseCommentsEnabled)
                 {
                     lineToAdd += $" # Language={localisation.LanguageId}";
                 }
@@ -136,8 +129,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateDescriptorContent();
             
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, ModId, "descriptor.mod");	
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, "descriptor.mod");	
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);	
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);	

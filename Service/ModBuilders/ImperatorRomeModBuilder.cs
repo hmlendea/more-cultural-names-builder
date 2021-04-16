@@ -12,12 +12,10 @@ using MoreCulturalNamesModBuilder.Configuration;
 using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesModBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
+namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
-    public sealed class ImperatorRomeModBuilder : ModBuilder, IImperatorRomeModBuilder
+    public sealed class ImperatorRomeModBuilder : ModBuilder
     {
-        public override string Game => "ImperatorRome";
-
         IDictionary<string, IDictionary<string, Localisation>> localisations;
             
         readonly ILocalisationFetcher localisationFetcher;
@@ -27,8 +25,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, titleRepository, outputSettings)
+            Settings settings)
+            : base(languageRepository, locationRepository, titleRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
         }
@@ -41,7 +39,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
                 IDictionary<string, Localisation> locationLocalisations = localisationFetcher
-                    .GetGameLocationLocalisations(locationGameId.Id, Game)
+                    .GetGameLocationLocalisations(locationGameId.Id, Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
@@ -52,7 +50,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
             string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localization");
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string provinceNamesDirectoryPath = Path.Combine(commonDirectoryPath, "province_names");
@@ -86,7 +84,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
                     content += $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id} # {localisation.Name}";
 
-                    if (outputSettings.AreVerboseCommentsEnabled)
+                    if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         content += $" # Language={localisation.LanguageId}";
                     }
@@ -116,7 +114,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         void CreateLocalisationFile(string localisationDirectoryPath, string language)
         {
             string fileContent = GenerateLocalisationFileContent(language);
-            string fileName = $"{outputSettings.ImperatorRomeModId}_provincenames_l_{language}.yml";
+            string fileName = $"{Settings.Mod.Id}_provincenames_l_{language}.yml";
             string filePath = Path.Combine(localisationDirectoryPath, fileName);
 
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
@@ -127,8 +125,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateInnerDescriptorContent();
 
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.ImperatorRomeModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId, $"descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, $"descriptor.mod");
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
@@ -146,7 +144,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
                     string provinceLocalisationDefinition = $" PROV{provinceId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"";
 
-                    if (outputSettings.AreVerboseCommentsEnabled)
+                    if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         provinceLocalisationDefinition += $" # Language={localisation.LanguageId}";
                     }
@@ -166,16 +164,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         string GenerateMainDescriptorContent()
         {
             return GenerateInnerDescriptorContent() + Environment.NewLine +
-                $"path=\"mod/{outputSettings.ImperatorRomeModId}\"";
+                $"path=\"mod/{Settings.Mod.Id}\"";
         }
 
         string GenerateInnerDescriptorContent()
         {
             return
-                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine +
-                $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
-                $"supported_version=\"{outputSettings.ImperatorRomeGameVersion}\"" + Environment.NewLine +
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
+                $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
+                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}";
