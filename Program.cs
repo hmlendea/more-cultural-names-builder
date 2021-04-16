@@ -19,6 +19,7 @@ namespace MoreCulturalNamesModBuilder
 {
     public class Program
     {
+        static BuildSettings buildSettings = null;
         static DataStoreSettings dataStoreSettings = null;
         static OutputSettings outputSettings = null;
 
@@ -37,6 +38,7 @@ namespace MoreCulturalNamesModBuilder
             LoadConfiguration(args);
 
             IServiceProvider serviceProvider = new ServiceCollection()
+                .AddSingleton(buildSettings)
                 .AddSingleton(dataStoreSettings)
                 .AddSingleton(outputSettings)
                 .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(dataStoreSettings.LanguageStorePath))
@@ -52,11 +54,9 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton<IModBuilderFactory, ModBuilderFactory>()
                 .BuildServiceProvider();
 
-            string game = NuciCLI.CliArgumentsReader.GetOptionValue(args, "--game");
-
             serviceProvider
                 .GetService<IModBuilderFactory>()
-                .GetModBuilder(game)
+                .GetModBuilder(buildSettings.Game)
                 .Build();
         }
 
@@ -66,6 +66,7 @@ namespace MoreCulturalNamesModBuilder
                 .AddJsonFile("appsettings.json", true, true)
                 .Build();
 
+            buildSettings = new BuildSettings(args);
             dataStoreSettings = new DataStoreSettings();
             outputSettings = new OutputSettings();
 

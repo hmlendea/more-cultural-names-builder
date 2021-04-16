@@ -14,16 +14,15 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 {
     public abstract class ModBuilder : IModBuilder
     {
-        public virtual string Game { get; protected set; }
+        public string ModId => outputSettings.GetModId(buildSettings.Game);
 
-        public string ModId => outputSettings.GetModId(Game);
-
-        protected string OutputDirectoryPath => Path.Combine(outputSettings.ModOutputDirectory, Game);
+        protected string OutputDirectoryPath => Path.Combine(outputSettings.ModOutputDirectory, buildSettings.Game);
 
         protected readonly IRepository<LanguageEntity> languageRepository;
         protected readonly IRepository<LocationEntity> locationRepository;
         protected readonly IRepository<TitleEntity> titleRepository;
 
+        protected readonly BuildSettings buildSettings;
         protected readonly OutputSettings outputSettings;
         
         protected IDictionary<string, Location> locations;
@@ -38,18 +37,21 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
+            BuildSettings buildSettings,
             OutputSettings outputSettings)
         {
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;
             this.titleRepository = titleRepository;
+
+            this.buildSettings = buildSettings;
             this.outputSettings = outputSettings;
         }
 
         public void Build()
         {
 
-            Console.WriteLine($" > Building the mod for {Game}...");
+            Console.WriteLine($" > Building the mod for {buildSettings.Game}...");
 
             StartTimedOperation("Fetching the data", () => LoadAllData());
             StartTimedOperation("Generating the files", () => GenerateFiles());
@@ -78,19 +80,19 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
             locationGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
+                .Where(x => x.Game == buildSettings.Game)
                 .OrderBy(x => x.Id)
                 .ToList();
 
             languageGameIds = languages.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
+                .Where(x => x.Game == buildSettings.Game)
                 .OrderBy(x => x.Id)
                 .ToList();
 
             titleGameIds = titles.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Game)
+                .Where(x => x.Game == buildSettings.Game)
                 .OrderBy(x => x.Id)
                 .ToList();
 

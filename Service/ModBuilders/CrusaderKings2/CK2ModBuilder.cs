@@ -18,8 +18,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 {
     public class CK2ModBuilder : ModBuilder, ICK2ModBuilder
     {
-        public override string Game => "CK2";
-
         protected virtual string InputLandedTitlesFileName => "ck2_landed_titles.txt";
         protected virtual string OutputLandedTitlesFileName => "landed_titles.txt";
 
@@ -40,8 +38,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
+            BuildSettings buildSettings,
             OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, titleRepository, outputSettings)
+            : base(languageRepository, locationRepository, titleRepository, buildSettings, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -57,7 +56,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
-                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Game);
+                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, buildSettings.Game);
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
             });
 
@@ -136,10 +135,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             foreach (Title title in titles.Values)
             {
                 IEnumerable<GameId> titleGameIds = title.GameIds
-                    .Where(x => x.Game == Game)
+                    .Where(x => x.Game == buildSettings.Game)
                     .OrderBy(x => x.Id);
 
-                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, Game);
+                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, buildSettings.Game);
 
                 if (localisation is null)
                 {

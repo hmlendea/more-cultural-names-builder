@@ -17,8 +17,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
 {
     public sealed class CK3ModBuilder : CK2ModBuilder, ICK3ModBuilder
     {
-        public override string Game => "CK3";
-
         protected override string InputLandedTitlesFileName => "ck3_landed_titles.txt";
         protected override string OutputLandedTitlesFileName => "999_MoreCulturalNames.txt";
 
@@ -34,8 +32,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
+            BuildSettings buildSettings,
             OutputSettings outputSettings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, outputSettings)
+            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, buildSettings, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;

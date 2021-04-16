@@ -16,8 +16,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 {
     public sealed class ImperatorRomeModBuilder : ModBuilder, IImperatorRomeModBuilder
     {
-        public override string Game => "ImperatorRome";
-
         IDictionary<string, IDictionary<string, Localisation>> localisations;
             
         readonly ILocalisationFetcher localisationFetcher;
@@ -27,8 +25,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
+            BuildSettings buildSettings,
             OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, titleRepository, outputSettings)
+            : base(languageRepository, locationRepository, titleRepository, buildSettings, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
         }
@@ -41,7 +40,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
                 IDictionary<string, Localisation> locationLocalisations = localisationFetcher
-                    .GetGameLocationLocalisations(locationGameId.Id, Game)
+                    .GetGameLocationLocalisations(locationGameId.Id, buildSettings.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);

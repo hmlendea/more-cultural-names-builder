@@ -9,8 +9,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 {
     public sealed class CK2HIPModBuilder : CK2ModBuilder, ICK2HIPModBuilder
     {
-        public override string Game => "CK2HIP";
-
         protected override string InputLandedTitlesFileName => "ck2hip_landed_titles.txt";
         protected override string OutputLandedTitlesFileName => "swmh_landed_titles.txt";
 
@@ -20,6 +18,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
+            BuildSettings buildSettings,
             OutputSettings outputSettings)
             : base(
                 localisationFetcher,
@@ -27,6 +26,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
                 languageRepository,
                 locationRepository,
                 titleRepository,
+                buildSettings,
                 outputSettings)
         {
         }
