@@ -32,14 +32,12 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            ModSettings modSettings,
-            OutputSettings outputSettings)
+            Settings settings)
             : base(
                 languageRepository,
                 locationRepository,
                 titleRepository,
-                modSettings,
-                outputSettings)
+                settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -49,17 +47,17 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         {
             countryTags = languages.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == modSettings.Game)
+                .Where(x => x.Game == Settings.Mod.Game)
                 .Select(x => x.Id);
 
             stateGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == modSettings.Game && x.Type == "State")
+                .Where(x => x.Game == Settings.Mod.Game && x.Type == "State")
                 .OrderBy(x => int.Parse(x.Id));
 
             cityGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == modSettings.Game && x.Type == "City")
+                .Where(x => x.Game == Settings.Mod.Game && x.Type == "City")
                 .OrderBy(x => int.Parse(x.Id));
 
             stateCities = cityGameIds
@@ -72,7 +70,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             foreach (GameId stateGameId in stateGameIds)
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
-                    .GetGameLocationLocalisations(stateGameId.Id, modSettings.Game)
+                    .GetGameLocationLocalisations(stateGameId.Id, Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 stateLocalisations.Add(stateGameId.Id, localisations);
@@ -81,7 +79,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             foreach (GameId cityGameId in cityGameIds)
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
-                    .GetGameLocationLocalisations(cityGameId.Id, modSettings.Game)
+                    .GetGameLocationLocalisations(cityGameId.Id, Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 cityLocalisations.Add(cityGameId.Id, localisations);
@@ -90,7 +88,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, modSettings.Id);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
             string eventsDirectoryPath = Path.Combine(mainDirectoryPath, "events");
 
             Directory.CreateDirectory(mainDirectoryPath);
@@ -107,8 +105,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateInnerDescriptorContent();
 
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{modSettings.Id}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, modSettings.Id, $"descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, $"descriptor.mod");
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
@@ -166,7 +164,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 nameSetsEventContent +=
                     $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }} # {stateLocalisation.Name}";
                 
-                if (outputSettings.AreVerboseCommentsEnabled)
+                if (Settings.Output.AreVerboseCommentsEnabled)
                 {
                     nameSetsEventContent += $" # Language={stateLocalisation.LanguageId}";
                 }
@@ -216,7 +214,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                     nameSetsEventContent +=
                         $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}";
                 
-                    if (outputSettings.AreVerboseCommentsEnabled)
+                    if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         nameSetsEventContent += $" # Language={cityLocalisation.LanguageId}";
                     }
@@ -247,16 +245,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         string GenerateMainDescriptorContent()
         {
             return GenerateInnerDescriptorContent() + Environment.NewLine +
-                $"path=\"mod/{modSettings.Id}\"";
+                $"path=\"mod/{Settings.Mod.Id}\"";
         }
 
         string GenerateInnerDescriptorContent()
         {
             return
-                $"# Version {modSettings.Version} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{modSettings.Name}\"" + Environment.NewLine +
-                $"version=\"{modSettings.Version}\"" + Environment.NewLine +
-                $"supported_version=\"{modSettings.GameVersion}\"" + Environment.NewLine +
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
+                $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
+                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"    \"Map\"" + Environment.NewLine +

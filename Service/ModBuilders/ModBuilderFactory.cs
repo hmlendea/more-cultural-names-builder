@@ -26,9 +26,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             IRepository<LanguageEntity> languageRepository = Program.ServiceProvider.GetService<IRepository<LanguageEntity>>();
             IRepository<LocationEntity> locationRepository = Program.ServiceProvider.GetService<IRepository<LocationEntity>>();
             IRepository<TitleEntity> titleRepository = Program.ServiceProvider.GetService<IRepository<TitleEntity>>();
-            ModSettings modSettings = Program.ServiceProvider.GetService<ModSettings>();
-            InputSettings inputSettings = Program.ServiceProvider.GetService<InputSettings>();
-            OutputSettings outputSettings = Program.ServiceProvider.GetService<OutputSettings>();
+            Settings settings = Program.ServiceProvider.GetService<Settings>();
 
             if (normalisedGame.StartsWith("CK2"))
             {
@@ -38,9 +36,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                     languageRepository,
                     locationRepository,
                     titleRepository,
-                    modSettings,
-                    inputSettings,
-                    outputSettings);
+                    settings);
             }
             
             if (normalisedGame.StartsWith("CK3"))
@@ -51,9 +47,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                     languageRepository,
                     locationRepository,
                     titleRepository,
-                    modSettings,
-                    inputSettings,
-                    outputSettings);
+                    settings);
             }
             
             if (normalisedGame.StartsWith("HOI4"))
@@ -64,8 +58,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                     languageRepository,
                     locationRepository,
                     titleRepository,
-                    modSettings,
-                    outputSettings);
+                    settings);
             }
             
             if (normalisedGame.StartsWith("IR") ||
@@ -76,8 +69,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                     languageRepository,
                     locationRepository,
                     titleRepository,
-                    modSettings,
-                    outputSettings);
+                    settings);
             }
             
             throw new NotImplementedException($"The game \"{game}\" is not supported");

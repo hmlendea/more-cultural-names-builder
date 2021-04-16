@@ -22,7 +22,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
-        readonly InputSettings inputSettings;
 
         public CK3ModBuilder(
             ILocalisationFetcher localisationFetcher,
@@ -30,29 +29,26 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            ModSettings modSettings,
-            InputSettings inputSettings,
-            OutputSettings outputSettings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, modSettings, inputSettings, outputSettings)
+            Settings settings)
+            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
-            this.inputSettings = inputSettings;
         }
 
         protected override string GenerateMainDescriptorContent()
         {
             return GenerateDescriptorContent() + Environment.NewLine +
-                $"path=\"mod/{modSettings.Id}\"";
+                $"path=\"mod/{Settings.Mod.Id}\"";
         }
 
         protected override string GenerateDescriptorContent()
         {
             return
-                $"# Version {modSettings.Version} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{modSettings.Name}\"" + Environment.NewLine +
-                $"version=\"{modSettings.Version}\"" + Environment.NewLine +
-                $"supported_version=\"{modSettings.GameVersion}\"" + Environment.NewLine +
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
+                $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
+                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Culture\"" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
@@ -63,7 +59,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected override string ReadLandedTitlesFile()
         {
-            return File.ReadAllText(inputSettings.LandedTitlesFilePath);
+            return File.ReadAllText(Settings.Input.LandedTitlesFilePath);
         }
 
         protected override void WriteLandedTitlesFile(string filePath, string content)
@@ -100,7 +96,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
                 string lineToAdd = $"{indentation2}{localisation.LanguageGameId} = \"{normalisedName}\"";
 
-                if (outputSettings.AreVerboseCommentsEnabled)
+                if (Settings.Output.AreVerboseCommentsEnabled)
                 {
                     lineToAdd += $" # Language={localisation.LanguageId}";
                 }
@@ -135,8 +131,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateDescriptorContent();
             
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{modSettings.Id}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, modSettings.Id, "descriptor.mod");	
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, "descriptor.mod");	
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);	
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);	

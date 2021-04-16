@@ -25,9 +25,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            ModSettings modSettings,
-            OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, titleRepository, modSettings, outputSettings)
+            Settings settings)
+            : base(languageRepository, locationRepository, titleRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
         }
@@ -40,7 +39,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
                 IDictionary<string, Localisation> locationLocalisations = localisationFetcher
-                    .GetGameLocationLocalisations(locationGameId.Id, modSettings.Game)
+                    .GetGameLocationLocalisations(locationGameId.Id, Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
@@ -51,7 +50,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, modSettings.Id);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
             string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localization");
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string provinceNamesDirectoryPath = Path.Combine(commonDirectoryPath, "province_names");
@@ -85,7 +84,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
                     content += $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id} # {localisation.Name}";
 
-                    if (outputSettings.AreVerboseCommentsEnabled)
+                    if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         content += $" # Language={localisation.LanguageId}";
                     }
@@ -115,7 +114,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         void CreateLocalisationFile(string localisationDirectoryPath, string language)
         {
             string fileContent = GenerateLocalisationFileContent(language);
-            string fileName = $"{modSettings.Id}_provincenames_l_{language}.yml";
+            string fileName = $"{Settings.Mod.Id}_provincenames_l_{language}.yml";
             string filePath = Path.Combine(localisationDirectoryPath, fileName);
 
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
@@ -126,8 +125,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateInnerDescriptorContent();
 
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{modSettings.Id}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, modSettings.Id, $"descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, $"descriptor.mod");
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
@@ -145,7 +144,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
                     string provinceLocalisationDefinition = $" PROV{provinceId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"";
 
-                    if (outputSettings.AreVerboseCommentsEnabled)
+                    if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         provinceLocalisationDefinition += $" # Language={localisation.LanguageId}";
                     }
@@ -165,16 +164,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         string GenerateMainDescriptorContent()
         {
             return GenerateInnerDescriptorContent() + Environment.NewLine +
-                $"path=\"mod/{modSettings.Id}\"";
+                $"path=\"mod/{Settings.Mod.Id}\"";
         }
 
         string GenerateInnerDescriptorContent()
         {
             return
-                $"# Version {modSettings.Version} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{modSettings.Name}\"" + Environment.NewLine +
-                $"version=\"{modSettings.Version}\"" + Environment.NewLine +
-                $"supported_version=\"{modSettings.GameVersion}\"" + Environment.NewLine +
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
+                $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
+                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}";

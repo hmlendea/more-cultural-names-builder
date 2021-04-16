@@ -1,9 +1,7 @@
 using System;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using NuciCLI;
 using NuciDAL.Repositories;
 
 using MoreCulturalNamesModBuilder.Configuration;
@@ -17,9 +15,7 @@ namespace MoreCulturalNamesModBuilder
     {
         public static IServiceProvider ServiceProvider;
 
-        static ModSettings modSettings = null;
-        static InputSettings inputSettings = null;
-        static OutputSettings outputSettings = null;
+        static Settings settings = null;
 
         /// <summary>
         /// The entry point of the program, where the program control starts and ends.
@@ -27,31 +23,22 @@ namespace MoreCulturalNamesModBuilder
         /// <param name="args">The command line arguments.</param>
         public static void Main(string[] args)
         {
-            LoadConfiguration(args);
+            settings = new Settings(args);
             BuildServiceProvider();
 
             ServiceProvider
                 .GetService<IModBuilderFactory>()
-                .GetModBuilder(modSettings.Game)
+                .GetModBuilder(settings.Mod.Game)
                 .Build();
-        }
-
-        static void LoadConfiguration(string[] args)
-        {
-            modSettings = new ModSettings(args);
-            inputSettings = new InputSettings(args);
-            outputSettings = new OutputSettings(args);
         }
 
         static void BuildServiceProvider()
         {
             IServiceCollection serviceCollection = new ServiceCollection()
-                .AddSingleton(modSettings)
-                .AddSingleton(inputSettings)
-                .AddSingleton(outputSettings)
-                .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(inputSettings.LanguageStorePath))
-                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(inputSettings.LocationStorePath))
-                .AddSingleton<IRepository<TitleEntity>>(s => new XmlRepository<TitleEntity>(inputSettings.TitleStorePath))
+                .AddSingleton(settings)
+                .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(settings.Input.LanguageStorePath))
+                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(settings.Input.LocationStorePath))
+                .AddSingleton<IRepository<TitleEntity>>(s => new XmlRepository<TitleEntity>(settings.Input.TitleStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<IModBuilderFactory, ModBuilderFactory>();

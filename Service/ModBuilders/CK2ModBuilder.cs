@@ -28,7 +28,6 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
-        readonly InputSettings inputSettings;
 
         protected IDictionary<string, IEnumerable<Localisation>> localisations;
 
@@ -38,14 +37,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            ModSettings modSettings,
-            InputSettings inputSettings,
-            OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, titleRepository, modSettings, outputSettings)
+            Settings settings)
+            : base(languageRepository, locationRepository, titleRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
-            this.inputSettings = inputSettings;
             
             EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(encodingProvider);
@@ -58,7 +54,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
-                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, modSettings.Game);
+                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, Settings.Mod.Game);
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
             });
 
@@ -67,7 +63,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, modSettings.Id);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
 
@@ -85,13 +81,13 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         protected virtual string GenerateDescriptorContent()
         {
             string content =
-                $"# Version {modSettings.Version} ({DateTime.Now})" + Environment.NewLine +
-                $"# for {modSettings.Game} {modSettings.GameVersion}" + Environment.NewLine +
-                $"name = \"{modSettings.Name}\"" + Environment.NewLine;
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"# for {Settings.Mod.Game} {Settings.Mod.GameVersion}" + Environment.NewLine +
+                $"name = \"{Settings.Mod.Name}\"" + Environment.NewLine;
 
-            if (!string.IsNullOrWhiteSpace(modSettings.Dependency))
+            if (!string.IsNullOrWhiteSpace(Settings.Mod.Dependency))
             {
-                content += $"dependencies = {{ \"{modSettings.Dependency}\" }}" + Environment.NewLine;
+                content += $"dependencies = {{ \"{Settings.Mod.Dependency}\" }}" + Environment.NewLine;
             }
             
             content +=
@@ -104,7 +100,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         protected virtual string GenerateMainDescriptorContent()
         {
             return GenerateDescriptorContent() + Environment.NewLine +
-                $"path = \"mod/{modSettings.Id}\"";
+                $"path = \"mod/{Settings.Mod.Id}\"";
         }
 
         protected virtual string GetTitleLocalisationsContent(string line, string gameId)
@@ -124,7 +120,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
                 string lineToAdd = $"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\"";
 
-                if (outputSettings.AreVerboseCommentsEnabled)
+                if (Settings.Output.AreVerboseCommentsEnabled)
                 {
                     lineToAdd += $" # Language={localisation.LanguageId}";
                 }
@@ -147,10 +143,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             foreach (Title title in titles.Values)
             {
                 IEnumerable<GameId> titleGameIds = title.GameIds
-                    .Where(x => x.Game == modSettings.Game)
+                    .Where(x => x.Game == Settings.Mod.Game)
                     .OrderBy(x => x.Id);
 
-                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, modSettings.Game);
+                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, Settings.Mod.Game);
 
                 if (localisation is null)
                 {
@@ -162,7 +158,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                     string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
                     string line = $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x";
                     
-                    if (outputSettings.AreVerboseCommentsEnabled)
+                    if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         line += $" # Language={localisation.LanguageId}";
                     }
@@ -186,7 +182,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         {
             Encoding encoding = Encoding.GetEncoding("windows-1252");
             
-            return File.ReadAllText(inputSettings.LandedTitlesFilePath, encoding);
+            return File.ReadAllText(Settings.Input.LandedTitlesFilePath, encoding);
         }
 
         protected virtual void WriteLandedTitlesFile(string filePath, string content)
@@ -207,7 +203,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected virtual void CreateTitlesLocalisationFiles()
         {
-            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, modSettings.Id, "localisation");
+            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, "localisation");
             Directory.CreateDirectory(localisationsDirectoryPath);
 
             foreach (GameId languageGameId in languageGameIds)
@@ -226,7 +222,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         protected virtual void CreateDescriptorFiles()
         {
-            string filePath = Path.Combine(OutputDirectoryPath, $"{modSettings.Id}.mod");
+            string filePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
             string content = GenerateMainDescriptorContent();
 
             File.WriteAllText(filePath, content);
