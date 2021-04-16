@@ -52,15 +52,12 @@ namespace MoreCulturalNamesModBuilder
                 .AddSingleton<IModBuilderFactory, ModBuilderFactory>()
                 .BuildServiceProvider();
 
-            string games = NuciCLI.CliArgumentsReader.GetOptionValue(args, "--games");
+            string game = NuciCLI.CliArgumentsReader.GetOptionValue(args, "--game");
 
-            foreach (string game in games.Split(','))
-            {
-                serviceProvider
-                    .GetService<IModBuilderFactory>()
-                    .GetModBuilder(game)
-                    .Build();
-            }
+            serviceProvider
+                .GetService<IModBuilderFactory>()
+                .GetModBuilder(game)
+                .Build();
         }
 
         static void LoadConfiguration(string[] args)

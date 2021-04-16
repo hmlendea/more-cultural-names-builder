@@ -19,21 +19,35 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
         public IModBuilder GetModBuilder(string game)
         {
-            switch (game.ToUpperInvariant().Trim())
+            string normalisedGame = game.ToUpperInvariant().Trim();
+
+            if (normalisedGame.StartsWith("CK2"))
             {
-                case "CK2":
-                    return serviceProvider.GetService<ICK2ModBuilder>();
-                case "CK2HIP":
-                    return serviceProvider.GetService<ICK2HIPModBuilder>();
-                case "CK3":
-                    return serviceProvider.GetService<ICK3ModBuilder>();
-                case "HOI4":
-                    return serviceProvider.GetService<ICK3ModBuilder>();
-                case "IMPERATORROME":
-                    return serviceProvider.GetService<IImperatorRomeModBuilder>();
-                default:
-                    throw new NotImplementedException($"The game \"{game}\" is not supported");
+                return serviceProvider.GetService<ICK2ModBuilder>();
             }
+            
+            if (normalisedGame.StartsWith("CK2HIP"))
+            {
+                return serviceProvider.GetService<ICK2HIPModBuilder>();
+            }
+            
+            if (normalisedGame.StartsWith("CK3"))
+            {
+                return serviceProvider.GetService<ICK3ModBuilder>();
+            }
+            
+            if (normalisedGame.StartsWith("HOI4"))
+            {
+                return serviceProvider.GetService<ICK3ModBuilder>();
+            }
+            
+            if (normalisedGame.StartsWith("IR") ||
+                normalisedGame.StartsWith("IMPERATORROME"))
+            {
+                return serviceProvider.GetService<IImperatorRomeModBuilder>();
+            }
+            
+            throw new NotImplementedException($"The game \"{game}\" is not supported");
         }
     }
 }
