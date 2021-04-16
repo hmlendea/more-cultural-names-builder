@@ -119,6 +119,7 @@ namespace MoreCulturalNamesModBuilder.Service
                             localisation.Id = titleIdToCheck;
                             localisation.LanguageId = languageIdToCheck;
                             localisation.Name = name.Value;
+                            localisation.Adjective = name.Adjective;
                             localisation.Comment = name.Comment;
 
                             return localisation;
@@ -157,6 +158,7 @@ namespace MoreCulturalNamesModBuilder.Service
                             localisation.Id = locationIdToCheck;
                             localisation.LanguageId = languageIdToCheck;
                             localisation.Name = name.Value;
+                            localisation.Adjective = name.Adjective;
                             localisation.Comment = name.Comment;
 
                             return localisation;

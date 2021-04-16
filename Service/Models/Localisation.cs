@@ -12,6 +12,8 @@ namespace MoreCulturalNamesModBuilder.Service.Models
 
         public string Name { get; set; }
 
+        public string Adjective { get; set; }
+
         public string Comment { get; set; }
     }
 }
