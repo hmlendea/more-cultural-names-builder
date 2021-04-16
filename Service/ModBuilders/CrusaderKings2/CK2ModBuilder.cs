@@ -38,10 +38,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            BuildSettings buildSettings,
+            ModSettings modSettings,
             InputSettings inputSettings,
             OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, titleRepository, buildSettings, outputSettings)
+            : base(languageRepository, locationRepository, titleRepository, modSettings, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -58,7 +58,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
-                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, buildSettings.Game);
+                IEnumerable<Localisation> locationLocalisations = localisationFetcher.GetGameLocationLocalisations(locationGameId.Id, modSettings.Game);
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
             });
 
@@ -67,7 +67,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, ModId);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, modSettings.Id);
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string landedTitlesDirectoryPath = Path.Combine(commonDirectoryPath, "landed_titles");
 
@@ -85,8 +85,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         protected virtual string GenerateDescriptorContent()
         {
             return
-                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
-                $"name = \"{outputSettings.CK2ModName}\"" + Environment.NewLine +
+                $"# Version {modSettings.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"# for {modSettings.Game} {modSettings.GameVersion}" + Environment.NewLine +
+                $"name = \"{modSettings.Name}\"" + Environment.NewLine +
                 $"picture = \"thumbnail.png\"" + Environment.NewLine +
                 $"tags = {{ map immersion }}";
         }
@@ -94,7 +95,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
         protected virtual string GenerateMainDescriptorContent()
         {
             return GenerateDescriptorContent() + Environment.NewLine +
-                $"path = \"mod/{outputSettings.CK2ModId}\"";
+                $"path = \"mod/{modSettings.Id}\"";
         }
 
         protected virtual string GetTitleLocalisationsContent(string line, string gameId)
@@ -137,10 +138,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
             foreach (Title title in titles.Values)
             {
                 IEnumerable<GameId> titleGameIds = title.GameIds
-                    .Where(x => x.Game == buildSettings.Game)
+                    .Where(x => x.Game == modSettings.Game)
                     .OrderBy(x => x.Id);
 
-                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, buildSettings.Game);
+                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, modSettings.Game);
 
                 if (localisation is null)
                 {
@@ -197,7 +198,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected virtual void CreateTitlesLocalisationFiles()
         {
-            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, ModId, "localisation");
+            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, modSettings.Id, "localisation");
             Directory.CreateDirectory(localisationsDirectoryPath);
 
             foreach (GameId languageGameId in languageGameIds)
@@ -216,7 +217,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings2
 
         protected virtual void CreateDescriptorFiles()
         {
-            string filePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
+            string filePath = Path.Combine(OutputDirectoryPath, $"{modSettings.Id}.mod");
             string content = GenerateMainDescriptorContent();
 
             File.WriteAllText(filePath, content);

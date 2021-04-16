@@ -25,9 +25,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            BuildSettings buildSettings,
+            ModSettings modSettings,
             OutputSettings outputSettings)
-            : base(languageRepository, locationRepository, titleRepository, buildSettings, outputSettings)
+            : base(languageRepository, locationRepository, titleRepository, modSettings, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
         }
@@ -40,7 +40,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
                 IDictionary<string, Localisation> locationLocalisations = localisationFetcher
-                    .GetGameLocationLocalisations(locationGameId.Id, buildSettings.Game)
+                    .GetGameLocationLocalisations(locationGameId.Id, modSettings.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
@@ -51,7 +51,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId);
+            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, modSettings.Id);
             string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localization");
             string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
             string provinceNamesDirectoryPath = Path.Combine(commonDirectoryPath, "province_names");
@@ -115,7 +115,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         void CreateLocalisationFile(string localisationDirectoryPath, string language)
         {
             string fileContent = GenerateLocalisationFileContent(language);
-            string fileName = $"{outputSettings.ImperatorRomeModId}_provincenames_l_{language}.yml";
+            string fileName = $"{modSettings.Id}_provincenames_l_{language}.yml";
             string filePath = Path.Combine(localisationDirectoryPath, fileName);
 
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
@@ -126,8 +126,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateInnerDescriptorContent();
 
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{outputSettings.ImperatorRomeModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, outputSettings.ImperatorRomeModId, $"descriptor.mod");
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{modSettings.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, modSettings.Id, $"descriptor.mod");
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
@@ -165,16 +165,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.ImperatorRome
         string GenerateMainDescriptorContent()
         {
             return GenerateInnerDescriptorContent() + Environment.NewLine +
-                $"path=\"mod/{outputSettings.ImperatorRomeModId}\"";
+                $"path=\"mod/{modSettings.Id}\"";
         }
 
         string GenerateInnerDescriptorContent()
         {
             return
-                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{outputSettings.ImperatorRomeModName}\"" + Environment.NewLine +
-                $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
-                $"supported_version=\"{outputSettings.ImperatorRomeGameVersion}\"" + Environment.NewLine +
+                $"# Version {modSettings.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"name=\"{modSettings.Name}\"" + Environment.NewLine +
+                $"version=\"{modSettings.Version}\"" + Environment.NewLine +
+                $"supported_version=\"{modSettings.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}";

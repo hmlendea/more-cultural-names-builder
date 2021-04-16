@@ -31,10 +31,10 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
-            BuildSettings buildSettings,
+            ModSettings modSettings,
             InputSettings inputSettings,
             OutputSettings outputSettings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, buildSettings, inputSettings, outputSettings)
+            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, modSettings, inputSettings, outputSettings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -44,16 +44,16 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
         protected override string GenerateMainDescriptorContent()
         {
             return GenerateDescriptorContent() + Environment.NewLine +
-                $"path=\"mod/{outputSettings.CK3ModId}\"";
+                $"path=\"mod/{modSettings.Id}\"";
         }
 
         protected override string GenerateDescriptorContent()
         {
             return
-                $"# Version {outputSettings.ModVersion} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{outputSettings.CK3ModName}\"" + Environment.NewLine +
-                $"version=\"{outputSettings.ModVersion}\"" + Environment.NewLine +
-                $"supported_version=\"{outputSettings.CK3GameVersion}\"" + Environment.NewLine +
+                $"# Version {modSettings.Version} ({DateTime.Now})" + Environment.NewLine +
+                $"name=\"{modSettings.Name}\"" + Environment.NewLine +
+                $"version=\"{modSettings.Version}\"" + Environment.NewLine +
+                $"supported_version=\"{modSettings.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Culture\"" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
@@ -136,8 +136,8 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders.CrusaderKings3
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateDescriptorContent();
             
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{ModId}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, ModId, "descriptor.mod");	
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{modSettings.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, modSettings.Id, "descriptor.mod");	
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);	
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);	

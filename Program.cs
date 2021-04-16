@@ -19,7 +19,7 @@ namespace MoreCulturalNamesModBuilder
 {
     public class Program
     {
-        static BuildSettings buildSettings = null;
+        static ModSettings modSettings = null;
         static InputSettings inputSettings = null;
         static OutputSettings outputSettings = null;
 
@@ -35,7 +35,7 @@ namespace MoreCulturalNamesModBuilder
             LoadConfiguration(args);
 
             IServiceProvider serviceProvider = new ServiceCollection()
-                .AddSingleton(buildSettings)
+                .AddSingleton(modSettings)
                 .AddSingleton(inputSettings)
                 .AddSingleton(outputSettings)
                 .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(inputSettings.LanguageStorePath))
@@ -52,7 +52,7 @@ namespace MoreCulturalNamesModBuilder
 
             serviceProvider
                 .GetService<IModBuilderFactory>()
-                .GetModBuilder(buildSettings.Game)
+                .GetModBuilder(modSettings.Game)
                 .Build();
         }
 
@@ -62,14 +62,13 @@ namespace MoreCulturalNamesModBuilder
                 .AddJsonFile("appsettings.json", true, true)
                 .Build();
 
-            buildSettings = new BuildSettings(args);
+            modSettings = new ModSettings(args);
             inputSettings = new InputSettings(args);
             outputSettings = new OutputSettings();
 
             config.Bind(nameof(InputSettings), inputSettings);
             config.Bind(nameof(OutputSettings), outputSettings);
 
-            outputSettings.ModVersion = CliArgumentsReader.GetOptionValue(args, VersionOptions);
             outputSettings.ModOutputDirectory = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
         }
     }
