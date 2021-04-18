@@ -55,11 +55,33 @@ namespace MoreCulturalNamesModBuilder.Service
                 .ToDictionary(key => key.Id, val => val);
         }
 
-        public IEnumerable<Localisation> GetGameLocationLocalisations(string locationGameId, string game)
+        public IEnumerable<Localisation> GetGameLocationLocalisations(
+            string locationGameId,
+            string game)
+            => GetGameLocationLocalisations(locationGameId, null, game);
+
+        public IEnumerable<Localisation> GetGameLocationLocalisations(
+            string locationGameId,
+            string locationGameIdType,
+            string game)
         {
             ConcurrentBag<Localisation> localisations = new ConcurrentBag<Localisation>();
 
-            Location location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x => x.Game == game && x.Id == locationGameId));
+            Location location;
+
+            if (string.IsNullOrWhiteSpace(locationGameIdType))
+            {
+                location = locations.Values.FirstOrDefault(x => x.GameIds.Any(
+                    x => x.Game == game &&
+                    x.Id == locationGameId));
+            }
+            else
+            {
+                location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x => 
+                x.Game == game &&
+                x.Id == locationGameId &&
+                x.Type == locationGameIdType));
+            }
 
             if (location is null)
             {

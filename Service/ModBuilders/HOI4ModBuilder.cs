@@ -70,7 +70,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             foreach (GameId stateGameId in stateGameIds)
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
-                    .GetGameLocationLocalisations(stateGameId.Id, Settings.Mod.Game)
+                    .GetGameLocationLocalisations(stateGameId.Id, "State", Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 stateLocalisations.Add(stateGameId.Id, localisations);
@@ -79,7 +79,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             foreach (GameId cityGameId in cityGameIds)
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
-                    .GetGameLocationLocalisations(cityGameId.Id, Settings.Mod.Game)
+                    .GetGameLocationLocalisations(cityGameId.Id, "City", Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 cityLocalisations.Add(cityGameId.Id, localisations);
