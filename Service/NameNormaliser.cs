@@ -441,7 +441,8 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[∃]", "Ǝ");
             processedName = Regex.Replace(processedName, "[Ǧ]", "Ğ");
             processedName = Regex.Replace(processedName, "[Ƣ]", "Ğ"); // Untested in the games
-            processedName = Regex.Replace(processedName, "[ȜƔ]", "Gh");
+            processedName = Regex.Replace(processedName, "[Ȝ]", "Gh"); // Or G
+            processedName = Regex.Replace(processedName, "[Ɣ]", "Gh");
             processedName = Regex.Replace(processedName, "[Ǐ]", "Ĭ");
             processedName = Regex.Replace(processedName, "[ІΙ]", "I");
             processedName = Regex.Replace(processedName, "[Ј]", "J");
@@ -450,7 +451,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[Ǒ]", "Ŏ");
             processedName = Regex.Replace(processedName, "[Θ]", "Th");
             processedName = Regex.Replace(processedName, "[Т]", "T");
-            processedName = Regex.Replace(processedName, "[Ƿ]", "Uu");
+            processedName = Regex.Replace(processedName, "[Ƿ]", "Uu"); // Or W
             processedName = Regex.Replace(processedName, "[Ʊ]", "U");
             processedName = Regex.Replace(processedName, "[Ǔ]", "Ŭ");
             processedName = Regex.Replace(processedName, "[Ƶ]", "Z");
@@ -465,7 +466,8 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[έ]", "é");
             processedName = Regex.Replace(processedName, "[ǧ]", "ğ");
             processedName = Regex.Replace(processedName, "[ƣ]", "ğ"); // Untested in the games
-            processedName = Regex.Replace(processedName, "[ȝɣ]", "gh");
+            processedName = Regex.Replace(processedName, "[ȝ]", "gh"); // Or g
+            processedName = Regex.Replace(processedName, "[ɣ]", "gh");
             processedName = Regex.Replace(processedName, "[ɩ]", "ı");
             processedName = Regex.Replace(processedName, "[ǐ]", "ĭ");
             processedName = Regex.Replace(processedName, "[ḯ]", "ï");
@@ -478,7 +480,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ǒ]", "ŏ");
             processedName = Regex.Replace(processedName, "[θ]", "th");
             processedName = Regex.Replace(processedName, "[т]", "t");
-            processedName = Regex.Replace(processedName, "[ƿ]", "uu");
+            processedName = Regex.Replace(processedName, "[ƿ]", "uu"); // Or w
             processedName = Regex.Replace(processedName, "[ʊ]", "u");
             processedName = Regex.Replace(processedName, "[ǔ]", "ŭ");
             processedName = Regex.Replace(processedName, "[ύ]", "ú");
