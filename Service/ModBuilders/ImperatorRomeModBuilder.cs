@@ -19,9 +19,11 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
         IDictionary<string, IDictionary<string, Localisation>> localisations;
             
         readonly ILocalisationFetcher localisationFetcher;
+        readonly INameNormaliser nameNormaliser;
 
         public ImperatorRomeModBuilder(
             ILocalisationFetcher localisationFetcher,
+            INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             IRepository<TitleEntity> titleRepository,
@@ -29,6 +31,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             : base(languageRepository, locationRepository, titleRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
+            this.nameNormaliser = nameNormaliser;
         }
 
         protected override void LoadData()
@@ -82,7 +85,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
 
                     Localisation localisation = localisations[provinceId][languageGameId.Id];
 
-                    content += $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id} # {localisation.Name}";
+                    content += $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id} # {nameNormaliser.ToImperatorRomeCharset(localisation.Name)}";
 
                     if (Settings.Output.AreVerboseCommentsEnabled)
                     {
@@ -142,7 +145,9 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
                 {
                     Localisation localisation = localisations[provinceId][culture];
 
-                    string provinceLocalisationDefinition = $" PROV{provinceId}_{localisation.LanguageGameId}:0 \"{localisation.Name}\"";
+                    string provinceLocalisationDefinition =
+                        $" PROV{provinceId}_{localisation.LanguageGameId}:0 " +
+                        $"\"{nameNormaliser.ToImperatorRomeCharset(localisation.Name)}\"";
 
                     if (Settings.Output.AreVerboseCommentsEnabled)
                     {

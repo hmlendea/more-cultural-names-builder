@@ -8,6 +8,8 @@ namespace MoreCulturalNamesModBuilder.Service
         
         string ToHOI4StateCharset(string name);
         
+        string ToImperatorRomeCharset(string name);
+        
         string ToWindows1252(string name);
     }
 }
