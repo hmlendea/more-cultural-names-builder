@@ -66,6 +66,7 @@ namespace MoreCulturalNamesModBuilder.Service.ModBuilders
             {
                 return new ImperatorRomeModBuilder(
                     localisationFetcher,
+                    nameNormaliser,
                     languageRepository,
                     locationRepository,
                     titleRepository,
