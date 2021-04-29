@@ -8,6 +8,8 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
 {
     public class NameNormaliserTests
     {
+        const string StringOfVariousCharacters = "‎‎[]`{}´·ʹʺ–‘’”′∃̧̣̤̓́̀̆̂̌̈̄̍͘áÁàÀăĂắẮẵâÂấẤầẦǎåÅäÄǟãÃȧąāĀảẢạẠậẬæÆǣǢḃḂḅḄćĆĉĈčČċĊçÇďĎđĐḍḌḏḎðÐɖƉɗƊéÉèÈĕêÊếẾềỀểỂěĚëËẽẼėĖęĘēĒḗḖẻẹẸệỆǝƎəƏɛƐǵǴğĞĝĜǧǦġĠģĢɣƔƣƢĥĤḧḦḩḨħĦḥḤḫḪʻíÍìÌĭĬîÎǐǏïÏḯĩĨİįĮīĪịỊıɩʲĵĴǰǩǨķĶḳḲḵḴƙƘĺĹľĽļĻłŁḷḶɬḿḾṃṂⁿńŃǹǸňŇñÑṅṄņŅṇṆɲƝŋŊóÓòÒŏŎôÔốỐồỒổỔǒǑöÖȫȪőŐõÕȯøØǿǾǫǪōŌṓṒơƠờỜỡỠọỌộỘœŒɔṕṔŕŔřŘṛṚśŚŝŜšŠṡṠşŞṣṢșȘßťŤẗţŢṭṬțȚŧŦúÚùÙŭŬûÛǔǓůŮüÜǜǛűŰũŨųŲūŪủưƯứỨụỤṳṲʊƱṿṾẅẄẍẌýÝỳỲŷŶÿẏẎȳȲȝȜźŹžŽżŻẓẒƶƵʐþÞƿǷʼʾʿαάὰεΕέθΘιΙΟόύаАеЕіІјЈкКоОтТџЏ";
+        const string CK3Characters = ".­̦̒̕  _-–—,;:!¡?¿.…·'‘’‚‹›\"“”„«»()[]{}§¶@*/\\&#%‰†‡•`´˜^¯˘˙¨˚˝¸˛ˆˇ°©®∂∏+±÷×<=≠>¬|¦~−⁄∞≈¤¢$£¥€01¹½¼2²3³¾456789aAªáÁàÀăĂâÂåÅäÄãÃąĄāĀæÆǽǼbBcCćĆĉĈčČċĊçÇdDďĎđĐðÐeEéÉèÈĕĔêÊěĚëËėĖęĘēĒfFﬁﬂgGğĞĝĜġĠģĢhHĥĤħĦiIíÍìÌĭĬîÎïÏĩĨİįĮīĪĳĲıjJĵĴȷkKķĶlLĺĹľĽļĻłŁŀĿmMnNńŃňŇñÑņŅŋŊoOºóÓòÒŏŎôÔöÖőŐõÕøØǿǾōŌœŒpPqQĸrRŕŔřŘŗŖsSśŚŝŜšŠșȘşŞßtTťŤțȚţŢ™ŧŦuUúÚùÙŭŬûÛůŮüÜűŰũŨųŲūŪvVwWẃẂẁẀŵŴẅẄxXyYýÝỳỲŷŶÿŸzZźŹžŽżŻþÞŉµπ";
         const string Windows1252Characters = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
         
         private INameNormaliser nameNormaliser;
@@ -19,15 +21,20 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         }
 
         [Test]
+        [TestCase("an-Nāṣira", "an-Nāșira")]
         [TestCase("Basileia Rhṓmaiṓn", "Basileia Rhōmaiōn")]
         [TestCase("Budapeşt", "Budapeşt")]
+        [TestCase("Bułgar Wielki", "Bułgar Wielki")]
+        [TestCase("Chęciny", "Chęciny")]
+        [TestCase("Danmǫrk", "Danmörk")]
         [TestCase("Đế quốc Nga", "Đê quôc Nga")]
         [TestCase("Farƣona", "Farğona")]
+        [TestCase("K’asablank’a", "K´asablank´a")]
         [TestCase("Lò̤-mā Dá̤-guók", "Lò-mā Dá-guók")]
-        [TestCase("Lúksẹ́mbọ̀rg", "Lúksẹḿbọrg")]
+        [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
         [TestCase("Novyĭ Margelan", "Novyĭ Margelan")]
         [TestCase("Starověký Řím", "Starověký Řím")]
-        public void GivenAName_WhenNormalisingForCK3_ReturnsTheExpectedNormalisedName(
+        public void WhenNormalisingForCK3_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
         {
@@ -38,12 +45,17 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
 
         [Test]
         [TestCase("Â-ngì-pî-sṳ̂ sân", "Â-ngì-pî-sû sân")]
+        [TestCase("an-Nāṣira", "an-Nãsira")]
         [TestCase("Basileia Rhṓmaiṓn", "Basileia Rhõmaiõn")]
         [TestCase("Brægentford", "Brægentford")]
         [TestCase("Budapeşt", "Budapest")]
+        [TestCase("Bułgar Wielki", "Bulgar Wielki")]
+        [TestCase("Chęciny", "Checiny")]
+        [TestCase("Danmǫrk", "Danmörk")]
         [TestCase("Đế quốc Nga", "Ðê quôc Nga")]
         [TestCase("Enkoriџ", "Enkoridž")]
         [TestCase("Farƣona", "Fargona")]
+        [TestCase("K’asablank’a", "K´asablank´a")]
         [TestCase("Linkøbing", "Linkøbing")]
         [TestCase("Lò̤-mā Dá̤-guók", "Lò-mã Dá-guók")]
         [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
@@ -53,7 +65,7 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Semêndria", "Semêndria")]
         [TestCase("Starověký Řím", "Starovêký Rzím")]
         [TestCase("Tibískon", "Tibískon")]
-        public void GivenAName_WhenNormalisingForWindow1252_ReturnsTheExpectedNormalisedName(
+        public void WhenNormalisingForWindow1252_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
         {
@@ -63,17 +75,30 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         }
 
         [Test]
-        [TestCase("‎[]`{}´·ʹʺ–‘’”′∃̧̣̤̓́̀̆̂̌̈̄̍͘áÁàÀăĂắẮẵâÂấẤầẦǎåÅäÄǟãÃȧąāĀảẢạẠậẬæÆǣǢḃḂḅḄćĆĉĈčČċĊçÇďĎđĐḍḌḏḎðÐɖƉɗƊéÉèÈĕêÊếẾềỀểỂěĚëËẽẼėĖęĘēĒḗḖẻẹẸệỆǝƎəƏɛƐǵǴğĞĝĜǧǦġĠģĢɣƔƣƢĥĤḧḦḩḨħĦḥḤḫḪʻíÍìÌĭĬîÎǐǏïÏḯĩĨİįĮīĪịỊıɩʲĵĴǰǩǨķĶḳḲḵḴƙƘĺĹľĽļĻłŁḷḶɬḿḾṃṂⁿńŃǹǸňŇñÑṅṄņŅṇṆɲƝŋŊóÓòÒŏŎôÔốỐồỒổỔǒǑöÖȫȪőŐõÕȯøØǿǾǫǪōŌṓṒơƠờỜỡỠọỌộỘœŒɔṕṔŕŔřŘṛṚśŚŝŜšŠṡṠşŞṣṢșȘßťŤẗţŢṭṬțȚŧŦúÚùÙŭŬûÛǔǓůŮüÜǜǛűŰũŨųŲūŪủưƯứỨụỤṳṲʊƱṿṾẅẄẍẌýÝỳỲŷŶÿẏẎȳȲȝȜźŹžŽżŻẓẒƶƵʐþÞƿǷʼʾʿαάὰεΕέθΘιΙΟόύаАеЕіІјЈкКоОтТџЏ")]
-        public void GivenAName_WhenNormalisingForWindow1252_ReturnsTheNameWithoutCharactersOutsideCharset(
+        [TestCase(StringOfVariousCharacters)]
+        public void WhenNormalisingForCK3_ReturnsTheNameWithoutCharsOutsideCharset(
+            string name)
+        {
+            string actualResult = nameNormaliser.ToCK3Charset(name);
+            TestCharsNotOutsideSet(actualResult, CK3Characters);
+        }
+
+        [Test]
+        [TestCase(StringOfVariousCharacters)]
+        public void WhenNormalisingForWindow1252_ReturnsTheNameWithoutCharsOutsideCharset(
             string name)
         {
             string actualResult = nameNormaliser.ToWindows1252(name);
+            TestCharsNotOutsideSet(actualResult, Windows1252Characters);
+        }
 
+        void TestCharsNotOutsideSet(string str, string charset)
+        {
             string charsOutisdeCharset = string.Empty;
 
-            foreach (char c in actualResult)
+            foreach (char c in str)
             {
-                if (!Windows1252Characters.Contains(c))
+                if (!charset.Contains(c))
                 {
                     charsOutisdeCharset += c;
                 }
