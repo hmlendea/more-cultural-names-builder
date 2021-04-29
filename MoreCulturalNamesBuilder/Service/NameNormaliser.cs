@@ -411,7 +411,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "[ň]", "ñ");
             processedName = Regex.Replace(processedName, "[ńǹņṅṇŋɲ]", "n");
             processedName = Regex.Replace(processedName, "[ơǫọ]", "o");
-            processedName = Regex.Replace(processedName, "[ȯ    ]", "ó");
+            processedName = Regex.Replace(processedName, "[ȯ]", "ó");
             processedName = Regex.Replace(processedName, "[ờ]", "ò");
             processedName = Regex.Replace(processedName, "[ỡō]", "õ");
             processedName = Regex.Replace(processedName, "[ŏ̤ŏ]", "õ"); // Maybe replace with "eo"
@@ -582,6 +582,9 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = processedName.Replace("̈̈x", "ẍ");
             processedName = processedName.Replace("̈̈y", "ÿ");
             processedName = processedName.Replace("̈̈z", "z̈");
+
+            // Floating carets
+            processedName = processedName.Replace("ṳ̂", "û");
 
             // Floating commas
             processedName = processedName.Replace("A̓", "Á"); // Or Á?
