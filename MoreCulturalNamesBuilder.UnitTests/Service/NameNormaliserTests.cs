@@ -86,6 +86,15 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
 
         [Test]
         [TestCase(StringOfVariousCharacters)]
+        public void WhenNormalisingForIR_ReturnsTheNameWithoutCharsOutsideCharset(
+            string name)
+        {
+            string actualResult = nameNormaliser.ToImperatorRomeCharset(name);
+            TestCharsNotOutsideSet(actualResult, IRCharacters);
+        }
+
+        [Test]
+        [TestCase(StringOfVariousCharacters)]
         public void WhenNormalisingForWindow1252_ReturnsTheNameWithoutCharsOutsideCharset(
             string name)
         {
