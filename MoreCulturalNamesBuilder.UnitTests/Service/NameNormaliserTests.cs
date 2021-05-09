@@ -8,7 +8,7 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
 {
     public class NameNormaliserTests
     {
-        const string StringOfVariousCharacters = "‎̧̣̤̓́̀̆̂̌̈̄̍͘–—·‘’”[]`{}′´ʹʺ∃áÁàÀăĂắẮẵâÂấẤầẦǎåÅäÄǟǞãÃȧąāĀảẢạẠậẬæÆǣǢḃḂḅḄćĆĉĈčČċĊçÇďĎđĐḍḌḏḎðÐɖƉɗƊéÉèÈĕêÊếẾềỀểỂěĚëËẽẼėĖęĘēĒḗḖẻẺẹẸệỆǝƎəƏɛƐǵǴğĞĝĜǧǦġĠģĢɣƔƣƢĥĤḧḦḩḨħĦḥḤḫḪʻíÍìÌĭĬîÎǐǏïÏḯĩĨİįĮīĪịỊıɩʲĵĴǰǩǨķĶḳḲḵḴƙƘĺĹľĽļĻłŁḷḶɬḿḾṃṂⁿńŃǹǸňŇñÑṅṄņŅṇṆɲƝŋŊóÓòÒŏŎôÔốỐồỒổỔǒǑöÖȫȪőŐõÕȯȮøØǿǾǫǪōŌṓṒơƠờỜỡỠọỌộỘœŒɔṕṔɸŕŔřŘŗŖṛṚśŚŝŜšŠṡṠşŞṣṢșȘßťŤẗţŢṭṬțȚŧŦúÚùÙŭŬûÛǔǓůŮüÜǜǛűŰũŨųŲūŪủưƯứỨụỤṳṲʊƱṿṾẅẄẍẌýÝỳỲŷŶÿŸẏẎȳȲȝȜźŹžŽżŻẓẒƶƵʐþÞƿǷʼʾʿαάὰεΕέθΘιΙΟόύаАеЕіІјЈкКќЌоОтТџЏ";
+        const string StringOfVariousCharacters = "‎[]^`{}´·ʹʺ–—‘’”‡′∃̧̣̤̦̓́̀̆̂̌̈̋̄̍͘áÁàÀăĂắẮẵâÂấẤầẦǎåÅäÄǟǞãÃȧąāĀảẢạẠậẬæÆǣǢḃḂḅḄćĆĉĈčČċĊçÇďĎḑđĐḍḌḏḎðÐɖƉɗƊéÉèÈĕêÊếẾềỀểỂěĚëËẽẼėĖęĘēĒḗḖẻẺẹẸệỆǝƎəƏɛƐǵǴğĞĝĜǧǦġĠģĢɣƔƣƢĥĤḧḦḩḨħĦḥḤḫḪʻíÍìÌĭĬîÎǐǏïÏḯĩĨİįĮīĪịỊıɩʲĵĴǰḱḰǩǨķĶḳḲḵḴƙƘĺĹľĽļĻłŁḷḶɬḿḾṃṂⁿńŃǹǸňŇñÑṅṄņŅṇṆɲƝŋŊóÓòÒŏŎôÔốỐồỒổỔǒǑöÖȫȪőŐõÕȯȮøØǿǾǫǪōŌṓṒơƠờỜỡỠọỌộỘœŒɔṕṔɸŕŔřŘṙṘŗŖṛṚśŚŝŜšŠṡṠşŞṣṢșȘßťŤẗţŢṭṬțȚŧŦúÚùÙŭŬûÛǔǓůŮüÜǜǛűŰũŨųŲūŪủưƯứỨụỤṳṲʊƱṿṾẅẄẍẌýÝỳỲŷŶÿŸẏẎȳȲȝȜźŹžŽżŻẓẒƶƵʐþÞƿǷʼʾʿαάὰεΕέθΘιΙΟόύаАәеЕіІјЈкКќЌоОтТџЏьэЭюя";
         const string CK3Characters = ".­̦̒̕  _-–—,;:!¡?¿.…·'‘’‚‹›\"“”„«»()[]{}§¶@*/\\&#%‰†‡•`´˜^¯˘˙¨˚˝¸˛ˆˇ°©®∂∏+±÷×<=≠>¬|¦~−⁄∞≈¤¢$£¥€01¹½¼2²3³¾456789aAªáÁàÀăĂâÂåÅäÄãÃąĄāĀæÆǽǼbBcCćĆĉĈčČċĊçÇdDďĎđĐðÐeEéÉèÈĕĔêÊěĚëËėĖęĘēĒfFﬁﬂgGğĞĝĜġĠģĢhHĥĤħĦiIíÍìÌĭĬîÎïÏĩĨİįĮīĪĳĲıjJĵĴȷkKķĶlLĺĹľĽļĻłŁŀĿmMnNńŃňŇñÑņŅoOºóÓòÒŏŎôÔöÖőŐõÕøØǿǾōŌœŒpPqQĸrRŕŔřŘŗŖsSśŚŝŜšŠșȘşŞßtTťŤțȚţŢ™ŧŦuUúÚùÙŭŬûÛůŮüÜűŰũŨųŲūŪvVwWẃẂẁẀŵŴẅẄxXyYýÝỳỲŷŶÿŸzZźŹžŽżŻþÞŉµπ";
         const string HOI4MapCharacters = "­҈҉҆҅҄҇҃  _-,;:!¡?¿.·'\"”«»()[]{}§¶@*/\\&#%`´^¯¨¸°҂©®+±÷×<=>¬|¦~¤¢$£¥01¹½¼2²3³¾456789aAªáÁàÀăĂâÂåÅäÄãÃąĄāĀæÆbBcCćĆĉĈčČċĊçÇdDďĎđĐðÐeEéÉèÈĕĔêÊěĚëËėĖęĘēĒfFgGğĞĝĜġĠģĢhHĥĤħĦiIíÍìÌĭĬîÎïÏĩĨİįĮīĪіІїЇӀĳĲıjJĵĴkKķĶкКќЌқҚӄӃҡҠҟҞҝҜlLĺĹľĽļĻłŁŀĿmMмМӎӍnNńŃňŇñÑņŅŋŊиИѝЍӥӤӣӢҋҊйЙoOºóÓòÒŏŎôÔöÖőŐõÕøØōŌœŒоОӧӦөӨӫӪфФpPqQĸrRŕŔřŘŗŖsSśŚŝŜšŠşŞſßtTťŤţŢŧŦuUúÚùÙŭŬûÛůŮüÜűŰũŨųŲūŪvVwWŵŴxXхХӽӼӿӾҳҲyYýÝŷŶÿŸуУўЎӱӰӳӲӯӮүҮұҰzZźŹžŽżŻþÞŉµаАӑӐӓӒәӘӛӚӕӔбБвВгГѓЃґҐғҒӻӺҕҔӷӶдДђЂҙҘеЕѐЀӗӖёЁєЄжЖӂӁӝӜҗҖзЗӟӞѕЅӡӠјЈлЛӆӅљЉнНӊӉңҢӈӇҥҤњЊпПҧҦҁҀрРҏҎсСҫҪтТҭҬћЋѹѸһҺѡѠѿѾѽѼѻѺцЦҵҴчЧӵӴҷҶӌӋҹҸҽҼҿҾџЏшШщЩъЪыЫӹӸьЬҍҌѣѢэЭӭӬюЮяЯѥѤѧѦѫѪѩѨѭѬѯѮѱѰѳѲѵѴѷѶҩҨӏ";
         const string IRCharacters = "­̦ _-–—,;:!¡?¿.…·'‘’‚‹›\"“”„«»()[]{}§¶@*/\\&#%‰†‡•`´˜^¯˘˙¨˚˝¸˛ˆˇ°©®∂∏∑+±÷×<=≠>¬|¦~−⁄√∞∫≈≤≥◊¤¢$£¥€01¹½¼2²3³¾456789aAªáÁàÀăĂâÂåÅäÄãÃąĄāĀæÆbBcCćĆčČċĊçÇdDďĎđĐðÐeEéÉèÈêÊěĚëËėĖęĘēĒfFﬁﬂƒgGğĞġĠģĢhHħĦiIíÍìÌîÎïÏİįĮīĪĳĲıjJkKķĶlLĺĹľĽļĻłŁŀĿmMnNńŃňŇñÑņŅŋŊoOºóÓòÒôÔöÖőŐõÕøØōŌœŒpPqQrRŕŔřŘŗŖsSśŚšŠşŞșȘßtTťŤţŢțȚ™ŧŦuUúÚùÙûÛůŮüÜűŰųŲūŪvVwWẃẂẁẀŵŴẅẄxXyYýÝỳỲŷŶÿŸzZźŹžŽżŻþÞΔμπΩ";
@@ -47,8 +47,10 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Jémanị", "Jémanį")]
         [TestCase("K’asablank’a", "K’asablank’a")]
         [TestCase("Kašuubimaa", "Kašuubimaa")]
+        [TestCase("Lėnkėjė", "Lėnkėjė")]
         [TestCase("Lǐyuērènèilú", "Lĭyuērènèilú")]
         [TestCase("Lò̤-mā Dá̤-guók", "Lò-mā Dá-guók")]
+        [TestCase("Loṙow", "Loŕow")]
         [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
         [TestCase("Maďarsko", "Maďarsko")]
         [TestCase("Nörvêzi", "Nörvêzi")]
@@ -62,6 +64,7 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Sveti Đorđe", "Sveti Đorđe")]
         [TestCase("Taɖɛsalam", "Tadesalam")]
         [TestCase("Test ɸlāryoɸ", "Test Plāryop")]
+        [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
         public void WhenNormalisingForCK3_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
@@ -88,7 +91,10 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Jémanị", "Jémanį")]
         [TestCase("K’asablank’a", "K´asablank´a")]
         [TestCase("Kašuubimaa", "Kašuubimaa")]
+        [TestCase("Lėnkėjė", "Lėnkėjė")]
         [TestCase("Lǐyuērènèilú", "Lĭyuērènèilú")]
+        [TestCase("Lò̤-mā Dá̤-guók", "Lò-mā Dá-guók")]
+        [TestCase("Loṙow", "Loŕow")]
         [TestCase("Maďarsko", "Maďarsko")]
         [TestCase("Nörvêzi", "Nörvêzi")]
         [TestCase("Nowĩ", "Nowï")]
@@ -99,6 +105,7 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Sveti Đorđe", "Sveti Đorđe")]
         [TestCase("Taɖɛsalam", "Tadesalam")]
         [TestCase("Test ɸlāryoɸ", "Test Plāryop")]
+        [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
         public void WhenNormalisingForHOI4City_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
@@ -136,9 +143,11 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Jémanị", "Jémani")]
         [TestCase("K’asablank’a", "K’asablank’a")]
         [TestCase("Kašuubimaa", "Kašuubimaa")]
+        [TestCase("Lėnkėjė", "Lénkéjé")]
         [TestCase("Linkøbing", "Linkøbing")]
         [TestCase("Lǐyuērènèilú", "Lïyuërènèilú")]
         [TestCase("Lò̤-mā Dá̤-guók", "Lò-mã Dá-guók")]
+        [TestCase("Loṙow", "Lorow")]
         [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
         [TestCase("Maďarsko", "Madarsko")]
         [TestCase("Moscoƿ", "Moscouu")]
@@ -156,6 +165,7 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Taɖɛsalam", "Tadesalam")]
         [TestCase("Test ɸlāryoɸ", "Test Plãryop")]
         [TestCase("Tibískon", "Tibískon")]
+        [TestCase("Vialikaja Poĺšča", "Vialikaja Polšcha")]
         public void WhenNormalisingForWindow1252_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
