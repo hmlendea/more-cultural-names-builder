@@ -343,7 +343,7 @@ namespace MoreCulturalNamesModBuilder.Service
                 return irCache[name];
             }
 
-            string processedName = ToHOI4CityCharset(name);
+            string processedName = ApplyCommonReplacements(name);
 
             // Imperator: Rome
             processedName = Regex.Replace(processedName, "[Ǣ]", "Æ");
