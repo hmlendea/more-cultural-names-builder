@@ -1,4 +1,5 @@
 #!/bin/bash
+cd "MoreCulturalNamesBuilder"
 
 APP_NAME=$(git remote -v | tail -1 | sed 's|.*/\([^/]*\)\.git.*|\1|')
 VERSION="${1}"
@@ -31,10 +32,10 @@ function dotnet-pub {
     local OUTPUT_DIR="${PUBLISH_DIR_RELATIVE}/${ARCH}"
 
     dotnet publish \
-        -c Release \
-        -r "${ARCH}" \
-        -o "${OUTPUT_DIR}" \
-        --self-contained=true \
+        --configuration Release \
+        --runtime "${ARCH}" \
+        --output "${OUTPUT_DIR}" \
+        --self-contained true \
         /p:TrimUnusedDependencies=true \
         /p:LinkDuringPublish=true
 }
