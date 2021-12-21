@@ -41,10 +41,12 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Bùyínuòsīàilìsī", "Bùyínuòsīàilìsī")]
         [TestCase("Český Krumlov", "Český Krumlov")]
         [TestCase("Chęciny", "Chęciny")]
+        [TestCase("Đakovo", "Đakovo")]
         [TestCase("Danmǫrk", "Danmörk")]
         [TestCase("Đế quốc Nga", "Đê quôc Nga")]
         [TestCase("Ər-Rəqqə", "Ar-Raqqa")]
         [TestCase("Farƣona", "Farğona")]
+        [TestCase("Ġhaūdeš", "Ġhaūdeš")]
         [TestCase("Góðviðra", "Góðviðra")]
         [TestCase("Jémanị", "Jémanį")]
         [TestCase("K’asablank’a", "K’asablank’a")]
@@ -55,6 +57,7 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Loṙow", "Loŕow")]
         [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
         [TestCase("Maďarsko", "Maďarsko")]
+        [TestCase("Mūrīṭnīẗ al-Ṭinǧīẗ", "Mūrīțnīa al-Ținğīa")]
         [TestCase("Nörvêzi", "Nörvêzi")]
         [TestCase("Novyĭ Margelan", "Novyĭ Margelan")]
         [TestCase("Nowĩ", "Nowĩ")]
@@ -68,6 +71,9 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Taɖɛsalam", "Tadesalam")]
         [TestCase("Test ɸlāryoɸ", "Test Plāryop")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
+        [TestCase("Vюrцby’rg", "Viurcby’rg")]
+        [TestCase("Эstoniья", "Estoni'ia")]
+        [TestCase("Юli’h", "Iuli’h")]
         public void WhenNormalisingForCK3_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
@@ -91,7 +97,9 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("B‍risṭ‍riṭā", "Brisţriţā")]
         [TestCase("Bùyínuòsīàilìsī", "Bùyínuòsīàilìsī")]
         [TestCase("Český Krumlov", "Český Krumlov")]
+        [TestCase("Đakovo", "Đakovo")]
         [TestCase("Ər-Rəqqə", "Ar-Raqqa")]
+        [TestCase("Ġhaūdeš", "Ġhaūdeš")]
         [TestCase("Góðviðra", "Góðviðra")]
         [TestCase("Jémanị", "Jémanį")]
         [TestCase("K’asablank’a", "K´asablank´a")]
@@ -101,6 +109,7 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Lò̤-mā Dá̤-guók", "Lò-mā Dá-guók")]
         [TestCase("Loṙow", "Loŕow")]
         [TestCase("Maďarsko", "Maďarsko")]
+        [TestCase("Mūrīṭnīẗ al-Ṭinǧīẗ", "Mūrīţnīa al-Ţinğīa")]
         [TestCase("Nörvêzi", "Nörvêzi")]
         [TestCase("Nowĩ", "Nowï")]
         [TestCase("Nɔɔrɩvɛɛzɩ", "Noorıveezı")]
@@ -112,6 +121,9 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Taɖɛsalam", "Tadesalam")]
         [TestCase("Test ɸlāryoɸ", "Test Plāryop")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
+        [TestCase("Vюrцby’rg", "Viurcby´rg")]
+        [TestCase("Эstoniья", "Estoni'ia")]
+        [TestCase("Юli’h", "Iuli´h")]
         public void WhenNormalisingForHOI4City_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
@@ -142,11 +154,13 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Bùyínuòsīàilìsī", "Bùyínuòsïàilìsï")]
         [TestCase("Český Krumlov", "Cheský Krumlov")]
         [TestCase("Chęciny", "Checiny")]
+        [TestCase("Đakovo", "Ðakovo")]
         [TestCase("Danmǫrk", "Danmörk")]
         [TestCase("Đế quốc Nga", "Ðê quôc Nga")]
         [TestCase("Enkoriџ", "Enkoridž")]
         [TestCase("Ər-Rəqqə", "Ar-Raqqa")]
         [TestCase("Farƣona", "Fargona")]
+        [TestCase("Ġhaūdeš", "Ghaüdeš")]
         [TestCase("Góðviðra", "Góðviðra")]
         [TestCase("Jémanị", "Jémani")]
         [TestCase("K’asablank’a", "K’asablank’a")]
@@ -159,6 +173,7 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
         [TestCase("Maďarsko", "Madarsko")]
         [TestCase("Moscoƿ", "Moscouu")]
+        [TestCase("Mūrīṭnīẗ al-Ṭinǧīẗ", "Mürïtnïa al-Tinjïa")]
         [TestCase("Ngò-lò-sṳ̂", "Ngò-lò-sû")]
         [TestCase("Nörvêzi", "Nörvêzi")]
         [TestCase("Novyĭ Margelan", "Novyï Margelan")]
@@ -175,6 +190,9 @@ namespace MoreCulturalNamesModBuilder.UnitTests.Service
         [TestCase("Test ɸlāryoɸ", "Test Plãryop")]
         [TestCase("Tibískon", "Tibískon")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Polšcha")]
+        [TestCase("Vюrцby’rg", "Viurcby’rg")]
+        [TestCase("Эstoniья", "Estoni'ia")]
+        [TestCase("Юli’h", "Iuli’h")]
         public void WhenNormalisingForWindow1252_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)

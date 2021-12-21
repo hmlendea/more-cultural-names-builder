@@ -585,7 +585,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "([Ắ])", "Ă");
             processedName = Regex.Replace(processedName, "([ВΒᏴꓐ]|B‍)", "B");
             processedName = Regex.Replace(processedName, "([СϹᏟꓚ])", "C");
-            processedName = Regex.Replace(processedName, "([Ĉ])", "C");
+            processedName = Regex.Replace(processedName, "([ĈЦ])", "C");
             processedName = Regex.Replace(processedName, "([Ꭰꓓ])", "D");
             processedName = Regex.Replace(processedName, "([Џ])", "Dž");
             processedName = Regex.Replace(processedName, "([Ɖ])", "Đ");
@@ -597,6 +597,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "([Ƣ])", "Ğ"); // Untested in the games
             processedName = Regex.Replace(processedName, "([Ȝ])", "Gh"); // Or G
             processedName = Regex.Replace(processedName, "([Ɣ])", "Gh");
+            processedName = Regex.Replace(processedName, "([Ю])", "Iu");
             processedName = Regex.Replace(processedName, "([НΗᎻꓧ])", "H");
             processedName = Regex.Replace(processedName, "([ІΙӀӏ])", "I");
             processedName = Regex.Replace(processedName, "([ЇΪ])", "Ï");
@@ -632,7 +633,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "([ὰ])", "à");
             processedName = Regex.Replace(processedName, "([άȧ])", "á");
             processedName = Regex.Replace(processedName, "([ӑắǎẵ])", "ă");
-            processedName = Regex.Replace(processedName, "([ĉ])", "c");
+            processedName = Regex.Replace(processedName, "([ĉц])", "c");
             processedName = Regex.Replace(processedName, "([ⅾ𝖽])", "d");
             processedName = Regex.Replace(processedName, "([џ])", "dž");
             processedName = Regex.Replace(processedName, "([еεɛэ])", "e");
@@ -645,11 +646,11 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "([ȝ])", "gh"); // Or g
             processedName = Regex.Replace(processedName, "([ɣ])", "gh");
             processedName = Regex.Replace(processedName, "([ю])", "iu");
+            processedName = Regex.Replace(processedName, "([я])", "ia");
             processedName = Regex.Replace(processedName, "([іι])", "i");
             processedName = Regex.Replace(processedName, "([ɩ])", "ı");
             processedName = Regex.Replace(processedName, "([ǐ])", "ĭ");
             processedName = Regex.Replace(processedName, "([ḯ])", "ï");
-            processedName = Regex.Replace(processedName, "([я])", "ja");
             processedName = Regex.Replace(processedName, "([ј])", "j");
             processedName = Regex.Replace(processedName, "([кκ])", "k");
             processedName = Regex.Replace(processedName, "([ќ])", "ḱ");
