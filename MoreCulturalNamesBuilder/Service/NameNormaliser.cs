@@ -663,7 +663,7 @@ namespace MoreCulturalNamesModBuilder.Service
             processedName = Regex.Replace(processedName, "([θ])", "th");
             processedName = Regex.Replace(processedName, "([т])", "t");
             processedName = Regex.Replace(processedName, "(ṭ‍)", "ṭ");
-            processedName = Regex.Replace(processedName, "([‡])", "t"); // Guessed
+            processedName = Regex.Replace(processedName, "([‡ṯ])", "t"); // Guessed
             processedName = Regex.Replace(processedName, "([ƿ])", "uu"); // Or w
             processedName = Regex.Replace(processedName, "([ʊ])", "u");
             processedName = Regex.Replace(processedName, "([ǔ])", "ŭ");
