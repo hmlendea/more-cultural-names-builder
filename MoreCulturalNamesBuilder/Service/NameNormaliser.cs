@@ -582,6 +582,7 @@ namespace MoreCulturalNamesBuilder.Service
             string processedName = name;
             
             processedName = Regex.Replace(processedName, "([АΑᎪꓮ𝖠])", "A");
+            processedName = Regex.Replace(processedName, "([Ά])", "Á");
             processedName = Regex.Replace(processedName, "([Ắ])", "Ă");
             processedName = Regex.Replace(processedName, "([ВΒᏴꓐ]|B‍)", "B");
             processedName = Regex.Replace(processedName, "([СϹᏟꓚ])", "C");
@@ -591,6 +592,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "([Ɖ])", "Đ");
             processedName = Regex.Replace(processedName, "([ЕΕᎬꓰƐЭ])", "E");
             processedName = Regex.Replace(processedName, "([Ё])", "Ë");
+            processedName = Regex.Replace(processedName, "([Έ])", "É");
             processedName = Regex.Replace(processedName, "([∃])", "Ǝ");
             processedName = Regex.Replace(processedName, "([ꓝ])", "F");
             processedName = Regex.Replace(processedName, "([Ꮐꓖ])", "G");
@@ -610,6 +612,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "([Νꓠ])", "N");
             processedName = Regex.Replace(processedName, "([ОΟꓳՕ])", "O");
             processedName = Regex.Replace(processedName, "([Ӧ])", "Ö");
+            processedName = Regex.Replace(processedName, "([Ό])", "Ó");
             processedName = Regex.Replace(processedName, "([Ǒ])", "Ŏ");
             processedName = Regex.Replace(processedName, "([РΡᏢꓑ])", "P");
             processedName = Regex.Replace(processedName, "([Ƿ])", "Uu"); // Or W
