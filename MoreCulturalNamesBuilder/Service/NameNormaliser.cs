@@ -582,21 +582,21 @@ namespace MoreCulturalNamesBuilder.Service
             string processedName = name;
 
             
-            processedName = Regex.Replace(processedName, "([АΑᎪꓮ𝖠])", "A");
+            processedName = Regex.Replace(processedName, "([АΑᎪꓮ𝖠]|A‍)", "A");
             processedName = Regex.Replace(processedName, "([Ά])", "Á");
             processedName = Regex.Replace(processedName, "([Ắ])", "Ă");
-            processedName = Regex.Replace(processedName, "([ВΒᏴꓐ]|B‍)", "B");
+            processedName = Regex.Replace(processedName, "([ВΒᏴꓐ]|B‍|B‌)", "B");
             processedName = Regex.Replace(processedName, "([СϹᏟꓚ])", "C");
             processedName = Regex.Replace(processedName, "([ĈЦ])", "C");
-            processedName = Regex.Replace(processedName, "([Ꭰꓓ])", "D");
+            processedName = Regex.Replace(processedName, "([Ꭰꓓ]|D‍)", "D");
             processedName = Regex.Replace(processedName, "([Џ])", "Dž");
             processedName = Regex.Replace(processedName, "([Ɖ])", "Đ");
             processedName = Regex.Replace(processedName, "([ЕΕᎬꓰƐЭ])", "E");
             processedName = Regex.Replace(processedName, "([Ё])", "Ë");
             processedName = Regex.Replace(processedName, "([Έ])", "É");
             processedName = Regex.Replace(processedName, "([∃])", "Ǝ");
-            processedName = Regex.Replace(processedName, "([ꓝ])", "F");
-            processedName = Regex.Replace(processedName, "([Ꮐꓖ])", "G");
+            processedName = Regex.Replace(processedName, "([ꓝḞ])", "F");
+            processedName = Regex.Replace(processedName, "([Ꮐꓖ]|G‍)", "G");
             processedName = Regex.Replace(processedName, "([Ƣ])", "Ğ"); // Untested in the games
             processedName = Regex.Replace(processedName, "([Ȝ])", "Gh"); // Or G
             processedName = Regex.Replace(processedName, "([Ɣ])", "Gh");
@@ -606,12 +606,12 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "([ЇΪ])", "Ï");
             processedName = Regex.Replace(processedName, "([Ǐ])", "Ĭ");
             processedName = Regex.Replace(processedName, "([ЈᎫꓙ])", "J");
-            processedName = Regex.Replace(processedName, "([КΚᏦꓗ])", "K");
+            processedName = Regex.Replace(processedName, "([КΚᏦꓗ]|K‍)", "K");
             processedName = Regex.Replace(processedName, "([Ќ])", "Ḱ");
             processedName = Regex.Replace(processedName, "H̱", "Kh");
             processedName = Regex.Replace(processedName, "([ᏞꓡԼ]|L‌)", "L");
             processedName = Regex.Replace(processedName, "([МΜᎷꓟṀ]|M̄|M̐)", "M");
-            processedName = Regex.Replace(processedName, "([Νꓠ])", "N");
+            processedName = Regex.Replace(processedName, "([Νꓠ]|N‌)", "N");
             processedName = Regex.Replace(processedName, "(Ṉ)", "Ņ");
             processedName = Regex.Replace(processedName, "([ОΟꓳՕ])", "O");
             processedName = Regex.Replace(processedName, "([Ӧ])", "Ö");
@@ -622,10 +622,10 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "^ɸ", "P");
             processedName = Regex.Replace(processedName, " ɸ", " P");
             processedName = Regex.Replace(processedName, "([Ԛ])", "Q");
-            processedName = Regex.Replace(processedName, "([Ꮢꓣ])", "R");
+            processedName = Regex.Replace(processedName, "([Ꮢꓣ]|R‍|R‌)", "R");
             processedName = Regex.Replace(processedName, "(R̥̄)", "Ŕu");
             processedName = Regex.Replace(processedName, "(R̥)", "Ru");
-            processedName = Regex.Replace(processedName, "([ЅᏚꓢՏ])", "S");
+            processedName = Regex.Replace(processedName, "([ЅᏚꓢՏ]|S‍|S‌)", "S");
             processedName = Regex.Replace(processedName, "([ṮΘ])", "Th");
             processedName = Regex.Replace(processedName, "([ТΤᎢꓔ])", "T");
             processedName = Regex.Replace(processedName, "Ṭ‍", "Ṭ");
@@ -638,19 +638,20 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "([ҮΥꓬ])", "Y");
             processedName = Regex.Replace(processedName, "([ΖᏃꓜƵ])", "Z");
             processedName = Regex.Replace(processedName, "([ә])", "æ");
-            processedName = Regex.Replace(processedName, "([αа𝖺])", "a");
+            processedName = Regex.Replace(processedName, "([αа𝖺]|a‍)", "a");
             processedName = Regex.Replace(processedName, "([ὰ])", "à");
             processedName = Regex.Replace(processedName, "([άȧ])", "á");
             processedName = Regex.Replace(processedName, "([ӑắǎẵ])", "ă");
-            processedName = Regex.Replace(processedName, "(b‍)", "b");
+            processedName = Regex.Replace(processedName, "(b‍|b‌)", "b");
             processedName = Regex.Replace(processedName, "([ĉц])", "c");
-            processedName = Regex.Replace(processedName, "([ⅾ𝖽])", "d");
+            processedName = Regex.Replace(processedName, "([ⅾ𝖽]|d‍)", "d");
             processedName = Regex.Replace(processedName, "([џ])", "dž");
             processedName = Regex.Replace(processedName, "([еεɛэ])", "e");
             processedName = Regex.Replace(processedName, "([ĕ])", "ě");
             processedName = Regex.Replace(processedName, "([ǝ])", "ə");
             processedName = Regex.Replace(processedName, "([ё])", "ë");
             processedName = Regex.Replace(processedName, "([έ])", "é");
+            processedName = Regex.Replace(processedName, "([ḟ])", "f");
             processedName = Regex.Replace(processedName, "(g‍|g‌)", "g");
             processedName = Regex.Replace(processedName, "([ƣ])", "ğ"); // Untested in the games
             processedName = Regex.Replace(processedName, "([ȝ])", "gh"); // Or g
@@ -662,21 +663,23 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "([ǐ])", "ĭ");
             processedName = Regex.Replace(processedName, "([ḯ])", "ï");
             processedName = Regex.Replace(processedName, "([ј]|j‌)", "j");
-            processedName = Regex.Replace(processedName, "([кκ])", "k");
+            processedName = Regex.Replace(processedName, "([кκ]|k‍)", "k");
             processedName = Regex.Replace(processedName, "([ќ])", "ḱ");
             processedName = Regex.Replace(processedName, "([ẖ])", "kh");
             processedName = Regex.Replace(processedName, "(l‌)", "l");
             processedName = Regex.Replace(processedName, "([ɬ])", "ł");
             processedName = Regex.Replace(processedName, "([ṁ]|m̄|m̐)", "m");
+            processedName = Regex.Replace(processedName, "(n‌)", "n");
             processedName = Regex.Replace(processedName, "(ṉ)", "ņ");
             processedName = Regex.Replace(processedName, "([оοɔ])", "o");
             processedName = Regex.Replace(processedName, "([ӧ])", "ö");
             processedName = Regex.Replace(processedName, "([ό])", "ó");
             processedName = Regex.Replace(processedName, "([ǒ])", "ŏ");
             processedName = Regex.Replace(processedName, "([рɸ]|p‍)", "p");
+            processedName = Regex.Replace(processedName, "(r‍|r‌)", "r");
             processedName = Regex.Replace(processedName, "(r̥̄)", "ŕu");
             processedName = Regex.Replace(processedName, "(r̥)", "ru");
-            processedName = Regex.Replace(processedName, "(s‌)", "s");
+            processedName = Regex.Replace(processedName, "(s‍|s‌)", "s");
             processedName = Regex.Replace(processedName, "([ṯθ])", "th");
             processedName = Regex.Replace(processedName, "([т])", "t");
             processedName = Regex.Replace(processedName, "([‡])", "t"); // Guessed
@@ -793,7 +796,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "[–—]", "-");
             processedName = Regex.Replace(processedName, "[‎·]", "");
             processedName = Regex.Replace(processedName, "([‎‎])", ""); // Invisible characters
-            processedName = Regex.Replace(processedName, "(ॎ)", ""); // ???
+            processedName = Regex.Replace(processedName, "(ॎ|઼|‌ॎ)", ""); // ???
 
             return processedName;
         }
