@@ -580,6 +580,7 @@ namespace MoreCulturalNamesBuilder.Service
         private string ApplyCommonReplacements(string name)
         {
             string processedName = name;
+
             
             processedName = Regex.Replace(processedName, "([АΑᎪꓮ𝖠])", "A");
             processedName = Regex.Replace(processedName, "([Ά])", "Á");
@@ -607,7 +608,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "([ЈᎫꓙ])", "J");
             processedName = Regex.Replace(processedName, "([КΚᏦꓗ])", "K");
             processedName = Regex.Replace(processedName, "([Ќ])", "Ḱ");
-            processedName = Regex.Replace(processedName, "([H̱])", "Kh");
+            processedName = Regex.Replace(processedName, "(H̱)", "Kh");
             processedName = Regex.Replace(processedName, "([ᏞꓡԼ])", "L");
             processedName = Regex.Replace(processedName, "([МΜᎷꓟ])", "M");
             processedName = Regex.Replace(processedName, "([Νꓠ])", "N");
