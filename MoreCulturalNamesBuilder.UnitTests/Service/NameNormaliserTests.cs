@@ -8,7 +8,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
 {
     public class NameNormaliserTests
     {
-        const string StringOfVariousCharacters = "‎[]^`{઼‌ॎॎR‌Ḟḟa‍A‍S‍S‌s‍s‌s‌H̱b‍R̥b‌B‌P‍r̥j‌Ṁr‌N‌nG‍r‍M̐k‍D‍M̄d‍R̥̄p‍ẖR‍ṈK‍ṁl‌L‌ṉm̐ṭ‍Ṭ‍m̄r̥̄}´·ʹʺ–—‘’”‡′∃̧̣̤̦̓́̀̆̂̌̈̋̄̍͘áÁàÀăĂắẮẵâÂấẤầẦǎåÅäÄǟǞãÃȧąāĀảẢạẠậẬæÆǣǢḃḂḅḄćĆĉĈčČċĊçÇďĎḑđĐḍḌḏḎðÐɖƉɗƊéÉèÈĕêÊếẾềỀểỂěĚëËẽẼėĖęĘēĒḗḖẻẺẹẸệỆǝƎəƏɛƐǵǴğĞĝĜǧǦġĠģĢɣƔƣƢĥĤḧḦḩḨħĦḥḤḫḪʻíÍìÌĭĬîÎǐǏïÏḯĩĨİįĮīĪịỊıɩʲĵĴǰḱḰǩǨķĶḳḲḵḴƙƘĺĹľĽļĻłŁḷḶɬḿḾṃṂⁿńŃǹǸňŇñÑṅṄņŅṇṆɲƝŋŊóÓòÒŏŎôÔốỐồỒổỔǒǑöÖȫȪőŐõÕȯȮøØǿǾǫǪōŌṓṒơƠờỜỡỠọỌộỘœŒɔṕṔɸŕŔřŘṙṘŗŖṛṚśŚŝŜšŠṡṠşŞṣṢșȘßťŤẗţŢṭṬțȚŧŦúÚùÙŭŬûÛǔǓůŮüÜǜǛűŰũŨųŲūŪủưƯứỨụỤṳṲʊƱṿṾẅẄẍẌýÝỳỲŷŶÿŸẏẎȳȲȝȜźŹžŽżŻẓẒƶƵʐþÞƿǷʼʾʿαάὰεΕέθΘιΙΟόύаАәеЕіІјЈкКќЌоОтТџЏьэЭюяṯ";
+        const string StringOfVariousCharacters = "‌‍* ʹ–‘’”‡′″・઼̧̲̣̤̥̦̮̱̓́̀̆̂̌̈̋̇̄̍̐͘͡áÁàÀăĂắẵâÂấẤầǎåÅäÄãÃąāĀảẢạậæÆǣćĆĉĈčČċĊçÇďĎḑđĐḍḌḏðÐɖéÉèÈĕêÊếềểěĚëËẽėĖęĘēĒḗḖẹẸệǝəƏɛƐḟḞǵǴğĞĝĜǧǦġĠģĢɣƔƣĥĤḧḩḨħĦḥḤḫḪẖʻʽíÍìÌĭĬîÎǐïÏḯĩİįĮīĪỉịıɩʲĵĴǰḱḰǩǨķĶḳḵĺĹľĽļĻłŁḷƚɬṁṃⁿńŃňŇñṅņŅṇɲŋóÓòÒŏŎôÔốồổöÖőõÕøØǿǾǫōŌṓỏơờỡọỌộœŒɔƆṗɸŕřŘṙṘṛṚśŚŝŜšŠṡşŞṣṢșȘßťŤẗţṭṬțȚṯṮŧúÚùÙŭŬûÛǔůüÜǜǚűũųūŪủưứụṳʊṿŵẍýÝỳŷẏȳȝźŹžŽżŻẓẒƶƵʐþÞƿǷʼʾʿΆεθοΟόΎаАәеёіІјкоОТХџьॎ";
         const string CK3Characters = ".­̦̒̕  _-–—,;:!¡?¿.…·'‘’‚‹›\"“”„«»()[]{}§¶@*/\\&#%‰†‡•`´˜^¯˘˙¨˚˝¸˛ˆˇ°©®∂∏+±÷×<=≠>¬|¦~−⁄∞≈¤¢$£¥€01¹½¼2²3³¾456789aAªáÁàÀăĂâÂåÅäÄãÃąĄāĀæÆǽǼbBcCćĆĉĈčČċĊçÇdDďĎđĐðÐeEéÉèÈĕĔêÊěĚëËėĖęĘēĒfFﬁﬂgGğĞĝĜġĠģĢhHĥĤħĦiIíÍìÌĭĬîÎïÏĩĨİįĮīĪĳĲıjJĵĴȷkKķĶlLĺĹľĽļĻłŁŀĿmMnNńŃňŇñÑņŅoOºóÓòÒŏŎôÔöÖőŐõÕøØǿǾōŌœŒpPqQĸrRŕŔřŘŗŖsSśŚŝŜšŠșȘşŞßtTťŤțȚţŢ™ŧŦuUúÚùÙŭŬûÛůŮüÜűŰũŨųŲūŪvVwWẃẂẁẀŵŴẅẄxXyYýÝỳỲŷŶÿŸzZźŹžŽżŻþÞŉµπ";
         const string HOI4MapCharacters = "­҈҉҆҅҄҇҃  _-,;:!¡?¿.·'\"”«»()[]{}§¶@*/\\&#%`´^¯¨¸°҂©®+±÷×<=>¬|¦~¤¢$£¥01¹½¼2²3³¾456789aAªáÁàÀăĂâÂåÅäÄãÃąĄāĀæÆbBcCćĆĉĈčČċĊçÇdDďĎđĐðÐeEéÉèÈĕĔêÊěĚëËėĖęĘēĒfFgGğĞĝĜġĠģĢhHĥĤħĦiIíÍìÌĭĬîÎïÏĩĨİįĮīĪіІїЇӀĳĲıjJĵĴkKķĶкКќЌқҚӄӃҡҠҟҞҝҜlLĺĹľĽļĻłŁŀĿmMмМӎӍnNńŃňŇñÑņŅŋŊиИѝЍӥӤӣӢҋҊйЙoOºóÓòÒŏŎôÔöÖőŐõÕøØōŌœŒоОӧӦөӨӫӪфФpPqQĸrRŕŔřŘŗŖsSśŚŝŜšŠşŞſßtTťŤţŢŧŦuUúÚùÙŭŬûÛůŮüÜűŰũŨųŲūŪvVwWŵŴxXхХӽӼӿӾҳҲyYýÝŷŶÿŸуУўЎӱӰӳӲӯӮүҮұҰzZźŹžŽżŻþÞŉµаАӑӐӓӒәӘӛӚӕӔбБвВгГѓЃґҐғҒӻӺҕҔӷӶдДђЂҙҘеЕѐЀӗӖёЁєЄжЖӂӁӝӜҗҖзЗӟӞѕЅӡӠјЈлЛӆӅљЉнНӊӉңҢӈӇҥҤњЊпПҧҦҁҀрРҏҎсСҫҪтТҭҬћЋѹѸһҺѡѠѿѾѽѼѻѺцЦҵҴчЧӵӴҷҶӌӋҹҸҽҼҿҾџЏшШщЩъЪыЫӹӸьЬҍҌѣѢэЭӭӬюЮяЯѥѤѧѦѫѪѩѨѭѬѯѮѱѰѳѲѵѴѷѶҩҨӏ";
         const string IRCharacters = "­̦ _-–—,;:!¡?¿.…·'‘’‚‹›\"“”„«»()[]{}§¶@*/\\&#%‰†‡•`´˜^¯˘˙¨˚˝¸˛ˆˇ°©®∂∏∑+±÷×<=≠>¬|¦~−⁄√∞∫≈≤≥◊¤¢$£¥€01¹½¼2²3³¾456789aAªáÁàÀăĂâÂåÅäÄãÃąĄāĀæÆbBcCćĆčČċĊçÇdDďĎđĐðÐeEéÉèÈêÊěĚëËėĖęĘēĒfFﬁﬂƒgGğĞġĠģĢhHħĦiIíÍìÌîÎïÏİįĮīĪĳĲıjJkKķĶlLĺĹľĽļĻłŁŀĿmMnNńŃňŇñÑņŅŋŊoOºóÓòÒôÔöÖőŐõÕøØōŌœŒpPqQrRŕŔřŘŗŖsSśŚšŠşŞșȘßtTťŤţŢțȚ™ŧŦuUúÚùÙûÛůŮüÜűŰųŲūŪvVwWẃẂẁẀŵŴẅẄxXyYýÝỳỲŷŶÿŸzZźŹžŽżŻþÞΔμπΩ";
@@ -39,6 +39,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("an-Nāṣira", "an-Nāșira")]
         [TestCase("And‍riyā", "Andriyā")]
         [TestCase("Anwākšūṭ", "Anwākšūț")]
+        [TestCase("Aṗsny", "Apsny")]
         [TestCase("Åsele", "Åsele")]
         [TestCase("Basileia Rhṓmaiṓn", "Basileia Rhōmaiōn")]
         [TestCase("Blāsīnṯīā", "Blāsīnthīā")]
@@ -49,6 +50,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Bułgar Wielki", "Bułgar Wielki")]
         [TestCase("Bùyínuòsīàilìsī", "Bùyínuòsīàilìsī")]
         [TestCase("Český Krumlov", "Český Krumlov")]
+        [TestCase("Cetiǌe", "Cetinje")]
         [TestCase("Chęciny", "Chęciny")]
         [TestCase("Đakovo", "Đakovo")]
         [TestCase("Danmǫrk", "Danmörk")]
@@ -68,6 +70,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Jémanị", "Jémanį")]
         [TestCase("Jhānjāṁ", "Jhānjām")]
         [TestCase("K’asablank’a", "K’asablank’a")]
+        [TestCase("Kalɩfɔrnii", "Kalıfornii")]
         [TestCase("Kašuubimaa", "Kašuubimaa")]
         [TestCase("Khar‌gōn", "Khargōn")]
         [TestCase("K‍ragujevak", "Kragujevak")]
@@ -77,6 +80,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Lǐyuērènèilú", "Lĭyuērènèilú")]
         [TestCase("Lò̤-mā Dá̤-guók", "Lò-mā Dá-guók")]
         [TestCase("Loṙow", "Loŕow")]
+        [TestCase("Lǚfádēng", "Lŭfádēng")]
         [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
         [TestCase("Maďarsko", "Maďarsko")]
         [TestCase("Mīdīlbūrẖ", "Mīdīlbūrkh")]
@@ -92,6 +96,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Nuorvegėjė", "Nuorvegėjė")]
         [TestCase("Nūrṯāmbtūn", "Nūrthāmbtūn")]
         [TestCase("Nuwakicɔɔtɩ", "Nuwakicootı")]
+        [TestCase("Ɔsɩloo", "Osıloo")]
         [TestCase("Perejäslavľĭ", "Perejäslavľĭ")]
         [TestCase("Permė", "Permė")]
         [TestCase("Phin‌sṭrām", "Phinsțrām")]
@@ -106,9 +111,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Starověký Řím", "Starověký Řím")]
         [TestCase("Sveti Đorđe", "Sveti Đorđe")]
         [TestCase("Taɖɛsalam", "Tadesalam")]
+        [TestCase("Taϊpéi", "Taïpéi")]
         [TestCase("Test ɸlāryoɸ", "Test Plāryop")]
-        [TestCase("Ṭ‍renṭō", "Țrențō")]
         [TestCase("Tibískon", "Tibískon")]
+        [TestCase("Ṭ‍renṭō", "Țrențō")]
         [TestCase("Truǧālẗ", "Truğāla")]
         [TestCase("Užhorod", "Užhorod")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
@@ -141,6 +147,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("an-Nāṣira", "an-Nāsira")]
         [TestCase("And‍riyā", "Andriyā")]
         [TestCase("Anwākšūṭ", "Anwākšūţ")]
+        [TestCase("Aṗsny", "Apsny")]
         [TestCase("Åsele", "Åsele")]
         [TestCase("Basileia Rhṓmaiṓn", "Basileia Rhōmaiōn")]
         [TestCase("Blāsīnṯīā", "Blāsīnthīā")]
@@ -151,6 +158,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Bułgar Wielki", "Bułgar Wielki")]
         [TestCase("Bùyínuòsīàilìsī", "Bùyínuòsīàilìsī")]
         [TestCase("Český Krumlov", "Český Krumlov")]
+        [TestCase("Cetiǌe", "Cetinje")]
         [TestCase("Chęciny", "Chęciny")]
         [TestCase("Đakovo", "Đakovo")]
         [TestCase("Danmǫrk", "Danmörk")]
@@ -170,6 +178,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Jémanị", "Jémanį")]
         [TestCase("Jhānjāṁ", "Jhānjām")]
         [TestCase("K’asablank’a", "K´asablank´a")]
+        [TestCase("Kalɩfɔrnii", "Kalıfornii")]
         [TestCase("Kašuubimaa", "Kašuubimaa")]
         [TestCase("Khar‌gōn", "Khargōn")]
         [TestCase("K‍ragujevak", "Kragujevak")]
@@ -179,6 +188,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Lǐyuērènèilú", "Lĭyuērènèilú")]
         [TestCase("Lò̤-mā Dá̤-guók", "Lò-mā Dá-guók")]
         [TestCase("Loṙow", "Loŕow")]
+        [TestCase("Lǚfádēng", "Lŭfádēng")]
         [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
         [TestCase("Maďarsko", "Maďarsko")]
         [TestCase("Mīdīlbūrẖ", "Mīdīlbūrkh")]
@@ -194,6 +204,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Nuorvegėjė", "Nuorvegėjė")]
         [TestCase("Nūrṯāmbtūn", "Nūrthāmbtūn")]
         [TestCase("Nuwakicɔɔtɩ", "Nuwakicootı")]
+        [TestCase("Ɔsɩloo", "Osıloo")]
         [TestCase("Perejäslavľĭ", "Perejäslavľĭ")]
         [TestCase("Permė", "Permė")]
         [TestCase("Phin‌sṭrām", "Phinsţrām")]
@@ -208,9 +219,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Starověký Řím", "Starověký Řím")]
         [TestCase("Sveti Đorđe", "Sveti Đorđe")]
         [TestCase("Taɖɛsalam", "Tadesalam")]
+        [TestCase("Taϊpéi", "Taïpéi")]
         [TestCase("Test ɸlāryoɸ", "Test Plāryop")]
-        [TestCase("Ṭ‍renṭō", "Ţrenţō")]
         [TestCase("Tibískon", "Tibískon")]
+        [TestCase("Ṭ‍renṭō", "Ţrenţō")]
         [TestCase("Truǧālẗ", "Truğāla")]
         [TestCase("Užhorod", "Užhorod")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
@@ -243,6 +255,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("an-Nāṣira", "an-Nãsira")]
         [TestCase("And‍riyā", "Andriyã")]
         [TestCase("Anwākšūṭ", "Anwãkšüt")]
+        [TestCase("Aṗsny", "Apsny")]
         [TestCase("Åsele", "Åsele")]
         [TestCase("Basileia Rhṓmaiṓn", "Basileia Rhõmaiõn")]
         [TestCase("Blāsīnṯīā", "Blãsïnthïã")]
@@ -253,6 +266,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Bułgar Wielki", "Bulgar Wielki")]
         [TestCase("Bùyínuòsīàilìsī", "Bùyínuòsïàilìsï")]
         [TestCase("Český Krumlov", "Cheský Krumlov")]
+        [TestCase("Cetiǌe", "Cetinje")]
         [TestCase("Chęciny", "Checiny")]
         [TestCase("Đakovo", "Ðakovo")]
         [TestCase("Danmǫrk", "Danmörk")]
@@ -272,6 +286,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Jémanị", "Jémani")]
         [TestCase("Jhānjāṁ", "Jhãnjãm")]
         [TestCase("K’asablank’a", "K’asablank’a")]
+        [TestCase("Kalɩfɔrnii", "Kalifornii")]
         [TestCase("Kašuubimaa", "Kašuubimaa")]
         [TestCase("Khar‌gōn", "Khargõn")]
         [TestCase("K‍ragujevak", "Kragujevak")]
@@ -281,6 +296,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Lǐyuērènèilú", "Lïyuërènèilú")]
         [TestCase("Lò̤-mā Dá̤-guók", "Lò-mã Dá-guók")]
         [TestCase("Loṙow", "Lorow")]
+        [TestCase("Lǚfádēng", "Lüfádëng")]
         [TestCase("Lúksẹ́mbọ̀rg", "Lúksemborg")]
         [TestCase("Maďarsko", "Madarsko")]
         [TestCase("Mīdīlbūrẖ", "Mïdïlbürkh")]
@@ -296,6 +312,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Nuorvegėjė", "Nuorvegéjé")]
         [TestCase("Nūrṯāmbtūn", "Nürthãmbtün")]
         [TestCase("Nuwakicɔɔtɩ", "Nuwakicooti")]
+        [TestCase("Ɔsɩloo", "Osiloo")]
         [TestCase("Perejäslavľĭ", "Perejäslavlï")]
         [TestCase("Permė", "Permé")]
         [TestCase("Phin‌sṭrām", "Phinstrãm")]
@@ -310,9 +327,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Starověký Řím", "Starovêký Rzím")]
         [TestCase("Sveti Đorđe", "Sveti Ðordže")]
         [TestCase("Taɖɛsalam", "Tadesalam")]
+        [TestCase("Taϊpéi", "Taïpéi")]
         [TestCase("Test ɸlāryoɸ", "Test Plãryop")]
-        [TestCase("Ṭ‍renṭō", "Trentõ")]
         [TestCase("Tibískon", "Tibískon")]
+        [TestCase("Ṭ‍renṭō", "Trentõ")]
         [TestCase("Truǧālẗ", "Trujãla")]
         [TestCase("Užhorod", "Užhorod")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Polšcha")]
@@ -359,6 +377,11 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         {
             string charsOutisdeCharset = string.Concat(
                 str.Where(c => !charset.Contains(c)));
+
+            if (string.IsNullOrWhiteSpace(charsOutisdeCharset))
+            {
+                charsOutisdeCharset = string.Empty;
+            }
 
             Assert.AreEqual(string.Empty, charsOutisdeCharset);
         }
