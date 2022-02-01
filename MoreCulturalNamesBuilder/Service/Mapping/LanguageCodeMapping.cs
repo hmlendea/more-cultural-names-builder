@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
-using MoreCulturalNamesModBuilder.Service.Models;
+using MoreCulturalNamesBuilder.DataAccess.DataObjects;
+using MoreCulturalNamesBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.Mapping
+namespace MoreCulturalNamesBuilder.Service.Mapping
 {
     static class LanguageCodeMapping
     {

@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 using NuciDAL.DataObjects;
 
-namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
+namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
 {
     public class LocationEntity : EntityBase
     {

@@ -3,10 +3,10 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using NuciDAL.Repositories;
 
-using MoreCulturalNamesModBuilder.Configuration;
-using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
+using MoreCulturalNamesBuilder.Configuration;
+using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders
+namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public sealed class ModBuilderFactory : IModBuilderFactory
     {

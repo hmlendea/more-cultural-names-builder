@@ -4,12 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NuciDAL.Repositories;
 
-using MoreCulturalNamesModBuilder.Configuration;
-using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
-using MoreCulturalNamesModBuilder.Service;
-using MoreCulturalNamesModBuilder.Service.ModBuilders;
+using MoreCulturalNamesBuilder.Configuration;
+using MoreCulturalNamesBuilder.DataAccess.DataObjects;
+using MoreCulturalNamesBuilder.Service;
+using MoreCulturalNamesBuilder.Service.ModBuilders;
 
-namespace MoreCulturalNamesModBuilder
+namespace MoreCulturalNamesBuilder
 {
     public class Program
     {

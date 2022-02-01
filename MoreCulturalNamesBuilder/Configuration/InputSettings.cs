@@ -1,6 +1,6 @@
 using NuciCLI;
 
-namespace MoreCulturalNamesModBuilder.Configuration
+namespace MoreCulturalNamesBuilder.Configuration
 {
     public sealed class InputSettings
     {

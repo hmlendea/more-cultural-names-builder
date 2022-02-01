@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
-using MoreCulturalNamesModBuilder.Service.Mapping;
-using MoreCulturalNamesModBuilder.Service.Models;
+using MoreCulturalNamesBuilder.DataAccess.DataObjects;
+using MoreCulturalNamesBuilder.Service.Mapping;
+using MoreCulturalNamesBuilder.Service.Models;
 
 using NuciDAL.Repositories;
 
-namespace MoreCulturalNamesModBuilder.Service
+namespace MoreCulturalNamesBuilder.Service
 {
     public sealed class LocalisationFetcher : ILocalisationFetcher
     {

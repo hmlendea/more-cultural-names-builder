@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MoreCulturalNamesModBuilder.Service.Models
+namespace MoreCulturalNamesBuilder.Service.Models
 {
     public sealed class Location
     {
