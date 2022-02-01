@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>MoreCulturalNamesModBuilder.UnitTests</RootNamespace>
+    <RootNamespace>MoreCulturalNamesBuilder.UnitTests</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../MoreCulturalNamesBuilder/MoreCulturalNamesModBuilder.csproj" />
+    <ProjectReference Include="../MoreCulturalNamesBuilder/MoreCulturalNamesBuilder.csproj" />
   </ItemGroup>
 
 </Project>

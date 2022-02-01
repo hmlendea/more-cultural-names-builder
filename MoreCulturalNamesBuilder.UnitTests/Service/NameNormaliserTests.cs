@@ -2,9 +2,9 @@ using System.Linq;
 
 using NUnit.Framework;
 
-using MoreCulturalNamesModBuilder.Service;
+using MoreCulturalNamesBuilder.Service;
 
-namespace MoreCulturalNamesModBuilder.UnitTests.Service
+namespace MoreCulturalNamesBuilder.UnitTests.Service
 {
     public class NameNormaliserTests
     {

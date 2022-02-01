@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 
-namespace MoreCulturalNamesModBuilder.DataAccess.DataObjects
+namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
 {
     [XmlType("LanguageCode")]
     public class LanguageCodeEntity

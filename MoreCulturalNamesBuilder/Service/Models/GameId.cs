@@ -1,4 +1,4 @@
-namespace MoreCulturalNamesModBuilder.Service.Models
+namespace MoreCulturalNamesBuilder.Service.Models
 {
     public sealed class GameId
     {

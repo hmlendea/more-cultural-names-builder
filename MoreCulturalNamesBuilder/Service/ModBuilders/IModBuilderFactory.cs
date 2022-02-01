@@ -1,4 +1,4 @@
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders
+namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public interface IModBuilderFactory
     {

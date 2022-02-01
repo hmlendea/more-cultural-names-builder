@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-using MoreCulturalNamesModBuilder.Service.Models;
+using MoreCulturalNamesBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service
+namespace MoreCulturalNamesBuilder.Service
 {
     public interface ILocalisationFetcher
     {

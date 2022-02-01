@@ -1,4 +1,4 @@
-namespace MoreCulturalNamesModBuilder.Service
+namespace MoreCulturalNamesBuilder.Service
 {
     public interface INameNormaliser
     {

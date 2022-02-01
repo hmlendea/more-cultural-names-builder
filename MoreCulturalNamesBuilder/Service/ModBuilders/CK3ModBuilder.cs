@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 using NuciDAL.Repositories;
 using NuciExtensions;
 
-using MoreCulturalNamesModBuilder.Configuration;
-using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
-using MoreCulturalNamesModBuilder.Service.Models;
+using MoreCulturalNamesBuilder.Configuration;
+using MoreCulturalNamesBuilder.DataAccess.DataObjects;
+using MoreCulturalNamesBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders
+namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public sealed class CK3ModBuilder : CK2ModBuilder
     {

@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
-namespace MoreCulturalNamesModBuilder.Service
+namespace MoreCulturalNamesBuilder.Service
 {
     public sealed class NameNormaliser : INameNormaliser
     {

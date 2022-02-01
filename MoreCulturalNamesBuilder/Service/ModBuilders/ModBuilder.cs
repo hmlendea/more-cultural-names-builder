@@ -5,12 +5,12 @@ using System.Linq;
 
 using NuciDAL.Repositories;
 
-using MoreCulturalNamesModBuilder.Configuration;
-using MoreCulturalNamesModBuilder.DataAccess.DataObjects;
-using MoreCulturalNamesModBuilder.Service.Mapping;
-using MoreCulturalNamesModBuilder.Service.Models;
+using MoreCulturalNamesBuilder.Configuration;
+using MoreCulturalNamesBuilder.DataAccess.DataObjects;
+using MoreCulturalNamesBuilder.Service.Mapping;
+using MoreCulturalNamesBuilder.Service.Models;
 
-namespace MoreCulturalNamesModBuilder.Service.ModBuilders
+namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public abstract class ModBuilder : IModBuilder
     {
