@@ -96,7 +96,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
                 string lineToAdd = 
-                    $"{indentation2}{localisation.LanguageGameId} = cn_{localisation.Id}_{localisation.LanguageGameId}" +
+                    $"{indentation2}name_list_{localisation.LanguageGameId} = cn_{localisation.Id}_{localisation.LanguageGameId}" +
                     $" # {nameNormaliser.ToCK3Charset(localisation.Name)}";
 
                 if (Settings.Output.AreVerboseCommentsEnabled)
