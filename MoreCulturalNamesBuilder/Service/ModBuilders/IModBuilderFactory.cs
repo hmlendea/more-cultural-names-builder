@@ -1,7 +1,9 @@
+using MoreCulturalNamesBuilder.Configuration;
+
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public interface IModBuilderFactory
     {
-        IModBuilder GetModBuilder(string game);
+        IModBuilder GetModBuilder(Settings settings);
     }
 }
