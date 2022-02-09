@@ -28,7 +28,7 @@ namespace MoreCulturalNamesBuilder
 
             ServiceProvider
                 .GetService<IModBuilderFactory>()
-                .GetModBuilder(settings.Mod.Game)
+                .GetModBuilder(settings)
                 .Build();
         }
 
