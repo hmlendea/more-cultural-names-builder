@@ -266,7 +266,11 @@ namespace MoreCulturalNamesBuilder.Service
                 return hoi4statesCache[name];
             }
 
-            string processedName = ToHOI4CityCharset(name);
+            string processedName = name;
+
+            processedName = Regex.Replace(processedName, "īẗ", "iya");
+
+            processedName = ToHOI4CityCharset(processedName);
 
             // Hearts of Iron IV 
             processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
@@ -345,7 +349,11 @@ namespace MoreCulturalNamesBuilder.Service
                 return irCache[name];
             }
 
-            string processedName = ApplyCommonReplacements(name);
+            string processedName = name;
+
+            processedName = Regex.Replace(processedName, "īẗ", "iya");
+
+            processedName = ApplyCommonReplacements(processedName);
 
             // Imperator: Rome
             processedName = Regex.Replace(processedName, "[Ǣ]", "Æ");
@@ -466,7 +474,11 @@ namespace MoreCulturalNamesBuilder.Service
                 return windows1252cache[name];
             }
 
-            string processedName = ApplyCommonReplacements(name);
+            string processedName = name;
+
+            processedName = Regex.Replace(processedName, "īẗ", "iya");
+
+            processedName = ApplyCommonReplacements(processedName);
 
             // Crusader Kings II
             processedName = Regex.Replace(processedName, "[Ǣ]", "Æ");
