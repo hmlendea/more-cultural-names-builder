@@ -108,15 +108,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         void CreateLocalisationFiles(string localisationDirectoryPath)
         {
-            CreateLocalisationFile(localisationDirectoryPath, "english");
-            CreateLocalisationFile(localisationDirectoryPath, "french");
-            CreateLocalisationFile(localisationDirectoryPath, "german");
-            CreateLocalisationFile(localisationDirectoryPath, "spanish");
+            string content = GenerateLocalisationFileContent();
+
+            foreach (string language in new string[] { "english", "french" })
+            {
+                CreateLocalisationFile(localisationDirectoryPath, language, content);
+            }
         }
 
-        void CreateLocalisationFile(string localisationDirectoryPath, string language)
+        void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
         {
-            string fileContent = GenerateLocalisationFileContent(language);
+            string fileContent = $"l_{language}:{Environment.NewLine}${content}";
             string fileName = $"{Settings.Mod.Id}_provincenames_l_{language}.yml";
             string filePath = Path.Combine(localisationDirectoryPath, fileName);
 
@@ -135,9 +137,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        string GenerateLocalisationFileContent(string language)
+        string GenerateLocalisationFileContent()
         {
-            string content = $"l_{language}:{Environment.NewLine}";
+            string content = string.Empty;
 
             foreach (string provinceId in localisations.Keys.OrderBy(x => int.Parse(x)))
             {
