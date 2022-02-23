@@ -71,11 +71,28 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected override string DoCleanLandedTitlesFile(string content)
         {
-            return Regex.Replace( // Remove empty cultural_names blocks
-                content,
+            string nameListsPattern = string.Join('|', languageGameIds.Select(x => $"name_list_{x.Id}"));
+            string cleanContent = content;
+
+            cleanContent = Regex.Replace( // Break inline cultural name into multiple lines
+                cleanContent,
+                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + nameListsPattern + ")\\s*=\\s*[a-zA-Z_-]*)\\s*\\}",
+                "$1$2 = {\n$1\t$3\n$1}",
+                RegexOptions.Multiline);
+
+            cleanContent = Regex.Replace( // Remove all original cultural names for supported languages
+                cleanContent,
+                "^\\s*(" + nameListsPattern + ")\\s*=\\s*[a-zA-Z_-]*\\s*\n",
+                string.Empty,
+                RegexOptions.Multiline);
+
+            cleanContent = Regex.Replace( // Remove empty cultural_names blocks
+                cleanContent,
                 "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
                 "",
                 RegexOptions.Multiline);
+            
+            return cleanContent;
         }
 
         protected override string GetTitleLocalisationsContent(string line, string gameId)
