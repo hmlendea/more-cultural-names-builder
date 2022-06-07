@@ -1,6 +1,5 @@
 using System;
 
-using Microsoft.Extensions.DependencyInjection;
 using NuciDAL.Repositories;
 
 using MoreCulturalNamesBuilder.Configuration;
@@ -10,22 +9,29 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public sealed class ModBuilderFactory : IModBuilderFactory
     {
-        readonly IServiceProvider serviceProvider;
+        readonly ILocalisationFetcher localisationFetcher;
+        readonly INameNormaliser nameNormaliser;
+        readonly IRepository<LanguageEntity> languageRepository;
+        readonly IRepository<LocationEntity> locationRepository;
+        readonly IRepository<TitleEntity> titleRepository;
 
-        public ModBuilderFactory(IServiceProvider serviceProvider)
+        public ModBuilderFactory(
+            ILocalisationFetcher localisationFetcher,
+            INameNormaliser nameNormaliser,
+            IRepository<LanguageEntity> languageRepository,
+            IRepository<LocationEntity> locationRepository,
+            IRepository<TitleEntity> titleRepository)
         {
-            this.serviceProvider = serviceProvider;
+            this.localisationFetcher = localisationFetcher;
+            this.nameNormaliser = nameNormaliser;
+            this.languageRepository = languageRepository;
+            this.locationRepository = locationRepository;
+            this.titleRepository = titleRepository;
         }
 
         public IModBuilder GetModBuilder(Settings settings)
         {
             string normalisedGame = settings.Mod.Game.ToUpperInvariant().Trim();
-
-            ILocalisationFetcher localisationFetcher = Program.ServiceProvider.GetService<ILocalisationFetcher>();
-            INameNormaliser nameNormaliser = Program.ServiceProvider.GetService<INameNormaliser>();
-            IRepository<LanguageEntity> languageRepository = Program.ServiceProvider.GetService<IRepository<LanguageEntity>>();
-            IRepository<LocationEntity> locationRepository = Program.ServiceProvider.GetService<IRepository<LocationEntity>>();
-            IRepository<TitleEntity> titleRepository = Program.ServiceProvider.GetService<IRepository<TitleEntity>>();
 
             if (normalisedGame.StartsWith("CK2"))
             {
@@ -37,7 +43,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     titleRepository,
                     settings);
             }
-            
+
             if (normalisedGame.StartsWith("CK3"))
             {
                 if (settings.Mod.GameVersion.StartsWith("1.4"))
@@ -61,7 +67,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         settings);
                 }
             }
-            
+
             if (normalisedGame.StartsWith("HOI4"))
             {
                 return new HOI4ModBuilder(
@@ -72,7 +78,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     titleRepository,
                     settings);
             }
-            
+
             if (normalisedGame.StartsWith("IR") ||
                 normalisedGame.StartsWith("IMPERATORROME"))
             {
@@ -84,7 +90,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     titleRepository,
                     settings);
             }
-            
+
             throw new NotImplementedException($"The game \"{settings.Mod.Game}\" is not supported");
         }
     }
