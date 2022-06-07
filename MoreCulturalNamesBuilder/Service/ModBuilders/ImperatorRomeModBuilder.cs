@@ -118,7 +118,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
         {
-            string fileContent = $"l_{language}:{Environment.NewLine}${content}";
+            string fileContent = $"l_{language}:{Environment.NewLine}{content}";
             string fileName = $"{Settings.Mod.Id}_provincenames_l_{language}.yml";
             string filePath = Path.Combine(localisationDirectoryPath, fileName);
 
