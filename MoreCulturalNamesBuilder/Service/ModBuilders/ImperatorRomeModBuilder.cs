@@ -17,7 +17,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     public sealed class ImperatorRomeModBuilder : ModBuilder
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
-            
+
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
 
@@ -71,7 +71,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         void CreateDataFiles(string provinceNamesDirectoryPath)
         {
-            foreach (GameId languageGameId in languageGameIds)
+            Parallel.ForEach(languageGameIds, languageGameId =>
             {
                 string path = Path.Combine(provinceNamesDirectoryPath, $"{languageGameId.Id.ToLower()}.txt");
                 string content = $"{languageGameId.Id} = {{" + Environment.NewLine;
@@ -103,22 +103,21 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 content += "}";
 
                 File.WriteAllText(path, content);
-            }
+            });
         }
 
         void CreateLocalisationFiles(string localisationDirectoryPath)
         {
             string content = GenerateLocalisationFileContent();
 
-            foreach (string language in new string[] { "english", "french" })
-            {
-                CreateLocalisationFile(localisationDirectoryPath, language, content);
-            }
+            Parallel.ForEach(
+                new List<string>{ "english", "french" },
+                fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
         }
 
         void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
         {
-            string fileContent = $"l_{language}:{Environment.NewLine}${content}";
+            string fileContent = $"l_{language}:{Environment.NewLine}{content}";
             string fileName = $"{Settings.Mod.Id}_provincenames_l_{language}.yml";
             string filePath = Path.Combine(localisationDirectoryPath, fileName);
 
@@ -139,9 +138,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateLocalisationFileContent()
         {
-            string content = string.Empty;
+            ConcurrentBag<string> lines = new ConcurrentBag<string>();
 
-            foreach (string provinceId in localisations.Keys.OrderBy(x => int.Parse(x)))
+            Parallel.ForEach(localisations.Keys.OrderBy(x => int.Parse(x)), provinceId =>
             {
                 foreach (string culture in localisations[provinceId].Keys.OrderBy(x => x))
                 {
@@ -161,29 +160,27 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         provinceLocalisationDefinition += $" # {localisation.Comment}";
                     }
 
-                    content += $"{provinceLocalisationDefinition}{Environment.NewLine}";
+                    lines.Add(provinceLocalisationDefinition);
                 }
-            }
+            });
 
-            return content;
+            return string.Join(
+                Environment.NewLine,
+                lines.OrderBy(line => line));
         }
 
         string GenerateMainDescriptorContent()
-        {
-            return GenerateInnerDescriptorContent() + Environment.NewLine +
+            => GenerateInnerDescriptorContent() +
+                Environment.NewLine +
                 $"path=\"mod/{Settings.Mod.Id}\"";
-        }
 
         string GenerateInnerDescriptorContent()
-        {
-            return
-                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
                 $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}";
-        }
     }
 }

@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 using NuciExtensions;
@@ -64,26 +66,26 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 .GroupBy(x => x.Parent)
                 .ToDictionary(x => x.Key, x => x.ToList());
 
-            stateLocalisations = new Dictionary<string, IDictionary<string, Localisation>>();
-            cityLocalisations = new Dictionary<string, IDictionary<string, Localisation>>();
+            stateLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
+            cityLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
 
-            foreach (GameId stateGameId in stateGameIds)
+            Parallel.ForEach(stateGameIds, stateGameId =>
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
                     .GetGameLocationLocalisations(stateGameId.Id, "State", Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 stateLocalisations.Add(stateGameId.Id, localisations);
-            }
+            });
 
-            foreach (GameId cityGameId in cityGameIds)
+            Parallel.ForEach(cityGameIds, cityGameId =>
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
                     .GetGameLocationLocalisations(cityGameId.Id, "City", Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 cityLocalisations.Add(cityGameId.Id, localisations);
-            }
+            });
         }
 
         protected override void GenerateFiles()
@@ -114,7 +116,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         void CreateEventsFiles(string eventsDirectoryPath)
         {
-            foreach (string countryTag in countryTags)
+            Parallel.ForEach(countryTags, countryTag =>
             {
                 string eventsFileName = string.Format(EventsFileNameFormat, countryTag);
                 string eventsFilePath = Path.Combine(eventsDirectoryPath, eventsFileName);
@@ -122,7 +124,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 string countryEvents = GenerateCountryEvents(countryTag);
 
                 File.WriteAllText(eventsFilePath, countryEvents);
-            }
+            });
         }
 
         string GenerateCountryEvents(string countryTag)
@@ -151,7 +153,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             string eventContent = $"# Event={eventId}, State={stateGameId.Id}";
             string nameSetsEventContent = string.Empty;
-            
+
             Localisation stateLocalisation = stateLocalisations
                 .TryGetValue(stateGameId.Id)
                 .TryGetValue(countryTag);
@@ -159,11 +161,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             if (!(stateLocalisation is null))
             {
                 stateName = nameNormaliser.ToHOI4StateCharset(stateLocalisation.Name);
-                
+
                 eventContent += $", LocalisedName=\"{stateName}\"";
                 nameSetsEventContent +=
                     $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }} # {stateLocalisation.Name}";
-                
+
                 if (Settings.Output.AreVerboseCommentsEnabled)
                 {
                     nameSetsEventContent += $" # Language={stateLocalisation.LanguageId}";
@@ -193,9 +195,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    mean_time_to_happen = {{ days = 3 }}" + Environment.NewLine +
                 $"    immediate = {{" + Environment.NewLine +
                 $"        hidden_effect = {{" + Environment.NewLine;
-            
+
             IEnumerable<GameId> currentStateCities = stateCities.TryGetValue(stateGameId.Id);
-            
+
             if (!EnumerableExt.IsNullOrEmpty(currentStateCities))
             {
                 foreach (GameId cityGameId in currentStateCities.OrderBy(x => int.Parse(x.Id)))
@@ -203,17 +205,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     Localisation cityLocalisation = cityLocalisations
                         .TryGetValue(cityGameId.Id)
                         .TryGetValue(countryTag);
-                    
+
                     if (cityLocalisation is null)
                     {
                         continue;
                     }
 
                     string cityName = nameNormaliser.ToHOI4CityCharset(cityLocalisation.Name);
-                    
+
                     nameSetsEventContent +=
                         $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}";
-                
+
                     if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         nameSetsEventContent += $" # Language={cityLocalisation.LanguageId}";
@@ -238,20 +240,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    }}" + Environment.NewLine +
                 $"    option = {{ name = {eventId}.option }}" + Environment.NewLine +
                 $"}}" + Environment.NewLine;
-                
+
             return eventContent;
         }
-        
+
         string GenerateMainDescriptorContent()
-        {
-            return GenerateInnerDescriptorContent() + Environment.NewLine +
+            => GenerateInnerDescriptorContent() +
+                Environment.NewLine +
                 $"path=\"mod/{Settings.Mod.Id}\"";
-        }
 
         string GenerateInnerDescriptorContent()
-        {
-            return
-                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
                 $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
@@ -260,6 +259,5 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    \"Map\"" + Environment.NewLine +
                 $"    \"Translation\"" + Environment.NewLine +
                 $"}}";
-        }
     }
 }

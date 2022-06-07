@@ -77,7 +77,7 @@ namespace MoreCulturalNamesBuilder.Service
             }
             else
             {
-                location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x => 
+                location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x =>
                 x.Game == game &&
                 x.Id == locationGameId &&
                 x.Type == locationGameIdType));
@@ -89,8 +89,8 @@ namespace MoreCulturalNamesBuilder.Service
             }
 
             IDictionary<string, string> languageGameIds = GetLanguageGameIds(game);
-            
-            Parallel.ForEach(languageGameIds, languageGameId => 
+
+            Parallel.ForEach(languageGameIds, languageGameId =>
             {
                 Localisation localisation = GetLocationLocalisation(location, languageGameId.Value);
 
@@ -98,7 +98,7 @@ namespace MoreCulturalNamesBuilder.Service
                 {
                     return;
                 }
-                
+
                 localisation.GameId = locationGameId;
                 localisation.LanguageGameId = languageGameId.Key;
 
@@ -133,19 +133,16 @@ namespace MoreCulturalNamesBuilder.Service
             {
                 foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    foreach (Name name in titles[titleIdToCheck].Names)
+                    foreach (Name name in titles[titleIdToCheck].Names.Where(name => name.LanguageId.Equals(languageIdToCheck)))
                     {
-                        if (name.LanguageId == languageIdToCheck)
-                        {
-                            Localisation localisation = new Localisation();
-                            localisation.Id = titleIdToCheck;
-                            localisation.LanguageId = languageIdToCheck;
-                            localisation.Name = name.Value;
-                            localisation.Adjective = name.Adjective;
-                            localisation.Comment = name.Comment;
+                        Localisation localisation = new Localisation();
+                        localisation.Id = titleIdToCheck;
+                        localisation.LanguageId = languageIdToCheck;
+                        localisation.Name = name.Value;
+                        localisation.Adjective = name.Adjective;
+                        localisation.Comment = name.Comment;
 
-                            return localisation;
-                        }
+                        return localisation;
                     }
                 }
             }
@@ -172,19 +169,16 @@ namespace MoreCulturalNamesBuilder.Service
             {
                 foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    foreach (Name name in locations[locationIdToCheck].Names)
+                    foreach (Name name in locations[locationIdToCheck].Names.Where(name => name.LanguageId.Equals(languageIdToCheck)))
                     {
-                        if (name.LanguageId == languageIdToCheck)
-                        {
-                            Localisation localisation = new Localisation();
-                            localisation.Id = locationIdToCheck;
-                            localisation.LanguageId = languageIdToCheck;
-                            localisation.Name = name.Value;
-                            localisation.Adjective = name.Adjective;
-                            localisation.Comment = name.Comment;
+                        Localisation localisation = new Localisation();
+                        localisation.Id = locationIdToCheck;
+                        localisation.LanguageId = languageIdToCheck;
+                        localisation.Name = name.Value;
+                        localisation.Adjective = name.Adjective;
+                        localisation.Comment = name.Comment;
 
-                            return localisation;
-                        }
+                        return localisation;
                     }
                 }
             }

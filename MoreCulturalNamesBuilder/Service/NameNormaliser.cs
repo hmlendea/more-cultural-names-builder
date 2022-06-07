@@ -275,7 +275,7 @@ namespace MoreCulturalNamesBuilder.Service
 
             processedName = ToHOI4CityCharset(processedName);
 
-            // Hearts of Iron IV 
+            // Hearts of Iron IV
             processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
             processedName = Regex.Replace(processedName, "[Č]", "Ch");
             processedName = Regex.Replace(processedName, "[ĆĈĊ]", "C");
@@ -616,7 +616,6 @@ namespace MoreCulturalNamesBuilder.Service
         {
             string processedName = name;
 
-            
             processedName = Regex.Replace(processedName, "([АΑᎪꓮ𝖠]|A‍)", "A");
             processedName = Regex.Replace(processedName, "([Ά])", "Á");
             processedName = Regex.Replace(processedName, "([Ắ])", "Ă");
