@@ -115,10 +115,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             string content = GenerateLocalisationFileContent();
 
-            CreateLocalisationFile(localisationDirectoryPath, "english", content);
-            CreateLocalisationFile(localisationDirectoryPath, "french", content);
-            CreateLocalisationFile(localisationDirectoryPath, "german", content);
-            CreateLocalisationFile(localisationDirectoryPath, "spanish", content);
+            Parallel.ForEach(
+                new List<string>{ "english", "french", "german", "spanish" },
+                fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
         }
 
         // TODO: This shouldn't exist

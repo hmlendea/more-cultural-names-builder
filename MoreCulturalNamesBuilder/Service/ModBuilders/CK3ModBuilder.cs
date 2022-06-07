@@ -133,10 +133,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             string content = GenerateLocalisationFileContent();
 
-            CreateLocalisationFile(localisationDirectoryPath, "english", content);
-            CreateLocalisationFile(localisationDirectoryPath, "french", content);
-            CreateLocalisationFile(localisationDirectoryPath, "german", content);
-            CreateLocalisationFile(localisationDirectoryPath, "spanish", content);
+            Parallel.ForEach(
+                new List<string>{ "english", "french", "german", "spanish" },
+                fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
         }
 
         // TODO: This shouldn't exist
@@ -172,14 +171,14 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
                 string titleLocalisationDefinition = $" cn_{localisation.Id}_{localisation.LanguageGameId}:0 \"{normalisedName}\"";
 
-                if (Settings.Output.AreVerboseCommentsEnabled)
-                {
-                    titleLocalisationDefinition += $" # Language={localisation.LanguageId}";
-                }
-
                 if (!string.IsNullOrWhiteSpace(localisation.Comment))
                 {
                     titleLocalisationDefinition += $" # {localisation.Comment}";
+                }
+
+                if (Settings.Output.AreVerboseCommentsEnabled)
+                {
+                    titleLocalisationDefinition += $" # Language={localisation.LanguageId}";
                 }
 
                 lines.Add(titleLocalisationDefinition);
@@ -191,7 +190,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 }
             });
 
-            return string.Join(Environment.NewLine, lines.OrderBy(x => x));
+            return string.Join(
+                Environment.NewLine,
+                lines.OrderBy(line => line));
         }
 
         void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)

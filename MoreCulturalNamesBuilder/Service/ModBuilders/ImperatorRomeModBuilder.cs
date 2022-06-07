@@ -110,10 +110,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             string content = GenerateLocalisationFileContent();
 
-            foreach (string language in new string[] { "english", "french" })
-            {
-                CreateLocalisationFile(localisationDirectoryPath, language, content);
-            }
+            Parallel.ForEach(
+                new List<string>{ "english", "french" },
+                fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
         }
 
         void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
