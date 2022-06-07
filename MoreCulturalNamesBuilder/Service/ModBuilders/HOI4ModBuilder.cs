@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
 using NuciExtensions;
@@ -64,26 +66,26 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 .GroupBy(x => x.Parent)
                 .ToDictionary(x => x.Key, x => x.ToList());
 
-            stateLocalisations = new Dictionary<string, IDictionary<string, Localisation>>();
-            cityLocalisations = new Dictionary<string, IDictionary<string, Localisation>>();
+            stateLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
+            cityLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
 
-            foreach (GameId stateGameId in stateGameIds)
+            Parallel.ForEach(stateGameIds, stateGameId =>
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
                     .GetGameLocationLocalisations(stateGameId.Id, "State", Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 stateLocalisations.Add(stateGameId.Id, localisations);
-            }
+            });
 
-            foreach (GameId cityGameId in cityGameIds)
+            Parallel.ForEach(cityGameIds, cityGameId =>
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
                     .GetGameLocationLocalisations(cityGameId.Id, "City", Settings.Mod.Game)
                     .ToDictionary(x => x.LanguageGameId, x => x);
 
                 cityLocalisations.Add(cityGameId.Id, localisations);
-            }
+            });
         }
 
         protected override void GenerateFiles()
@@ -114,7 +116,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         void CreateEventsFiles(string eventsDirectoryPath)
         {
-            foreach (string countryTag in countryTags)
+            Parallel.ForEach(countryTags, countryTag =>
             {
                 string eventsFileName = string.Format(EventsFileNameFormat, countryTag);
                 string eventsFilePath = Path.Combine(eventsDirectoryPath, eventsFileName);
@@ -122,7 +124,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 string countryEvents = GenerateCountryEvents(countryTag);
 
                 File.WriteAllText(eventsFilePath, countryEvents);
-            }
+            });
         }
 
         string GenerateCountryEvents(string countryTag)
