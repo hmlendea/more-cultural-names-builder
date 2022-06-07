@@ -71,7 +71,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         void CreateDataFiles(string provinceNamesDirectoryPath)
         {
-            foreach (GameId languageGameId in languageGameIds)
+            Parallel.ForEach(languageGameIds, languageGameId =>
             {
                 string path = Path.Combine(provinceNamesDirectoryPath, $"{languageGameId.Id.ToLower()}.txt");
                 string content = $"{languageGameId.Id} = {{" + Environment.NewLine;
@@ -103,7 +103,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 content += "}";
 
                 File.WriteAllText(path, content);
-            }
+            });
         }
 
         void CreateLocalisationFiles(string localisationDirectoryPath)
@@ -139,9 +139,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateLocalisationFileContent()
         {
-            string content = string.Empty;
+            ConcurrentBag<string> lines = new ConcurrentBag<string>();
 
-            foreach (string provinceId in localisations.Keys.OrderBy(x => int.Parse(x)))
+            Parallel.ForEach(localisations.Keys.OrderBy(x => int.Parse(x)), provinceId =>
             {
                 foreach (string culture in localisations[provinceId].Keys.OrderBy(x => x))
                 {
@@ -161,11 +161,13 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         provinceLocalisationDefinition += $" # {localisation.Comment}";
                     }
 
-                    content += $"{provinceLocalisationDefinition}{Environment.NewLine}";
+                    lines.Add(provinceLocalisationDefinition);
                 }
-            }
+            });
 
-            return content;
+            return string.Join(
+                Environment.NewLine,
+                lines.OrderBy(line => line));
         }
 
         string GenerateMainDescriptorContent()
