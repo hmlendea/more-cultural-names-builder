@@ -151,7 +151,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             string eventContent = $"# Event={eventId}, State={stateGameId.Id}";
             string nameSetsEventContent = string.Empty;
-            
+
             Localisation stateLocalisation = stateLocalisations
                 .TryGetValue(stateGameId.Id)
                 .TryGetValue(countryTag);
@@ -159,11 +159,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             if (!(stateLocalisation is null))
             {
                 stateName = nameNormaliser.ToHOI4StateCharset(stateLocalisation.Name);
-                
+
                 eventContent += $", LocalisedName=\"{stateName}\"";
                 nameSetsEventContent +=
                     $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }} # {stateLocalisation.Name}";
-                
+
                 if (Settings.Output.AreVerboseCommentsEnabled)
                 {
                     nameSetsEventContent += $" # Language={stateLocalisation.LanguageId}";
@@ -193,9 +193,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    mean_time_to_happen = {{ days = 3 }}" + Environment.NewLine +
                 $"    immediate = {{" + Environment.NewLine +
                 $"        hidden_effect = {{" + Environment.NewLine;
-            
+
             IEnumerable<GameId> currentStateCities = stateCities.TryGetValue(stateGameId.Id);
-            
+
             if (!EnumerableExt.IsNullOrEmpty(currentStateCities))
             {
                 foreach (GameId cityGameId in currentStateCities.OrderBy(x => int.Parse(x.Id)))
@@ -203,17 +203,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     Localisation cityLocalisation = cityLocalisations
                         .TryGetValue(cityGameId.Id)
                         .TryGetValue(countryTag);
-                    
+
                     if (cityLocalisation is null)
                     {
                         continue;
                     }
 
                     string cityName = nameNormaliser.ToHOI4CityCharset(cityLocalisation.Name);
-                    
+
                     nameSetsEventContent +=
                         $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}";
-                
+
                     if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         nameSetsEventContent += $" # Language={cityLocalisation.LanguageId}";
@@ -238,20 +238,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    }}" + Environment.NewLine +
                 $"    option = {{ name = {eventId}.option }}" + Environment.NewLine +
                 $"}}" + Environment.NewLine;
-                
+
             return eventContent;
         }
-        
+
         string GenerateMainDescriptorContent()
-        {
-            return GenerateInnerDescriptorContent() + Environment.NewLine +
+            => GenerateInnerDescriptorContent() +
+                Environment.NewLine +
                 $"path=\"mod/{Settings.Mod.Id}\"";
-        }
 
         string GenerateInnerDescriptorContent()
-        {
-            return
-                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
                 $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
@@ -260,6 +257,5 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    \"Map\"" + Environment.NewLine +
                 $"    \"Translation\"" + Environment.NewLine +
                 $"}}";
-        }
     }
 }

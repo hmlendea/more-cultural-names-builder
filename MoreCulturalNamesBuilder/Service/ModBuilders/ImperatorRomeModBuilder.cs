@@ -17,7 +17,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     public sealed class ImperatorRomeModBuilder : ModBuilder
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
-            
+
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
 
@@ -169,21 +169,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         }
 
         string GenerateMainDescriptorContent()
-        {
-            return GenerateInnerDescriptorContent() + Environment.NewLine +
+            => GenerateInnerDescriptorContent() +
+                Environment.NewLine +
                 $"path=\"mod/{Settings.Mod.Id}\"";
-        }
 
         string GenerateInnerDescriptorContent()
-        {
-            return
-                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
                 $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"}}";
-        }
     }
 }

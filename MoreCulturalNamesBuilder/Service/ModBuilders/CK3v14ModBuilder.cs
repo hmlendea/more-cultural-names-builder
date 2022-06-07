@@ -39,15 +39,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         }
 
         protected override string GenerateMainDescriptorContent()
-        {
-            return GenerateDescriptorContent() + Environment.NewLine +
+            => GenerateDescriptorContent() +
+                Environment.NewLine +
                 $"path=\"mod/{Settings.Mod.Id}\"";
-        }
 
         protected override string GenerateDescriptorContent()
-        {
-            return
-                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
                 $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
@@ -57,26 +54,19 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    \"Map\"" + Environment.NewLine +
                 $"    \"Translation\"" + Environment.NewLine +
                 $"}}";
-        }
 
         protected override string ReadLandedTitlesFile()
-        {
-            return File.ReadAllText(Settings.Input.LandedTitlesFilePath);
-        }
+            => File.ReadAllText(Settings.Input.LandedTitlesFilePath);
 
         protected override void WriteLandedTitlesFile(string filePath, string content)
-        {
-            File.WriteAllText(filePath, content);
-        }
+            => File.WriteAllText(filePath, content);
 
         protected override string DoCleanLandedTitlesFile(string content)
-        {
-            return Regex.Replace( // Remove empty cultural_names blocks
+            => Regex.Replace( // Remove empty cultural_names blocks
                 content,
                 "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
                 "",
                 RegexOptions.Multiline);
-        }
 
         protected override string GetTitleLocalisationsContent(string line, string gameId)
         {
@@ -95,7 +85,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
-                string lineToAdd = 
+                string lineToAdd =
                     $"{indentation2}{localisation.LanguageGameId} = cn_{localisation.Id}_{localisation.LanguageGameId}" +
                     $" # {nameNormaliser.ToCK3Charset(localisation.Name)}";
 
@@ -119,9 +109,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         // TODO: This shouldn't exist
         protected override string GenerateTitlesLocalisationFile(GameId languageGameId)
-        {
-            return null;
-        }
+            => null;
 
         protected override void CreateLocalisationFiles(string localisationDirectoryPath)
         {
@@ -136,19 +124,19 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         // TODO: This shouldn't exist
         protected override void CreateTitlesLocalisationFiles()
         {
-            
+
         }
 
-        protected override void CreateDescriptorFiles()   
-        {	
+        protected override void CreateDescriptorFiles()
+        {
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateDescriptorContent();
-            
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, "descriptor.mod");	
 
-            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);	
-            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);	
+            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
+            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, "descriptor.mod");
+
+            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
+            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
         string GenerateLocalisationFileContent()
@@ -198,8 +186,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         }
 
         void WriteFileWithByteOrderMark(string filePath, string content)
-        {
-            File.WriteAllText(filePath, content + '\uFEFF');
-        }
+            => File.WriteAllText(filePath, content + '\uFEFF');
     }
 }

@@ -25,7 +25,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected virtual List<string> ForbiddenTokensForNextLine => new List<string>
             { "any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change" };
-            
+
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
 
@@ -42,7 +42,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
-            
+
             EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(encodingProvider);
         }
@@ -92,7 +92,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             {
                 content += $"dependencies = {{ \"{Settings.Mod.Dependency}\" }}" + Environment.NewLine;
             }
-            
+
             content +=
                 $"picture = \"thumbnail.png\"" + Environment.NewLine +
                 $"tags = {{ map immersion }}";
@@ -101,10 +101,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         }
 
         protected virtual string GenerateMainDescriptorContent()
-        {
-            return GenerateDescriptorContent() + Environment.NewLine +
+            => GenerateDescriptorContent() +
+                Environment.NewLine +
                 $"path = \"mod/{Settings.Mod.Id}\"";
-        }
 
         protected virtual string GetTitleLocalisationsContent(string line, string gameId)
         {
@@ -160,7 +159,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 {
                     string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
                     string line = $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x";
-                    
+
                     if (Settings.Output.AreVerboseCommentsEnabled)
                     {
                         line += $" # Language={localisation.LanguageId}";
@@ -170,7 +169,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     {
                         line += $" # ${nameNormaliser.ToWindows1252(localisation.Comment)}";
                     }
-                    
+
                     lines.Add(line);
                 }
             }
@@ -182,16 +181,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         }
 
         protected virtual string ReadLandedTitlesFile()
-        {
-            Encoding encoding = Encoding.GetEncoding("windows-1252");
-            
-            return File.ReadAllText(Settings.Input.LandedTitlesFilePath, encoding);
-        }
+            => File.ReadAllText(
+                Settings.Input.LandedTitlesFilePath,
+                Encoding.GetEncoding("windows-1252"));
 
         protected virtual void WriteLandedTitlesFile(string filePath, string content)
-        {
-            WriteWindows1252File(filePath, content);
-        }
+            => WriteWindows1252File(filePath, content);
 
         protected virtual string DoCleanLandedTitlesFile(string content)
         {
@@ -249,7 +244,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 WriteWindows1252File(filePath, content);
             }
         }
-        
+
         void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
         {
             string landedTitlesFileContent = BuildLandedTitlesFile();
@@ -262,7 +257,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             string landedTitlesFile = ReadLandedTitlesFile();
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
-            
+
             List<string> content = new List<string> { string.Empty };
             List<string> landedTitlesFileLines = landedTitlesFile.Split('\n').ToList();
             landedTitlesFileLines.Add(string.Empty);
@@ -318,7 +313,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
                 "$1$2 = {\n$1\t$3\n$1}",
                 RegexOptions.Multiline);
-            
+
             newContent = Regex.Replace( // Remove cultural names
                 newContent,
                 "^\\s*(" + culturesPattern + ")\\s*=\\s*\"*[^\"\n]*\"*[^\n]*\n",
@@ -330,9 +325,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 "(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}",
                 "$1$2\n$1}",
                 RegexOptions.Multiline);
-            
+
             newContent = DoCleanLandedTitlesFile(newContent);
-            
+
             return newContent;
         }
 
@@ -365,7 +360,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             Encoding encoding = Encoding.GetEncoding("windows-1252");
             byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
-            
+
             File.WriteAllBytes(filePath, contentBytes);
         }
     }
