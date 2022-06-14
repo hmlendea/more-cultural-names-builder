@@ -46,7 +46,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             if (normalisedGame.StartsWith("CK3"))
             {
-                if (settings.Mod.GameVersion.StartsWith("1.4"))
+                if (string.Compare(settings.Mod.GameVersion.Substring(0, 3), "1.4") <= 0)
                 {
                     return new CK3v14ModBuilder(
                         localisationFetcher,
