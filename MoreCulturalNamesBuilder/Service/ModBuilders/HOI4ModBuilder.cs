@@ -250,14 +250,26 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"path=\"mod/{Settings.Mod.Id}\"";
 
         string GenerateInnerDescriptorContent()
-            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+        {
+            string descriptor =
+                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
-                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
+                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine;
+
+            if (!string.IsNullOrWhiteSpace(Settings.Mod.Dependency))
+            {
+                descriptor += $"dependencies = {{ \"{Settings.Mod.Dependency}\" }}" + Environment.NewLine;
+            }
+
+            descriptor +=
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
                 $"    \"Map\"" + Environment.NewLine +
                 $"    \"Translation\"" + Environment.NewLine +
                 $"}}";
+
+            return descriptor;
+        }
     }
 }
