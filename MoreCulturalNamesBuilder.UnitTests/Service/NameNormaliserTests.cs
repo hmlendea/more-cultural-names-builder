@@ -124,6 +124,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Užhorod", "Užhorod")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
         [TestCase("Vюrцby’rg", "Viurcby’rg")]
+        [TestCase("Вуллонгонг", "Vullongong")]
         [TestCase("Эstoniья", "Estoni'ia")]
         [TestCase("Юli’h", "Iuli’h")]
         public void WhenNormalisingForCK3_ReturnsTheExpectedNormalisedName(
@@ -236,6 +237,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Užhorod", "Užhorod")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
         [TestCase("Vюrцby’rg", "Viurcby´rg")]
+        [TestCase("Вуллонгонг", "Vullongong")]
         [TestCase("Эstoniья", "Estoni'ia")]
         [TestCase("Юli’h", "Iuli´h")]
         public void WhenNormalisingForHOI4City_ReturnsTheExpectedNormalisedName(
@@ -348,6 +350,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Užhorod", "Užhorod")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Polšcha")]
         [TestCase("Vюrцby’rg", "Viurcby’rg")]
+        [TestCase("Вуллонгонг", "Vullongong")]
         [TestCase("Эstoniья", "Estoni'ia")]
         [TestCase("Юli’h", "Iuli’h")]
         public void WhenNormalisingForWindow1252_ReturnsTheExpectedNormalisedName(
