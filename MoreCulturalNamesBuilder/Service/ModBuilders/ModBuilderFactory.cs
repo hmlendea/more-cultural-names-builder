@@ -13,20 +13,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         readonly INameNormaliser nameNormaliser;
         readonly IRepository<LanguageEntity> languageRepository;
         readonly IRepository<LocationEntity> locationRepository;
-        readonly IRepository<TitleEntity> titleRepository;
 
         public ModBuilderFactory(
             ILocalisationFetcher localisationFetcher,
             INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository,
-            IRepository<TitleEntity> titleRepository)
+            IRepository<LocationEntity> locationRepository)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;
-            this.titleRepository = titleRepository;
         }
 
         public IModBuilder GetModBuilder(Settings settings)
@@ -40,7 +37,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     nameNormaliser,
                     languageRepository,
                     locationRepository,
-                    titleRepository,
                     settings);
             }
 
@@ -53,7 +49,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         nameNormaliser,
                         languageRepository,
                         locationRepository,
-                        titleRepository,
                         settings);
                 }
                 else
@@ -63,7 +58,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         nameNormaliser,
                         languageRepository,
                         locationRepository,
-                        titleRepository,
                         settings);
                 }
             }
@@ -75,7 +69,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     nameNormaliser,
                     languageRepository,
                     locationRepository,
-                    titleRepository,
                     settings);
             }
 
@@ -87,7 +80,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     nameNormaliser,
                     languageRepository,
                     locationRepository,
-                    titleRepository,
                     settings);
             }
 

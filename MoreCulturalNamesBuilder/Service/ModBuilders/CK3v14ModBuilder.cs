@@ -30,9 +30,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
-            IRepository<TitleEntity> titleRepository,
             Settings settings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, titleRepository, settings)
+            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -107,10 +106,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             return string.Join(Environment.NewLine, lines);
         }
 
-        // TODO: This shouldn't exist
-        protected override string GenerateTitlesLocalisationFile(GameId languageGameId)
-            => null;
-
         protected override void CreateLocalisationFiles(string localisationDirectoryPath)
         {
             string content = GenerateLocalisationFileContent();
@@ -118,12 +113,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Parallel.ForEach(
                 new List<string>{ "english", "french", "german", "spanish" },
                 fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
-        }
-
-        // TODO: This shouldn't exist
-        protected override void CreateTitlesLocalisationFiles()
-        {
-
         }
 
         protected override void CreateDescriptorFiles()

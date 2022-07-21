@@ -36,9 +36,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             INameNormaliser nameNormaliser,
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
-            IRepository<TitleEntity> titleRepository,
             Settings settings)
-            : base(languageRepository, locationRepository, titleRepository, settings)
+            : base(languageRepository, locationRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -78,7 +77,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             CreateDescriptorFiles();
             CreateLandedTitlesFile(landedTitlesDirectoryPath);
             CreateLocalisationFiles(localisationDirectoryPath);
-            CreateTitlesLocalisationFiles();
         }
 
         protected virtual string GenerateDescriptorContent()
@@ -138,48 +136,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             return string.Join(Environment.NewLine, lines);
         }
 
-        protected virtual string GenerateTitlesLocalisationFile(GameId languageGameId)
-        {
-            IList<string> lines = new List<string>();
-
-            foreach (Title title in titles.Values)
-            {
-                IEnumerable<GameId> titleGameIds = title.GameIds
-                    .Where(x => x.Game == Settings.Mod.Game)
-                    .OrderBy(x => x.Id);
-
-                Localisation localisation = localisationFetcher.GetTitleLocalisation(title.Id, languageGameId.Id, Settings.Mod.Game);
-
-                if (localisation is null)
-                {
-                    continue;
-                }
-
-                foreach (GameId titleGameId in titleGameIds)
-                {
-                    string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
-                    string line = $"{titleGameId.Id}_{languageGameId.Id};{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x";
-
-                    if (Settings.Output.AreVerboseCommentsEnabled)
-                    {
-                        line += $" # Language={localisation.LanguageId}";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(localisation.Comment))
-                    {
-                        line += $" # ${nameNormaliser.ToWindows1252(localisation.Comment)}";
-                    }
-
-                    lines.Add(line);
-                }
-            }
-
-            lines = lines.OrderBy(x => x).ToList();
-            lines.Add(string.Empty);
-
-            return string.Join(Environment.NewLine, lines);
-        }
-
         protected virtual string ReadLandedTitlesFile()
             => File.ReadAllText(
                 Settings.Input.LandedTitlesFilePath,
@@ -197,25 +153,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
                 "$1$2 = {\n$1\t$3\n$1}",
                 RegexOptions.Multiline);
-        }
-
-        protected virtual void CreateTitlesLocalisationFiles()
-        {
-            string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, LocalisationDirectoryName);
-            Directory.CreateDirectory(localisationsDirectoryPath);
-
-            foreach (GameId languageGameId in languageGameIds)
-            {
-                string filePath = Path.Combine(localisationsDirectoryPath, $"000_{Settings.Mod.Id}_titles_{languageGameId.Id}.csv");
-                string content = GenerateTitlesLocalisationFile(languageGameId);
-
-                if (string.IsNullOrWhiteSpace(content))
-                {
-                    continue;
-                }
-
-                WriteWindows1252File(filePath, content);
-            }
         }
 
         protected virtual void CreateDescriptorFiles()
