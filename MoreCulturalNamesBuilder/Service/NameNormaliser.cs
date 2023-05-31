@@ -50,7 +50,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "[ḦḨ]", "H");
             processedName = Regex.Replace(processedName, "[Ȟ]", "Ĥ");
             processedName = Regex.Replace(processedName, "[Ị]", "Į");
-            processedName = Regex.Replace(processedName, "[Ǧ]", "J");
+            processedName = Regex.Replace(processedName, "[Ǧ]", "Ğ"); // J
             processedName = Regex.Replace(processedName, "J̌", "Ĵ");
             processedName = Regex.Replace(processedName, "[Ḫ]", "Kh");
             processedName = Regex.Replace(processedName, "[ḰǨ]", "K");
@@ -98,7 +98,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "[ḧḩ]", "h");
             processedName = Regex.Replace(processedName, "[ȟ]", "ĥ");
             processedName = Regex.Replace(processedName, "[ị]", "į");
-            processedName = Regex.Replace(processedName, "[ǧ]", "j");
+            processedName = Regex.Replace(processedName, "[ǧ]", "ğ"); // j
             processedName = Regex.Replace(processedName, "[ǰ]", "ĵ");
             processedName = Regex.Replace(processedName, "[ḫ]", "kh");
             processedName = Regex.Replace(processedName, "[ḱǩ]", "k");
@@ -165,7 +165,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "[ḦḨ]", "H");
             processedName = Regex.Replace(processedName, "[Ȟ]", "Ĥ");
             processedName = Regex.Replace(processedName, "[Ị]", "Į");
-            processedName = Regex.Replace(processedName, "[Ǧ]", "J");
+            processedName = Regex.Replace(processedName, "[Ǧ]", "Ğ"); // J
             processedName = Regex.Replace(processedName, "[Ḫ]", "Kh");
             processedName = Regex.Replace(processedName, "[ḰǨ]", "Ќ");
             processedName = Regex.Replace(processedName, "[ḴḲ]", "Ķ");
@@ -216,7 +216,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "[ȟ]", "ĥ");
             processedName = Regex.Replace(processedName, "[ĩ]", "ï");
             processedName = Regex.Replace(processedName, "[ị]", "į");
-            processedName = Regex.Replace(processedName, "[ǧ]", "j");
+            processedName = Regex.Replace(processedName, "[ǧ]", "ğ"); // j
             processedName = Regex.Replace(processedName, "[ǰ]", "ĵ");
             processedName = Regex.Replace(processedName, "[ḫ]", "kh");
             processedName = Regex.Replace(processedName, "[ḱǩ]", "ќ");
@@ -275,8 +275,6 @@ namespace MoreCulturalNamesBuilder.Service
 
             processedName = Regex.Replace(processedName, "iīẗ", "iyyah");
             processedName = Regex.Replace(processedName, "īẗ", "iyah");
-
-            processedName = ToHOI4CityCharset(processedName);
 
             // Hearts of Iron IV
             processedName = Regex.Replace(processedName, "[ĂĀ]", "Ã");
@@ -339,6 +337,8 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "[ŷ]", "y");
             processedName = Regex.Replace(processedName, "[ź]", "z");
             processedName = Regex.Replace(processedName, "[ż]", "ž");
+
+            processedName = ToHOI4CityCharset(processedName);
 
             hoi4statesCache.TryAdd(name, processedName);
 

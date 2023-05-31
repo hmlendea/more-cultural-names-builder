@@ -6,11 +6,22 @@
         "statusBarItem.hoverBackground": "#378932",
         "statusBarItem.remoteBackground": "#46ae40",
         "statusBarItem.remoteForeground": "#15202b",
+<<<<<<< Updated upstream
         "tab.activeBorder": "#63c45d",
         "titleBar.activeBackground": "#46ae40",
         "titleBar.activeForeground": "#15202b",
         "titleBar.inactiveBackground": "#46ae4099",
         "titleBar.inactiveForeground": "#15202b99"
+||||||| Stash base
+        "tab.activeBorder": "#63c45d"
+=======
+        "tab.activeBorder": "#63c45d",
+        "commandCenter.border": "#15202b99",
+        "titleBar.activeBackground": "#46ae40",
+        "titleBar.activeForeground": "#15202b",
+        "titleBar.inactiveBackground": "#46ae4099",
+        "titleBar.inactiveForeground": "#15202b99"
+>>>>>>> Stashed changes
     },
     "peacock.color": "#46ae40"
 }
