@@ -23,15 +23,16 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
             this.nameNormaliser = new NameNormaliser();
         }
 
+        // Crusader Kings 3
         [Test]
-        [TestCase("Â-ngì-pî-sṳ̂ sân", "Â-ngì-pî-sû sân")]
         [TestCase("Ab‌khajiyā", "Abkhajiyā")]
-        [TestCase("Aǧīm", "Ajīm")]
+        [TestCase("Aǧīm", "Ağīm")]
         [TestCase("Aḫmīm", "Akhmīm")]
         [TestCase("Ais‍lyāṇḍ", "Aislyāņd")]
         [TestCase("Aǩsubaj", "Aksubaj")]
         [TestCase("al-Basīṭ", "al-Basīț")]
-        [TestCase("al-Ǧubayl", "al-Jubayl")]
+        [TestCase("al-Ǧazīraḧ al-Ḫaḍrāʼ", "al-Ğazīrah al-Khadrā´")]
+        [TestCase("al-Ǧubayl", "al-Ğubayl")]
         [TestCase("al-Hāmā al-Arāġūn", "al-Hāmā al-Arāġūn")]
         [TestCase("al-H̱ānīẗ", "al-Khānīah")]
         [TestCase("āl-Zāwyẗ", "āl-Zāwyah")]
@@ -43,6 +44,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Anwākšūṭ", "Anwākšūț")]
         [TestCase("Aṗsny", "Apsny")]
         [TestCase("Åsele", "Åsele")]
+        [TestCase("Â-ngì-pî-sṳ̂ sân", "Â-ngì-pî-sû sân")]
         [TestCase("Bāḇel", "Bābel")]
         [TestCase("Basileia Rhṓmaiṓn", "Basileia Rhōmaiōn")]
         [TestCase("Bạt Đế Mỗ", "Bat Đê Mô")]
@@ -58,9 +60,9 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Chęciny", "Chęciny")]
         [TestCase("Cửu Trại Câu", "Ců'u Trai Câu")]
         [TestCase("Đakovo", "Đakovo")]
-        [TestCase("Đặng Khẩu", "Đăng Khâu")]
         [TestCase("Danmǫrk", "Danmörk")]
         [TestCase("Dasavleti Virǯinia", "Dasavleti Viržinia")]
+        [TestCase("Đặng Khẩu", "Đăng Khâu")]
         [TestCase("Đế quốc Nga", "Đê quôc Nga")]
         [TestCase("Dobřany", "Dobřany")]
         [TestCase("Dᶻidᶻəlal̓ič", "Dzidzalalič")]
@@ -74,7 +76,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Góðviðra", "Góðviðra")]
         [TestCase("Grɨnlɛɛn", "Grinleen")]
         [TestCase("G‍roseṭō", "Grosețō")]
-        [TestCase("Ǧuzur al-Īǧẗ", "Juzur al-Ījah")]
+        [TestCase("Ǧuzur al-Īǧẗ", "Ğuzur al-Īğah")]
         [TestCase("Ḥadīṯẗ", "Hadīthah")]
         [TestCase("Ȟaȟáwakpa", "Ĥaĥáwakpa")]
         [TestCase("H̱rūnīnġn", "Khrūnīnġn")]
@@ -107,7 +109,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Miniṡoṡeiyoḣdoke Otoƞwe", "Minisoseiyohdoke Otonwe")]
         [TestCase("Miniᐋpulis", "Miniâpulis")]
         [TestCase("Moscoƿ", "Moscouu")]
-        [TestCase("Mūrīṭanīẗ al-Ṭinǧīẗ", "Mūrīțanīah al-Ținjīah")]
+        [TestCase("Mūrīṭanīẗ al-Ṭinǧīẗ", "Mūrīțanīah al-Ținğīah")]
         [TestCase("Nam̐si", "Namsi")]
         [TestCase("Nazareḟŭ", "Nazarefŭ")]
         [TestCase("Ngò-lò-sṳ̂", "Ngò-lò-sû")]
@@ -144,7 +146,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Tibískon", "Tibískon")]
         [TestCase("Tłnáʔəč", "Tłná´ač")]
         [TestCase("Ṭ‍renṭō", "Țrențō")]
-        [TestCase("Truǧālẗ", "Trujālah")]
+        [TestCase("Truǧālẗ", "Truğālah")]
         [TestCase("Užhorod", "Užhorod")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
         [TestCase("Vюrцby’rg", "Viurcby’rg")]
@@ -162,15 +164,16 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
             Assert.AreEqual(expectedResult, actualResult);
         }
 
+        // Hearts of Iron 4 Cities
         [Test]
         [TestCase("Â-ngì-pî-sṳ̂ sân", "Â-ngì-pî-sû sân")]
         [TestCase("Ab‌khajiyā", "Abkhajiyā")]
-        [TestCase("Aǧīm", "Ajīm")]
+        [TestCase("Aǧīm", "Ağīm")]
         [TestCase("Aḫmīm", "Akhmīm")]
         [TestCase("Ais‍lyāṇḍ", "Aislyāņd")]
         [TestCase("Aǩsubaj", "Aќsubaj")]
         [TestCase("al-Basīṭ", "al-Basīţ")]
-        [TestCase("al-Ǧubayl", "al-Jubayl")]
+        [TestCase("al-Ǧubayl", "al-Ğubayl")]
         [TestCase("al-Hāmā al-Arāġūn", "al-Hāmā al-Arāġūn")]
         [TestCase("al-H̱ānīẗ", "al-Khānīah")]
         [TestCase("āl-Zāwyẗ", "āl-Zāwyah")]
@@ -245,7 +248,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Miniṡoṡeiyoḣdoke Otoƞwe", "Minisoseiyohdoke Otoŋwe")]
         [TestCase("Miniᐋpulis", "Miniâpulis")]
         [TestCase("Moscoƿ", "Moscouu")]
-        [TestCase("Mūrīṭanīẗ al-Ṭinǧīẗ", "Mūrīţanīah al-Ţinjīah")]
+        [TestCase("Mūrīṭanīẗ al-Ṭinǧīẗ", "Mūrīţanīah al-Ţinğīah")]
         [TestCase("Nam̐si", "Namsi")]
         [TestCase("Nazareḟŭ", "Nazarefŭ")]
         [TestCase("Ngò-lò-sṳ̂", "Ngò-lò-sû")]
@@ -282,7 +285,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [TestCase("Tibískon", "Tibískon")]
         [TestCase("Tłnáʔəč", "Tłná´ač")]
         [TestCase("Ṭ‍renṭō", "Ţrenţō")]
-        [TestCase("Truǧālẗ", "Trujālah")]
+        [TestCase("Truǧālẗ", "Truğālah")]
         [TestCase("Užhorod", "Užhorod")]
         [TestCase("Vialikaja Poĺšča", "Vialikaja Poĺšča")]
         [TestCase("Vюrцby’rg", "Viurcby´rg")]
@@ -436,6 +439,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
             Assert.AreEqual(expectedResult, actualResult);
         }
 
+        // Imperator Rome
         [Test]
         [TestCase("Â-ngì-pî-sṳ̂ sân", "Â-ngì-pî-sû sân")]
         [TestCase("Ab‌khajiyā", "Abkhajiyā")]
