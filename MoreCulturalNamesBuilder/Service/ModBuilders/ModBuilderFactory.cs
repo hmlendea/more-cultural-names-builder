@@ -42,9 +42,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             if (normalisedGame.StartsWith("CK3"))
             {
-                if (string.Compare(settings.Mod.GameVersion.Substring(0, 3), "1.4") <= 0)
+                Version ck3version = Version.Parse(settings.Mod.GameVersion);
+                Version ck3version14 = Version.Parse("1.4");
+
+                if (ck3version > ck3version14)
                 {
-                    return new CK3v14ModBuilder(
+                    return new CK3ModBuilder(
                         localisationFetcher,
                         nameNormaliser,
                         languageRepository,
@@ -53,7 +56,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 }
                 else
                 {
-                    return new CK3ModBuilder(
+                    return new CK3v14ModBuilder(
                         localisationFetcher,
                         nameNormaliser,
                         languageRepository,
