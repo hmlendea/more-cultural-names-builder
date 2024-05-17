@@ -42,27 +42,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             if (normalisedGame.StartsWith("CK3"))
             {
-                Version ck3version = Version.Parse(settings.Mod.GameVersion.Replace(".*", string.Empty));
-                Version ck3version14 = Version.Parse("1.4");
-
-                if (ck3version > ck3version14)
-                {
-                    return new CK3ModBuilder(
-                        localisationFetcher,
-                        nameNormaliser,
-                        languageRepository,
-                        locationRepository,
-                        settings);
-                }
-                else
-                {
-                    return new CK3v14ModBuilder(
-                        localisationFetcher,
-                        nameNormaliser,
-                        languageRepository,
-                        locationRepository,
-                        settings);
-                }
+                return new CK3ModBuilder(
+                    localisationFetcher,
+                    nameNormaliser,
+                    languageRepository,
+                    locationRepository,
+                    settings);
             }
 
             if (normalisedGame.StartsWith("HOI4"))
