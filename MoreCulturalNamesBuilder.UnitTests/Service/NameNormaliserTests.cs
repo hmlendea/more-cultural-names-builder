@@ -163,7 +163,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         {
             string actualResult = nameNormaliser.ToCK3Charset(name);
 
-            Assert.AreEqual(expectedResult, actualResult);
+            Assert.That(actualResult, Is.EqualTo(expectedResult));
         }
 
         // Hearts of Iron 4 Cities
@@ -303,7 +303,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         {
             string actualResult = nameNormaliser.ToHOI4CityCharset(name);
 
-            Assert.AreEqual(expectedResult, actualResult);
+            Assert.That(actualResult, Is.EqualTo(expectedResult));
         }
 
         [Test]
@@ -442,7 +442,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         {
             string actualResult = nameNormaliser.ToWindows1252(name);
 
-            Assert.AreEqual(expectedResult, actualResult);
+            Assert.That(actualResult, Is.EqualTo(expectedResult));
         }
 
         // Imperator Rome
@@ -582,7 +582,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         {
             string actualResult = nameNormaliser.ToImperatorRomeCharset(name);
 
-            Assert.AreEqual(expectedResult, actualResult);
+            Assert.That(actualResult, Is.EqualTo(expectedResult));
         }
 
         [Test]
@@ -623,7 +623,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
                 charsOutisdeCharset = string.Empty;
             }
 
-            Assert.AreEqual(string.Empty, charsOutisdeCharset);
+            Assert.That(charsOutisdeCharset, Is.Empty);
         }
     }
 }
