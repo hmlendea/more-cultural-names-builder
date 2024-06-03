@@ -14,6 +14,7 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
             serviceModel.Game = dataObject.Game;
             serviceModel.Type = dataObject.Type;
             serviceModel.Parent = dataObject.Parent;
+            serviceModel.DefaultNameLanguageId = dataObject.DefaultNameLanguageId;
             serviceModel.Id = dataObject.Id;
 
             return serviceModel;
@@ -25,6 +26,7 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
             dataObject.Game = serviceModel.Game;
             dataObject.Type = serviceModel.Type;
             dataObject.Parent = serviceModel.Parent;
+            dataObject.DefaultNameLanguageId = serviceModel.DefaultNameLanguageId;
             dataObject.Id = serviceModel.Id;
 
             return dataObject;
