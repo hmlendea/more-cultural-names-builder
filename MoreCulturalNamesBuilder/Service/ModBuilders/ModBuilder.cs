@@ -21,11 +21,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected readonly Settings Settings;
 
-        protected IDictionary<string, Location> locations;
         protected IDictionary<string, Language> languages;
+        protected IDictionary<string, Location> locations;
 
-        protected IEnumerable<GameId> locationGameIds;
         protected IEnumerable<GameId> languageGameIds;
+        protected IEnumerable<GameId> locationGameIds;
         protected IEnumerable<GameId> titleGameIds;
 
         public ModBuilder(

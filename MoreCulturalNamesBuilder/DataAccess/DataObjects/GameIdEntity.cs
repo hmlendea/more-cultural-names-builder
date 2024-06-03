@@ -25,7 +25,7 @@ namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
         [XmlAttribute("parent")]
         public string Parent { get; set; }
 
-        [XmlAttribute("defaultNameLanguage")]
+        [XmlAttribute("defaultLanguage")]
         public string DefaultNameLanguageId { get; set; }
 
         [XmlText]
