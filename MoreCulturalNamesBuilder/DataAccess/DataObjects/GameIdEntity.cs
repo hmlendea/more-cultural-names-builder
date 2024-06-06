@@ -15,15 +15,18 @@ namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
             Game = game;
             Id = gameLocationId;
         }
-        
+
         [XmlAttribute("game")]
         public string Game { get; set; }
-        
+
         [XmlAttribute("type")]
         public string Type { get; set; }
-        
+
         [XmlAttribute("parent")]
         public string Parent { get; set; }
+
+        [XmlAttribute("defaultLanguage")]
+        public string DefaultNameLanguageId { get; set; }
 
         [XmlText]
         public string Id { get; set; }

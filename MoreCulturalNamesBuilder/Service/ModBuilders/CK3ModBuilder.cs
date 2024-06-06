@@ -126,11 +126,22 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected override void CreateLocalisationFiles(string localisationDirectoryPath)
         {
-            string content = GenerateLocalisationFileContent();
+            string defaultLocalisationsFileContent = GenerateDefaultNamesLocalisationFileContent();
+            string dynamicLocalisationsFileContent = GenerateDynamicNamesLocalisationFileContent();
 
-            Parallel.ForEach(
-                new List<string>{ "english", "french", "german", "spanish" },
-                fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
+            List<string> localisationLanguages = new List<string>{ "english", "french", "german", "spanish" };
+
+            Parallel.ForEach(localisationLanguages, fileLanguage => CreateLocalisationFile(
+                localisationDirectoryPath,
+                "titles",
+                fileLanguage,
+                defaultLocalisationsFileContent));
+
+            Parallel.ForEach(localisationLanguages, fileLanguage => CreateLocalisationFile(
+                localisationDirectoryPath,
+                "titles_cultural_names",
+                fileLanguage,
+                dynamicLocalisationsFileContent));
         }
 
         protected override void CreateDescriptorFiles()
@@ -145,7 +156,48 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        string GenerateLocalisationFileContent()
+        string GenerateDefaultNamesLocalisationFileContent()
+        {
+            ConcurrentBag<string> lines = new ConcurrentBag<string>();
+
+            Parallel.ForEach(locations.Values, location =>
+            {
+                foreach (GameId gameId in location.GameIds.Where(x => x.Game.Equals(Settings.Mod.Game)))
+                {
+                    if (string.IsNullOrWhiteSpace(gameId.DefaultNameLanguageId))
+                    {
+                        continue;
+                    }
+
+                    Localisation defaultLocalisation = localisations[gameId.Id]
+                        .FirstOrDefault(x => x.LanguageId.Equals(gameId.DefaultNameLanguageId));
+
+                    if (defaultLocalisation is null)
+                    {
+                        continue;
+                    }
+
+                    string normalisedName = nameNormaliser.ToCK3Charset(defaultLocalisation.Name);
+                    lines.Add(
+                        $"{defaultLocalisation.GameId}" +
+                        $";{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x");
+
+                    if (!string.IsNullOrWhiteSpace(defaultLocalisation.Adjective))
+                    {
+                        string normalisedAdjective = nameNormaliser.ToCK3Charset(defaultLocalisation.Name);
+                        lines.Add(
+                            $"{defaultLocalisation.GameId}" +
+                            $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x");
+                    }
+                }
+            });
+
+            return string.Join(
+                Environment.NewLine,
+                lines.OrderBy(line => line));
+        }
+
+        string GenerateDynamicNamesLocalisationFileContent()
         {
             ConcurrentBag<string> lines = new ConcurrentBag<string>();
 
@@ -172,6 +224,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
                 lines.Add(titleLocalisationDefinition);
 
+                GameId gameId = locationGameIds.First(x => x.Id.Equals(localisation.GameId));
+
                 if (!string.IsNullOrWhiteSpace(localisation.Adjective))
                 {
                     string normalisedAdjective = nameNormaliser.ToCK3Charset(localisation.Adjective);
@@ -184,10 +238,10 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 lines.OrderBy(line => line));
         }
 
-        void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
+        void CreateLocalisationFile(string localisationDirectoryPath, string fileLabel, string language, string content)
         {
             string fileContent = $"l_{language}:{Environment.NewLine}{content}";
-            string fileName = $"{Settings.Mod.Id}_titles_cultural_names_l_{language}.yml";
+            string fileName = $"{Settings.Mod.Id}_{fileLabel}_l_{language}.yml";
             string filePath = Path.Combine(localisationDirectoryPath, fileName);
 
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);

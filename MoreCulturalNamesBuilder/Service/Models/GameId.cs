@@ -8,6 +8,8 @@ namespace MoreCulturalNamesBuilder.Service.Models
 
         public string Parent { get; set; }
 
+        public string DefaultNameLanguageId { get; set; }
+
         public string Id { get; set; }
     }
 }

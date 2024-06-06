@@ -137,35 +137,59 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = new ConcurrentBag<string>();
+            ConcurrentBag<string> lines = new();
 
-            Parallel.ForEach(localisations.Keys.OrderBy(x => int.Parse(x)), provinceId =>
+            Parallel.ForEach(localisations.Keys, provinceId =>
             {
-                foreach (string culture in localisations[provinceId].Keys.OrderBy(x => x))
+                GameId gameId = locationGameIds.First(x => x.Id.Equals(provinceId));
+
+                IDictionary<string, Localisation> provinceLocalisations = localisations[provinceId];
+                Localisation defaultLocalisation = provinceLocalisations.Values
+                    .FirstOrDefault(x => x.LanguageId.Equals(gameId.DefaultNameLanguageId));
+
+                if (defaultLocalisation is not null)
                 {
-                    Localisation localisation = localisations[provinceId][culture];
+                    string provinceDefaultLocalisationDefinition = GenerateLocationLocalisationLine(
+                        defaultLocalisation,
+                        $"PROV{provinceId}");
 
-                    string provinceLocalisationDefinition =
-                        $" PROV{provinceId}_{localisation.LanguageGameId}:0 " +
-                        $"\"{nameNormaliser.ToImperatorRomeCharset(localisation.Name)}\"";
+                    lines.Add(provinceDefaultLocalisationDefinition);
+                }
 
-                    if (Settings.Output.AreVerboseCommentsEnabled)
-                    {
-                        provinceLocalisationDefinition += $" # Language={localisation.LanguageId}";
-                    }
+                foreach (string culture in provinceLocalisations.Keys.OrderBy(x => x))
+                {
+                    Localisation localisation = provinceLocalisations[culture];
 
-                    if (!string.IsNullOrWhiteSpace(localisation.Comment))
-                    {
-                        provinceLocalisationDefinition += $" # {localisation.Comment}";
-                    }
+                    string provinceCulturalLocalisationDefinition = GenerateLocationLocalisationLine(
+                        localisation,
+                        $"PROV{provinceId}_{localisation.LanguageGameId}");
 
-                    lines.Add(provinceLocalisationDefinition);
+                    lines.Add(provinceCulturalLocalisationDefinition);
                 }
             });
 
             return string.Join(
                 Environment.NewLine,
                 lines.OrderBy(line => line));
+        }
+
+        string GenerateLocationLocalisationLine(Localisation localisation, string localisationKey)
+        {
+            string provinceLocalisationDefinition =
+                $" {localisationKey}:0 " +
+                $"\"{nameNormaliser.ToImperatorRomeCharset(localisation.Name)}\"";
+
+            if (Settings.Output.AreVerboseCommentsEnabled)
+            {
+                provinceLocalisationDefinition += $" # Language={localisation.LanguageId}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(localisation.Comment))
+            {
+                provinceLocalisationDefinition += $" # {localisation.Comment}";
+            }
+
+            return provinceLocalisationDefinition;
         }
 
         string GenerateMainDescriptorContent()

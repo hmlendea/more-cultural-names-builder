@@ -276,17 +276,32 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             {
                 foreach (Localisation localisation in localisations[locationGameId])
                 {
+                    GameId gameId = locationGameIds.First(x => x.Id.Equals(locationGameId));
+
+                    if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
+                    {
+                        string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
+                        lines.Add(
+                            $"{locationGameId}" +
+                            $";{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x");
+                    }
+
                     if (string.IsNullOrWhiteSpace(localisation.Adjective))
                     {
                         continue;
                     }
 
                     string normalisedAdjective = nameNormaliser.ToWindows1252(localisation.Adjective);
-                    string line =
+                    lines.Add(
                         $"{locationGameId}_adj_{localisation.LanguageGameId}" +
-                        $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x";
+                        $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x");
 
-                    lines.Add(line);
+                    if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
+                    {
+                        lines.Add(
+                            $"{locationGameId}_adj" +
+                            $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x");
+                    }
                 };
             });
 
