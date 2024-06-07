@@ -169,18 +169,15 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string localisationsDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, LocalisationDirectoryName);
             Directory.CreateDirectory(localisationsDirectoryPath);
 
-            foreach (GameId languageGameId in languageGameIds)
+            string filePath = Path.Combine(localisationsDirectoryPath, $"000_{Settings.Mod.Id}_landed_titles.csv");
+            string content = GenerateLocalisationFileContent();
+
+            if (string.IsNullOrWhiteSpace(content))
             {
-                string filePath = Path.Combine(localisationsDirectoryPath, $"000_{Settings.Mod.Id}_landed_titles.csv");
-                string content = GenerateLocalisationFileContent();
-
-                if (string.IsNullOrWhiteSpace(content))
-                {
-                    continue;
-                }
-
-                Windows1252File.WriteAllText(filePath, content);
+                return;
             }
+
+            Windows1252File.WriteAllText(filePath, content);
         }
 
         void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
@@ -196,7 +193,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string landedTitlesFile = ReadLandedTitlesFile();
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
 
-            List<string> content = new List<string> { string.Empty };
+            List<string> content = [string.Empty];
             List<string> landedTitlesFileLines = landedTitlesFile.Split('\n').ToList();
             landedTitlesFileLines.Add(string.Empty);
 
@@ -273,18 +270,19 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             ConcurrentBag<string> lines = [];
 
-            Parallel.ForEach(localisations.Keys, locationGameId =>
+            Parallel.ForEach(localisations, localisationKvp =>
             {
-                foreach (Localisation localisation in localisations[locationGameId])
+                string locationGameId = localisationKvp.Key;
+
+                foreach (Localisation localisation in localisationKvp.Value)
                 {
                     GameId gameId = locationGameIds.First(x => x.Id.Equals(locationGameId));
 
                     if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
                     {
-                        string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
-                        lines.Add(
-                            $"{locationGameId}" +
-                            $";{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x");
+                        lines.Add(GenerateLocationLocalisationLine(
+                            locationGameId,
+                            localisation.Name));
                     }
 
                     if (string.IsNullOrWhiteSpace(localisation.Adjective))
@@ -292,21 +290,30 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         continue;
                     }
 
-                    string normalisedAdjective = nameNormaliser.ToWindows1252(localisation.Adjective);
-                    lines.Add(
-                        $"{locationGameId}_adj_{localisation.LanguageGameId}" +
-                        $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x");
+                    lines.Add(GenerateLocationLocalisationLine(
+                        $"{locationGameId}_adj_{localisation.LanguageGameId}",
+                        localisation.Adjective));
 
                     if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
                     {
-                        lines.Add(
-                            $"{locationGameId}_adj" +
-                            $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x");
+                    lines.Add(GenerateLocationLocalisationLine(
+                        $"{locationGameId}_adj",
+                        localisation.Adjective));
                     }
-                };
+                }
             });
 
             return string.Join(Environment.NewLine, lines.OrderBy(x => x));
+        }
+
+        string GenerateLocationLocalisationLine(string localisationKey, string localisationValue)
+        {
+            string normalisedName = nameNormaliser.ToWindows1252(localisationValue);
+            string localisationDefinition =
+                $"{localisationKey}" +
+                $";{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x";
+
+            return localisationDefinition;
         }
     }
 }
