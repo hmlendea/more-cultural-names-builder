@@ -10,24 +10,28 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
     {
         internal static GameId ToServiceModel(this GameIdEntity dataObject)
         {
-            GameId serviceModel = new GameId();
-            serviceModel.Game = dataObject.Game;
-            serviceModel.Type = dataObject.Type;
-            serviceModel.Parent = dataObject.Parent;
-            serviceModel.DefaultNameLanguageId = dataObject.DefaultNameLanguageId;
-            serviceModel.Id = dataObject.Id;
+            GameId serviceModel = new()
+            {
+                Game = dataObject.Game,
+                Type = dataObject.Type,
+                Parent = dataObject.Parent,
+                DefaultNameLanguageId = dataObject.DefaultNameLanguageId,
+                Id = dataObject.Id
+            };
 
             return serviceModel;
         }
 
         internal static GameIdEntity ToDataObject(this GameId serviceModel)
         {
-            GameIdEntity dataObject = new GameIdEntity();
-            dataObject.Game = serviceModel.Game;
-            dataObject.Type = serviceModel.Type;
-            dataObject.Parent = serviceModel.Parent;
-            dataObject.DefaultNameLanguageId = serviceModel.DefaultNameLanguageId;
-            dataObject.Id = serviceModel.Id;
+            GameIdEntity dataObject = new()
+            {
+                Game = serviceModel.Game,
+                Type = serviceModel.Type,
+                Parent = serviceModel.Parent,
+                DefaultNameLanguageId = serviceModel.DefaultNameLanguageId,
+                Id = serviceModel.Id
+            };
 
             return dataObject;
         }

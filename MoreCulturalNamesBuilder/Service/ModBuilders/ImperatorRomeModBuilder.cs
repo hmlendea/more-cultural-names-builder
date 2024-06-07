@@ -35,8 +35,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected override void LoadData()
         {
-            ConcurrentDictionary<string, IDictionary<string, Localisation>> concurrentLocalisations =
-                new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
+            ConcurrentDictionary<string, IDictionary<string, Localisation>> concurrentLocalisations = new();
 
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
@@ -137,7 +136,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = new();
+            ConcurrentBag<string> lines = [];
 
             Parallel.ForEach(localisations.Keys, provinceId =>
             {

@@ -56,7 +56,7 @@ namespace MoreCulturalNamesBuilder.Service
             string locationGameIdType,
             string game)
         {
-            ConcurrentBag<Localisation> localisations = new ConcurrentBag<Localisation>();
+            ConcurrentBag<Localisation> localisations = [];
 
             Location location;
 
@@ -108,8 +108,8 @@ namespace MoreCulturalNamesBuilder.Service
 
             Language language = languages[languageId];
 
-            List<string> locationIdsToCheck = new List<string>() { location.Id };
-            List<string> languageIdsToCheck = new List<string>() { language.Id };
+            List<string> locationIdsToCheck = [location.Id];
+            List<string> languageIdsToCheck = [language.Id];
 
             locationIdsToCheck.AddRange(location.FallbackLocations);
             languageIdsToCheck.AddRange(language.FallbackLanguages);
@@ -120,12 +120,14 @@ namespace MoreCulturalNamesBuilder.Service
                 {
                     foreach (Name name in locations[locationIdToCheck].Names.Where(name => name.LanguageId.Equals(languageIdToCheck)))
                     {
-                        Localisation localisation = new Localisation();
-                        localisation.Id = locationIdToCheck;
-                        localisation.LanguageId = languageIdToCheck;
-                        localisation.Name = name.Value;
-                        localisation.Adjective = name.Adjective;
-                        localisation.Comment = name.Comment;
+                        Localisation localisation = new()
+                        {
+                            Id = locationIdToCheck,
+                            LanguageId = languageIdToCheck,
+                            Name = name.Value,
+                            Adjective = name.Adjective,
+                            Comment = name.Comment
+                        };
 
                         return localisation;
                     }

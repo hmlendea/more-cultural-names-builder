@@ -19,8 +19,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     public sealed class CK3ModBuilder : CK2ModBuilder
     {
         protected override string LocalisationDirectoryName => "localization";
-        protected override List<string> ForbiddenTokensForPreviousLine => new List<string> { "allow", "limit", "trigger" };
-        protected override List<string> ForbiddenTokensForNextLine => new List<string> { "has_holder" };
+        protected override List<string> ForbiddenTokensForPreviousLine => ["allow", "limit", "trigger"];
+        protected override List<string> ForbiddenTokensForNextLine => ["has_holder"];
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
@@ -96,9 +96,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             string indentation1 = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "    ";
             string indentation2 = indentation1 + "    ";
-            List<string> lines = new List<string>();
-
-            lines.Add($"{indentation1}cultural_names = {{");
+            List<string> lines = [$"{indentation1}cultural_names = {{"];
 
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
@@ -129,7 +127,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string defaultLocalisationsFileContent = GenerateDefaultNamesLocalisationFileContent();
             string dynamicLocalisationsFileContent = GenerateDynamicNamesLocalisationFileContent();
 
-            List<string> localisationLanguages = new List<string>{ "english", "french", "german", "spanish" };
+            List<string> localisationLanguages = ["english", "french", "german", "spanish"];
 
             Parallel.ForEach(localisationLanguages, fileLanguage => CreateLocalisationFile(
                 localisationDirectoryPath,
@@ -158,7 +156,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateDefaultNamesLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = new ConcurrentBag<string>();
+            ConcurrentBag<string> lines = [];
 
             Parallel.ForEach(locations.Values, location =>
             {
@@ -177,17 +175,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         continue;
                     }
 
-                    string normalisedName = nameNormaliser.ToCK3Charset(defaultLocalisation.Name);
-                    lines.Add(
-                        $"{defaultLocalisation.GameId}" +
-                        $";{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x");
+                    lines.Add(GenerateLocationLocalisationLine(
+                        defaultLocalisation.GameId,
+                        defaultLocalisation.Name,
+                        defaultLocalisation));
 
                     if (!string.IsNullOrWhiteSpace(defaultLocalisation.Adjective))
                     {
-                        string normalisedAdjective = nameNormaliser.ToCK3Charset(defaultLocalisation.Name);
-                        lines.Add(
-                            $"{defaultLocalisation.GameId}" +
-                            $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x");
+                        lines.Add(GenerateLocationLocalisationLine(
+                            $"{defaultLocalisation.GameId}_adj",
+                            defaultLocalisation.Adjective,
+                            defaultLocalisation));
                     }
                 }
             });
@@ -199,7 +197,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateDynamicNamesLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = new ConcurrentBag<string>();
+            ConcurrentBag<string> lines = [];
 
             List<Localisation> locs = localisations
                 .SelectMany(x => x.Value)
@@ -209,27 +207,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             Parallel.ForEach(locs, localisation =>
             {
-                string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
-                string titleLocalisationDefinition = $" cn_{localisation.Id}_{localisation.LanguageGameId}:0 \"{normalisedName}\"";
-
-                if (!string.IsNullOrWhiteSpace(localisation.Comment))
-                {
-                    titleLocalisationDefinition += $" # {localisation.Comment}";
-                }
-
-                if (Settings.Output.AreVerboseCommentsEnabled)
-                {
-                    titleLocalisationDefinition += $" # Language={localisation.LanguageId}";
-                }
-
-                lines.Add(titleLocalisationDefinition);
-
-                GameId gameId = locationGameIds.First(x => x.Id.Equals(localisation.GameId));
+                lines.Add(GenerateLocationLocalisationLine(
+                    $"cn_{localisation.Id}_{localisation.LanguageGameId}",
+                    localisation.Name,
+                    localisation));
 
                 if (!string.IsNullOrWhiteSpace(localisation.Adjective))
                 {
-                    string normalisedAdjective = nameNormaliser.ToCK3Charset(localisation.Adjective);
-                    lines.Add($" cn_{localisation.Id}_{localisation.LanguageGameId}_adj:0 \"{normalisedAdjective}\"");
+                    lines.Add(GenerateLocationLocalisationLine(
+                        $"cn_{localisation.Id}_{localisation.LanguageGameId}_adj",
+                        localisation.Adjective,
+                        localisation));
                 }
             });
 
@@ -247,7 +235,23 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
         }
 
-        void WriteFileWithByteOrderMark(string filePath, string content)
-            => File.WriteAllText(filePath, content + '\uFEFF');
+        string GenerateLocationLocalisationLine(string key, string value, Localisation localisation)
+        {
+            string line =
+                $" {key}:0 " +
+                $"\"{nameNormaliser.ToCK3Charset(value)}\"";
+
+            if (Settings.Output.AreVerboseCommentsEnabled)
+            {
+                line += $" # Language={localisation.LanguageId}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(localisation.Comment))
+            {
+                line += $" # {localisation.Comment}";
+            }
+
+            return line;
+        }
     }
 }

@@ -10,22 +10,26 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
     {
         internal static Name ToServiceModel(this NameEntity dataObject)
         {
-            Name serviceModel = new Name();
-            serviceModel.LanguageId = dataObject.LanguageId;
-            serviceModel.Value = dataObject.Value;
-            serviceModel.Adjective = dataObject.Adjective;
-            serviceModel.Comment = dataObject.Comment;
+            Name serviceModel = new()
+            {
+                LanguageId = dataObject.LanguageId,
+                Value = dataObject.Value,
+                Adjective = dataObject.Adjective,
+                Comment = dataObject.Comment
+            };
 
             return serviceModel;
         }
 
         internal static NameEntity ToDataObject(this Name serviceModel)
         {
-            NameEntity dataObject = new NameEntity();
-            dataObject.LanguageId = serviceModel.LanguageId;
-            dataObject.Value = serviceModel.Value;
-            dataObject.Adjective = serviceModel.Adjective;
-            dataObject.Comment = serviceModel.Comment;
+            NameEntity dataObject = new()
+            {
+                LanguageId = serviceModel.LanguageId,
+                Value = serviceModel.Value,
+                Adjective = serviceModel.Adjective,
+                Comment = serviceModel.Comment
+            };
 
             return dataObject;
         }
