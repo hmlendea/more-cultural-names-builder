@@ -175,17 +175,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         continue;
                     }
 
-                    string normalisedName = nameNormaliser.ToCK3Charset(defaultLocalisation.Name);
-                    lines.Add(
-                        $"{defaultLocalisation.GameId}" +
-                        $";{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x");
+                    lines.Add(GenerateLocationLocalisationLine(
+                        defaultLocalisation.GameId,
+                        defaultLocalisation.Name,
+                        defaultLocalisation));
 
                     if (!string.IsNullOrWhiteSpace(defaultLocalisation.Adjective))
                     {
-                        string normalisedAdjective = nameNormaliser.ToCK3Charset(defaultLocalisation.Name);
-                        lines.Add(
-                            $"{defaultLocalisation.GameId}" +
-                            $";{normalisedAdjective};{normalisedAdjective};{normalisedAdjective};;{normalisedAdjective};;;;;;;;;x");
+                        lines.Add(GenerateLocationLocalisationLine(
+                            $"{defaultLocalisation.GameId}_adj",
+                            defaultLocalisation.Adjective,
+                            defaultLocalisation));
                     }
                 }
             });
@@ -207,27 +207,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             Parallel.ForEach(locs, localisation =>
             {
-                string normalisedName = nameNormaliser.ToCK3Charset(localisation.Name);
-                string titleLocalisationDefinition = $" cn_{localisation.Id}_{localisation.LanguageGameId}:0 \"{normalisedName}\"";
-
-                if (!string.IsNullOrWhiteSpace(localisation.Comment))
-                {
-                    titleLocalisationDefinition += $" # {localisation.Comment}";
-                }
-
-                if (Settings.Output.AreVerboseCommentsEnabled)
-                {
-                    titleLocalisationDefinition += $" # Language={localisation.LanguageId}";
-                }
-
-                lines.Add(titleLocalisationDefinition);
-
-                GameId gameId = locationGameIds.First(x => x.Id.Equals(localisation.GameId));
+                lines.Add(GenerateLocationLocalisationLine(
+                    $"cn_{localisation.Id}_{localisation.LanguageGameId}",
+                    localisation.Name,
+                    localisation));
 
                 if (!string.IsNullOrWhiteSpace(localisation.Adjective))
                 {
-                    string normalisedAdjective = nameNormaliser.ToCK3Charset(localisation.Adjective);
-                    lines.Add($" cn_{localisation.Id}_{localisation.LanguageGameId}_adj:0 \"{normalisedAdjective}\"");
+                    lines.Add(GenerateLocationLocalisationLine(
+                        $"cn_{localisation.Id}_{localisation.LanguageGameId}_adj",
+                        localisation.Adjective,
+                        localisation));
                 }
             });
 
@@ -243,6 +233,25 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string filePath = Path.Combine(localisationDirectoryPath, fileName);
 
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
+        }
+
+        string GenerateLocationLocalisationLine(string key, string value, Localisation localisation)
+        {
+            string line =
+                $" {key}:0 " +
+                $"\"{nameNormaliser.ToCK3Charset(value)}\"";
+
+            if (Settings.Output.AreVerboseCommentsEnabled)
+            {
+                line += $" # Language={localisation.LanguageId}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(localisation.Comment))
+            {
+                line += $" # {localisation.Comment}";
+            }
+
+            return line;
         }
     }
 }
