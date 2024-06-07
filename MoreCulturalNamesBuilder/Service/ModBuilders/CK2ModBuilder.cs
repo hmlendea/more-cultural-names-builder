@@ -13,6 +13,7 @@ using NuciExtensions;
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
+using NuciDAL.IO;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
@@ -142,7 +143,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 Encoding.GetEncoding("windows-1252"));
 
         protected virtual void WriteLandedTitlesFile(string filePath, string content)
-            => WriteWindows1252File(filePath, content);
+            => Windows1252File.WriteAllText(filePath, content);
 
         protected virtual string DoCleanLandedTitlesFile(string content)
         {
@@ -178,7 +179,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     continue;
                 }
 
-                WriteWindows1252File(filePath, content);
+                Windows1252File.WriteAllText(filePath, content);
             }
         }
 
@@ -270,7 +271,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = new ConcurrentBag<string>();
+            ConcurrentBag<string> lines = [];
 
             Parallel.ForEach(localisations.Keys, locationGameId =>
             {
@@ -306,14 +307,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             });
 
             return string.Join(Environment.NewLine, lines.OrderBy(x => x));
-        }
-
-        void WriteWindows1252File(string filePath, string content)
-        {
-            Encoding encoding = Encoding.GetEncoding("windows-1252");
-            byte[] contentBytes = encoding.GetBytes(content.ToCharArray());
-
-            File.WriteAllBytes(filePath, contentBytes);
         }
     }
 }
