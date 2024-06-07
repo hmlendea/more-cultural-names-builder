@@ -10,22 +10,26 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
     {
         internal static Language ToServiceModel(this LanguageEntity dataObject)
         {
-            Language serviceModel = new Language();
-            serviceModel.Id = dataObject.Id;
-            serviceModel.Code = dataObject.Code?.ToServiceModel();
-            serviceModel.GameIds = dataObject.GameIds.ToServiceModels();
-            serviceModel.FallbackLanguages = dataObject.FallbackLanguages.ToList();
+            Language serviceModel = new()
+            {
+                Id = dataObject.Id,
+                Code = dataObject.Code?.ToServiceModel(),
+                GameIds = dataObject.GameIds.ToServiceModels(),
+                FallbackLanguages = dataObject.FallbackLanguages.ToList()
+            };
 
             return serviceModel;
         }
 
         internal static LanguageEntity ToDataObject(this Language serviceModel)
         {
-            LanguageEntity dataObject = new LanguageEntity();
-            dataObject.Id = serviceModel.Id;
-            dataObject.Code = serviceModel.Code?.ToDataObject();
-            dataObject.GameIds = serviceModel.GameIds.ToDataObjects().ToList();
-            dataObject.FallbackLanguages = serviceModel.FallbackLanguages.ToList();
+            LanguageEntity dataObject = new()
+            {
+                Id = serviceModel.Id,
+                Code = serviceModel.Code?.ToDataObject(),
+                GameIds = serviceModel.GameIds.ToDataObjects().ToList(),
+                FallbackLanguages = serviceModel.FallbackLanguages.ToList()
+            };
 
             return dataObject;
         }

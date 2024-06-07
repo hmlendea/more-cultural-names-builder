@@ -19,8 +19,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     public sealed class CK3ModBuilder : CK2ModBuilder
     {
         protected override string LocalisationDirectoryName => "localization";
-        protected override List<string> ForbiddenTokensForPreviousLine => new List<string> { "allow", "limit", "trigger" };
-        protected override List<string> ForbiddenTokensForNextLine => new List<string> { "has_holder" };
+        protected override List<string> ForbiddenTokensForPreviousLine => ["allow", "limit", "trigger"];
+        protected override List<string> ForbiddenTokensForNextLine => ["has_holder"];
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
@@ -96,9 +96,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             string indentation1 = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "    ";
             string indentation2 = indentation1 + "    ";
-            List<string> lines = new List<string>();
-
-            lines.Add($"{indentation1}cultural_names = {{");
+            List<string> lines = [$"{indentation1}cultural_names = {{"];
 
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
@@ -129,7 +127,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string defaultLocalisationsFileContent = GenerateDefaultNamesLocalisationFileContent();
             string dynamicLocalisationsFileContent = GenerateDynamicNamesLocalisationFileContent();
 
-            List<string> localisationLanguages = new List<string>{ "english", "french", "german", "spanish" };
+            List<string> localisationLanguages = ["english", "french", "german", "spanish"];
 
             Parallel.ForEach(localisationLanguages, fileLanguage => CreateLocalisationFile(
                 localisationDirectoryPath,
@@ -158,7 +156,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateDefaultNamesLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = new ConcurrentBag<string>();
+            ConcurrentBag<string> lines = [];
 
             Parallel.ForEach(locations.Values, location =>
             {
@@ -199,7 +197,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateDynamicNamesLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = new ConcurrentBag<string>();
+            ConcurrentBag<string> lines = [];
 
             List<Localisation> locs = localisations
                 .SelectMany(x => x.Value)
@@ -246,8 +244,5 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
         }
-
-        void WriteFileWithByteOrderMark(string filePath, string content)
-            => File.WriteAllText(filePath, content + '\uFEFF');
     }
 }

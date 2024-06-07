@@ -10,20 +10,24 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
     {
         internal static LanguageCode ToServiceModel(this LanguageCodeEntity dataObject)
         {
-            LanguageCode serviceModel = new LanguageCode();
-            serviceModel.ISO_639_1 = dataObject.ISO_639_1;
-            serviceModel.ISO_639_2 = dataObject.ISO_639_2;
-            serviceModel.ISO_639_3 = dataObject.ISO_639_3;
+            LanguageCode serviceModel = new()
+            {
+                ISO_639_1 = dataObject.ISO_639_1,
+                ISO_639_2 = dataObject.ISO_639_2,
+                ISO_639_3 = dataObject.ISO_639_3
+            };
 
             return serviceModel;
         }
 
         internal static LanguageCodeEntity ToDataObject(this LanguageCode serviceModel)
         {
-            LanguageCodeEntity dataObject = new LanguageCodeEntity();
-            dataObject.ISO_639_1 = serviceModel.ISO_639_1;
-            dataObject.ISO_639_2 = serviceModel.ISO_639_2;
-            dataObject.ISO_639_3 = serviceModel.ISO_639_3;
+            LanguageCodeEntity dataObject = new()
+            {
+                ISO_639_1 = serviceModel.ISO_639_1,
+                ISO_639_2 = serviceModel.ISO_639_2,
+                ISO_639_3 = serviceModel.ISO_639_3
+            };
 
             return dataObject;
         }

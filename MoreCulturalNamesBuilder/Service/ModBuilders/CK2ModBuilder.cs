@@ -21,11 +21,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     {
         protected virtual string LocalisationDirectoryName => "localisation";
 
-        protected virtual List<string> ForbiddenTokensForPreviousLine => new List<string>
-            { "allow", "dejure_liege_title", "gain_effect", "limit", "trigger" };
+        protected virtual List<string> ForbiddenTokensForPreviousLine => [
+            "allow", "dejure_liege_title", "gain_effect", "limit", "trigger"];
 
-        protected virtual List<string> ForbiddenTokensForNextLine => new List<string>
-            { "any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change" };
+        protected virtual List<string> ForbiddenTokensForNextLine => [
+            "any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change"];
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
@@ -49,8 +49,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected override void LoadData()
         {
-            ConcurrentDictionary<string, IEnumerable<Localisation>> concurrentLocalisations =
-                new ConcurrentDictionary<string, IEnumerable<Localisation>>();
+            ConcurrentDictionary<string, IEnumerable<Localisation>> concurrentLocalisations = new();
 
             Parallel.ForEach(locationGameIds, locationGameId =>
             {
@@ -114,7 +113,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             }
 
             string indentation = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "    ";
-            List<string> lines = new List<string>();
+            List<string> lines = [];
 
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageGameId))
             {
