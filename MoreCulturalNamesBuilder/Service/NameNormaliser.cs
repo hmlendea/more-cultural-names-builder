@@ -729,6 +729,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "([ɬƚ])", "ł");
             processedName = Regex.Replace(processedName, "([ṁ]|m̄|m̐|m̃)", "m");
             processedName = Regex.Replace(processedName, "(ǌ)", "nj");
+            processedName = Regex.Replace(processedName, "(ⁿ)", "n"); // Superscript n - nasal sound
             processedName = Regex.Replace(processedName, "([нṉ]|n‌)", "n");
             processedName = Regex.Replace(processedName, "(ṉ)", "ņ");
             processedName = Regex.Replace(processedName, "[ƞ]", "ŋ");
@@ -885,7 +886,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "[ʾʻʼʽʹ′]", "´");
             processedName = Regex.Replace(processedName, "[ʿ]", "`");
             processedName = Regex.Replace(processedName, "[ꞌʿʲь]", "'");
-            processedName = Regex.Replace(processedName, "[ʺ″ⁿ]", "\"");
+            processedName = Regex.Replace(processedName, "[ʺ″]", "\"");
             processedName = Regex.Replace(processedName, "[‌‍]", "");
             processedName = Regex.Replace(processedName, "[–—]", "-");
             processedName = Regex.Replace(processedName, "[‎·]", "");
