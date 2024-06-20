@@ -18,7 +18,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
         INameNormaliser nameNormaliser,
         IRepository<LanguageEntity> languageRepository,
         IRepository<LocationEntity> locationRepository,
-        IImperatorRomeLocalisationsBuilder localisationsBuilder,
+        IImperatorRomeDescriptorBuilder descriptorBuilder,
+        IImperatorRomeLocalisationBuilder localisationBuilder,
         Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
@@ -53,8 +54,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
 
             LoadData();
             CreateDataFiles(provinceNamesDirectoryPath);
-            localisationsBuilder.CreateLocalisationFiles(localisationDirectoryPath, localisations, locationGameIds);
-            CreateDescriptorFiles();
+            localisationBuilder.CreateLocalisationFiles(localisationDirectoryPath, localisations, locationGameIds);
+            descriptorBuilder.CreateDescriptorFiles(OutputDirectoryPath);
         }
 
         void CreateDataFiles(string provinceNamesDirectoryPath)
@@ -93,31 +94,5 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
                 File.WriteAllText(path, content);
             });
         }
-
-        void CreateDescriptorFiles()
-        {
-            string mainDescriptorContent = GenerateMainDescriptorContent();
-            string innerDescriptorContent = GenerateInnerDescriptorContent();
-
-            string mainDescriptorFilePath = Path.Combine(OutputDirectoryPath, $"{Settings.Mod.Id}.mod");
-            string innerDescriptorFilePath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id, $"descriptor.mod");
-
-            File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
-            File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
-        }
-
-        string GenerateMainDescriptorContent()
-            => GenerateInnerDescriptorContent() +
-                Environment.NewLine +
-                $"path=\"mod/{Settings.Mod.Id}\"";
-
-        string GenerateInnerDescriptorContent()
-            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
-                $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
-                $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
-                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
-                $"tags={{" + Environment.NewLine +
-                $"    \"Historical\"" + Environment.NewLine +
-                $"}}";
     }
 }

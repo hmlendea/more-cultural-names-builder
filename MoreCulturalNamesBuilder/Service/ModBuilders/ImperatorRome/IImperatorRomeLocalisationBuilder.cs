@@ -4,7 +4,7 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
 {
-    public interface IImperatorRomeLocalisationsBuilder
+    public interface IImperatorRomeLocalisationBuilder
     {
         void CreateLocalisationFiles(
             string localisationDirectoryPath,

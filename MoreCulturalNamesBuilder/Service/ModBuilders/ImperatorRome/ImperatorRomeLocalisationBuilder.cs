@@ -11,9 +11,9 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
 {
-    public sealed class ImperatorRomeLocalisationsBuilder(
+    public sealed class ImperatorRomeLocalisationBuilder(
         INameNormaliser nameNormaliser,
-        Settings settings) : IImperatorRomeLocalisationsBuilder
+        Settings settings) : IImperatorRomeLocalisationBuilder
     {
         public void CreateLocalisationFiles(
             string localisationDirectoryPath,
