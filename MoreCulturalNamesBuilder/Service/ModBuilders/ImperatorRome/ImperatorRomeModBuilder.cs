@@ -18,7 +18,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
         IImperatorRomeDescriptorBuilder descriptorBuilder,
         IImperatorRomeLocalisationBuilder localisationBuilder,
         IImperatorRomeProvinceNamesBuilder provinceNamesBuilder,
-        Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
+        Settings settings) : ModBuilder(languageRepository, locationRepository, settings), IImperatorRomeModBuilder
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
 

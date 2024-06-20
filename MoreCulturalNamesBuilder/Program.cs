@@ -43,7 +43,9 @@ namespace MoreCulturalNamesBuilder
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<IModBuilderFactory, ModBuilderFactory>()
                 .AddSingleton<IImperatorRomeDescriptorBuilder, ImperatorRomeDescriptorBuilder>()
-                .AddSingleton<IImperatorRomeLocalisationBuilder, ImperatorRomeLocalisationBuilder>();
+                .AddSingleton<IImperatorRomeLocalisationBuilder, ImperatorRomeLocalisationBuilder>()
+                .AddSingleton<IImperatorRomeProvinceNamesBuilder, ImperatorRomeProvinceNamesBuilder>()
+                .AddSingleton<IImperatorRomeModBuilder, ImperatorRomeModBuilder>();
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }

@@ -12,7 +12,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         ILocalisationFetcher localisationFetcher,
         INameNormaliser nameNormaliser,
         IRepository<LanguageEntity> languageRepository,
-        IRepository<LocationEntity> locationRepository) : IModBuilderFactory
+        IRepository<LocationEntity> locationRepository,
+        IImperatorRomeModBuilder imperatorRomeModBuilder) : IModBuilderFactory
     {
         public IModBuilder GetModBuilder(Settings settings)
         {
@@ -51,12 +52,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             if (normalisedGame.StartsWith("IR") ||
                 normalisedGame.StartsWith("IMPERATORROME"))
             {
-                return new ImperatorRomeModBuilder(
-                    localisationFetcher,
-                    nameNormaliser,
-                    languageRepository,
-                    locationRepository,
-                    settings);
+                return imperatorRomeModBuilder;
             }
 
             throw new NotImplementedException($"The game \"{settings.Mod.Game}\" is not supported");
