@@ -20,6 +20,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
         IRepository<LocationEntity> locationRepository,
         IImperatorRomeDescriptorBuilder descriptorBuilder,
         IImperatorRomeLocalisationBuilder localisationBuilder,
+        IImperatorRomeProvinceNamesBuilder provinceNamesBuilder,
         Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
@@ -53,46 +54,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
             Directory.CreateDirectory(provinceNamesDirectoryPath);
 
             LoadData();
-            CreateDataFiles(provinceNamesDirectoryPath);
+            provinceNamesBuilder.CreateProvinceNameFiles(provinceNamesDirectoryPath, localisations, languageGameIds);
             localisationBuilder.CreateLocalisationFiles(localisationDirectoryPath, localisations, locationGameIds);
             descriptorBuilder.CreateDescriptorFiles(OutputDirectoryPath);
-        }
-
-        void CreateDataFiles(string provinceNamesDirectoryPath)
-        {
-            Parallel.ForEach(languageGameIds, languageGameId =>
-            {
-                string path = Path.Combine(provinceNamesDirectoryPath, $"{languageGameId.Id.ToLower()}.txt");
-                string content = $"{languageGameId.Id} = {{" + Environment.NewLine;
-
-                foreach (string provinceId in localisations.Keys.OrderBy(x => int.Parse(x)))
-                {
-                    if (!localisations[provinceId].ContainsKey(languageGameId.Id))
-                    {
-                        continue;
-                    }
-
-                    Localisation localisation = localisations[provinceId][languageGameId.Id];
-
-                    content += $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id} # {nameNormaliser.ToImperatorRomeCharset(localisation.Name)}";
-
-                    if (Settings.Output.AreVerboseCommentsEnabled)
-                    {
-                        content += $" # Language={localisation.LanguageId}";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(localisation.Comment))
-                    {
-                        content += $" # {localisation.Comment}";
-                    }
-
-                    content += Environment.NewLine;
-                }
-
-                content += "}";
-
-                File.WriteAllText(path, content);
-            });
         }
     }
 }
