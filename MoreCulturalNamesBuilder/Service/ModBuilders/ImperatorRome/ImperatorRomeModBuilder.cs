@@ -40,8 +40,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
 
         protected override void GenerateFiles()
         {
-            LoadData();
-
             provinceNamesBuilder.CreateProvinceNameFiles(OutputDirectoryPath, localisations, languageGameIds);
             localisationBuilder.CreateLocalisationFiles(OutputDirectoryPath, localisations, locationGameIds);
             descriptorBuilder.CreateDescriptorFiles(OutputDirectoryPath);

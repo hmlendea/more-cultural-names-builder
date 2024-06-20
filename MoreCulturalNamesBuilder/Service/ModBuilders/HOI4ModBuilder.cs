@@ -83,8 +83,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Directory.CreateDirectory(mainDirectoryPath);
             Directory.CreateDirectory(eventsDirectoryPath);
 
-            LoadData();
-
             CreateDescriptorFiles();
             CreateEventsFiles(eventsDirectoryPath);
         }

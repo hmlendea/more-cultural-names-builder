@@ -72,8 +72,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Directory.CreateDirectory(landedTitlesDirectoryPath);
             Directory.CreateDirectory(localisationDirectoryPath);
 
-            LoadData();
-
             CreateDescriptorFiles();
             CreateLandedTitlesFile(landedTitlesDirectoryPath);
             CreateLocalisationFiles(localisationDirectoryPath);

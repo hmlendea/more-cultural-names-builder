@@ -4,6 +4,7 @@ using NuciDAL.Repositories;
 
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
+using MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
