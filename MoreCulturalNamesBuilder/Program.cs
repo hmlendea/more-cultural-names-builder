@@ -8,6 +8,7 @@ using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service;
 using MoreCulturalNamesBuilder.Service.ModBuilders;
+using MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome;
 
 namespace MoreCulturalNamesBuilder
 {
@@ -40,7 +41,8 @@ namespace MoreCulturalNamesBuilder
                 .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(settings.Input.LocationStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
-                .AddSingleton<IModBuilderFactory, ModBuilderFactory>();
+                .AddSingleton<IModBuilderFactory, ModBuilderFactory>()
+                .AddSingleton<IImperatorRomeLocalisationsBuilder, ImperatorRomeLocalisationsBuilder>();
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }
