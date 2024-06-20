@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,7 +13,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
 {
     public sealed class ImperatorRomeModBuilder(
         ILocalisationFetcher localisationFetcher,
-        INameNormaliser nameNormaliser,
         IRepository<LanguageEntity> languageRepository,
         IRepository<LocationEntity> locationRepository,
         IImperatorRomeDescriptorBuilder descriptorBuilder,
@@ -43,19 +40,10 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
 
         protected override void GenerateFiles()
         {
-            string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
-            string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localization");
-            string commonDirectoryPath = Path.Combine(mainDirectoryPath, "common");
-            string provinceNamesDirectoryPath = Path.Combine(commonDirectoryPath, "province_names");
-
-            Directory.CreateDirectory(mainDirectoryPath);
-            Directory.CreateDirectory(commonDirectoryPath);
-            Directory.CreateDirectory(localisationDirectoryPath);
-            Directory.CreateDirectory(provinceNamesDirectoryPath);
-
             LoadData();
-            provinceNamesBuilder.CreateProvinceNameFiles(provinceNamesDirectoryPath, localisations, languageGameIds);
-            localisationBuilder.CreateLocalisationFiles(localisationDirectoryPath, localisations, locationGameIds);
+
+            provinceNamesBuilder.CreateProvinceNameFiles(OutputDirectoryPath, localisations, languageGameIds);
+            localisationBuilder.CreateLocalisationFiles(OutputDirectoryPath, localisations, locationGameIds);
             descriptorBuilder.CreateDescriptorFiles(OutputDirectoryPath);
         }
     }

@@ -9,11 +9,15 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
     {
         public void CreateDescriptorFiles(string outputDirectoryPath)
         {
+            string mainDirectoryPath = Path.Combine(outputDirectoryPath, settings.Mod.Id);
+
+            Directory.CreateDirectory(mainDirectoryPath);
+
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateInnerDescriptorContent();
 
             string mainDescriptorFilePath = Path.Combine(outputDirectoryPath, $"{settings.Mod.Id}.mod");
-            string innerDescriptorFilePath = Path.Combine(outputDirectoryPath, settings.Mod.Id, $"descriptor.mod");
+            string innerDescriptorFilePath = Path.Combine(mainDirectoryPath, $"descriptor.mod");
 
             File.WriteAllText(mainDescriptorFilePath, mainDescriptorContent);
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);

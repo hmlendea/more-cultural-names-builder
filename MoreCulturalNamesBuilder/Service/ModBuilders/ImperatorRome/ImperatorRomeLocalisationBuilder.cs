@@ -16,10 +16,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
         Settings settings) : IImperatorRomeLocalisationBuilder
     {
         public void CreateLocalisationFiles(
-            string localisationDirectoryPath,
+            string outputDirectoryPath,
             IDictionary<string, IDictionary<string, Localisation>> localisations,
             IEnumerable<GameId> locationGameIds)
         {
+            string localisationDirectoryPath = Path.Combine(outputDirectoryPath, settings.Mod.Id, "localization");
             string content = GenerateLocalisationFileContent(localisations, locationGameIds);
 
             Parallel.ForEach(

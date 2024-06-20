@@ -14,10 +14,14 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders.ImperatorRome
         Settings settings) : IImperatorRomeProvinceNamesBuilder
     {
         public void CreateProvinceNameFiles(
-            string provinceNamesDirectoryPath,
+            string outputDirectoryPath,
             IDictionary<string, IDictionary<string, Localisation>> localisations,
             IEnumerable<GameId> languageGameIds)
         {
+            string provinceNamesDirectoryPath = Path.Combine(outputDirectoryPath, settings.Mod.Id, "common", "province_names");
+
+            Directory.CreateDirectory(provinceNamesDirectoryPath);
+
             Parallel.ForEach(languageGameIds, languageGameId =>
             {
                 string path = Path.Combine(provinceNamesDirectoryPath, $"{languageGameId.Id.ToLower()}.txt");
