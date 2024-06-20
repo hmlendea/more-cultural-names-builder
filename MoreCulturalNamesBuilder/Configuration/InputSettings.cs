@@ -2,23 +2,16 @@ using NuciCLI;
 
 namespace MoreCulturalNamesBuilder.Configuration
 {
-    public sealed class InputSettings
+    public sealed class InputSettings(string[] args)
     {
-        static string[] LanguageStorePathOptions = { "--lang", "--languages" };
-        static string[] LocationsStorePathOptions = { "--loc", "--locations" };
-        static string[] LandedTitlesFilePathOptions = { "--landed-titles", "--landed-titles-in", "--landed-titles-input" };
+        static readonly string[] LanguageStorePathOptions = ["--lang", "--languages"];
+        static readonly string[] LocationsStorePathOptions = ["--loc", "--locations"];
+        static readonly string[] LandedTitlesFilePathOptions = ["--landed-titles", "--landed-titles-in", "--landed-titles-input"];
 
-        public string LanguageStorePath { get; set; }
+        public string LanguageStorePath { get; set; } = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
 
-        public string LocationStorePath { get; set; }
+        public string LocationStorePath { get; set; } = CliArgumentsReader.GetOptionValue(args, LocationsStorePathOptions);
 
-        public string LandedTitlesFilePath { get; set; }
-
-        public InputSettings(string[] args)
-        {
-            LanguageStorePath = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
-            LocationStorePath = CliArgumentsReader.GetOptionValue(args, LocationsStorePathOptions);
-            LandedTitlesFilePath = CliArgumentsReader.TryGetOptionValue(args, LandedTitlesFilePathOptions);
-        }
+        public string LandedTitlesFilePath { get; set; } = CliArgumentsReader.TryGetOptionValue(args, LandedTitlesFilePathOptions);
     }
 }

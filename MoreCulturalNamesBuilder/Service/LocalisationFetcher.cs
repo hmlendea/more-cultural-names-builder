@@ -120,7 +120,7 @@ namespace MoreCulturalNamesBuilder.Service
                 {
                     foreach (Name name in locations[locationIdToCheck].Names.Where(name => name.LanguageId.Equals(languageIdToCheck)))
                     {
-                        Localisation localisation = new()
+                        return new()
                         {
                             Id = locationIdToCheck,
                             LanguageId = languageIdToCheck,
@@ -128,8 +128,6 @@ namespace MoreCulturalNamesBuilder.Service
                             Adjective = name.Adjective,
                             Comment = name.Comment
                         };
-
-                        return localisation;
                     }
                 }
             }
@@ -139,9 +137,9 @@ namespace MoreCulturalNamesBuilder.Service
 
         IDictionary<string, string> GetLanguageGameIds(string game)
         {
-            if (languageGameIdsCache.ContainsKey(game))
+            if (languageGameIdsCache.TryGetValue(game, out IDictionary<string, string> value))
             {
-                return languageGameIdsCache[game];
+                return value;
             }
 
             IDictionary<string, string> languageGameIds = languages.Values

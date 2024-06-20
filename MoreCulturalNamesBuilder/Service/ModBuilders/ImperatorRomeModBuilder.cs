@@ -14,24 +14,14 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
-    public sealed class ImperatorRomeModBuilder : ModBuilder
+    public sealed class ImperatorRomeModBuilder(
+        ILocalisationFetcher localisationFetcher,
+        INameNormaliser nameNormaliser,
+        IRepository<LanguageEntity> languageRepository,
+        IRepository<LocationEntity> locationRepository,
+        Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
-
-        readonly ILocalisationFetcher localisationFetcher;
-        readonly INameNormaliser nameNormaliser;
-
-        public ImperatorRomeModBuilder(
-            ILocalisationFetcher localisationFetcher,
-            INameNormaliser nameNormaliser,
-            IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository,
-            Settings settings)
-            : base(languageRepository, locationRepository, settings)
-        {
-            this.localisationFetcher = localisationFetcher;
-            this.nameNormaliser = nameNormaliser;
-        }
 
         protected override void LoadData()
         {

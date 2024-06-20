@@ -16,26 +16,16 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
-    public sealed class CK3ModBuilder : CK2ModBuilder
+    public sealed class CK3ModBuilder(
+        ILocalisationFetcher localisationFetcher,
+        INameNormaliser nameNormaliser,
+        IRepository<LanguageEntity> languageRepository,
+        IRepository<LocationEntity> locationRepository,
+        Settings settings) : CK2ModBuilder(localisationFetcher, nameNormaliser, languageRepository, locationRepository, settings)
     {
         protected override string LocalisationDirectoryName => "localization";
         protected override List<string> ForbiddenTokensForPreviousLine => ["allow", "limit", "trigger"];
         protected override List<string> ForbiddenTokensForNextLine => ["has_holder"];
-
-        readonly ILocalisationFetcher localisationFetcher;
-        readonly INameNormaliser nameNormaliser;
-
-        public CK3ModBuilder(
-            ILocalisationFetcher localisationFetcher,
-            INameNormaliser nameNormaliser,
-            IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository,
-            Settings settings)
-            : base(localisationFetcher, nameNormaliser, languageRepository, locationRepository, settings)
-        {
-            this.localisationFetcher = localisationFetcher;
-            this.nameNormaliser = nameNormaliser;
-        }
 
         protected override string GenerateMainDescriptorContent()
             => GenerateDescriptorContent() + Environment.NewLine +
@@ -160,13 +150,10 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             Parallel.ForEach(locations.Values, location =>
             {
-                foreach (GameId gameId in location.GameIds.Where(x => x.Game.Equals(Settings.Mod.Game)))
+                foreach (GameId gameId in location.GameIds.Where(gameId =>
+                    gameId.Game.Equals(Settings.Mod.Game) &&
+                    !string.IsNullOrWhiteSpace(gameId.DefaultNameLanguageId)))
                 {
-                    if (string.IsNullOrWhiteSpace(gameId.DefaultNameLanguageId))
-                    {
-                        continue;
-                    }
-
                     Localisation defaultLocalisation = localisations[gameId.Id]
                         .FirstOrDefault(x => x.LanguageId.Equals(gameId.DefaultNameLanguageId));
 

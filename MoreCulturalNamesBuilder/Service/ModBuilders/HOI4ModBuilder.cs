@@ -14,34 +14,23 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
-    public sealed class HOI4ModBuilder : ModBuilder
+    public sealed class HOI4ModBuilder(
+        ILocalisationFetcher localisationFetcher,
+        INameNormaliser nameNormaliser,
+        IRepository<LanguageEntity> languageRepository,
+        IRepository<LocationEntity> locationRepository,
+        Settings settings) : ModBuilder(
+            languageRepository,
+            locationRepository,
+            settings)
     {
         const string EventsFileNameFormat = "873_mcn_{0}.txt";
-
-        readonly ILocalisationFetcher localisationFetcher;
-        readonly INameNormaliser nameNormaliser;
-
         IEnumerable<string> countryTags;
         IEnumerable<GameId> stateGameIds;
         IEnumerable<GameId> cityGameIds;
         IDictionary<string, List<GameId>> stateCities;
         IDictionary<string, IDictionary<string, Localisation>> stateLocalisations;
         IDictionary<string, IDictionary<string, Localisation>> cityLocalisations;
-
-        public HOI4ModBuilder(
-            ILocalisationFetcher localisationFetcher,
-            INameNormaliser nameNormaliser,
-            IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository,
-            Settings settings)
-            : base(
-                languageRepository,
-                locationRepository,
-                settings)
-        {
-            this.localisationFetcher = localisationFetcher;
-            this.nameNormaliser = nameNormaliser;
-        }
 
         protected override void LoadData()
         {
