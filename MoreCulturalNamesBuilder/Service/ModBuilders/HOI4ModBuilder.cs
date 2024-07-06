@@ -16,6 +16,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public sealed class HOI4ModBuilder : ModBuilder
     {
+        const int MeanTimeToHappenInDays = 30;
         const string EventsFileNameFormat = "873_mcn_{0}.txt";
 
         readonly ILocalisationFetcher localisationFetcher;
@@ -190,7 +191,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    picture = GFX_report_event_german_reichstag_gathering" + Environment.NewLine +
                 $"    hidden = yes" + Environment.NewLine +
                 $"    trigger = {{ {countryTag} = {{ owns_state = {stateGameId.Id} }} }}" + Environment.NewLine +
-                $"    mean_time_to_happen = {{ days = 3 }}" + Environment.NewLine +
+                $"    mean_time_to_happen = {{ days = {MeanTimeToHappenInDays} }}" + Environment.NewLine +
                 $"    immediate = {{" + Environment.NewLine +
                 $"        hidden_effect = {{" + Environment.NewLine;
 
