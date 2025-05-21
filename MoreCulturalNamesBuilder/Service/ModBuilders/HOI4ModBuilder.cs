@@ -88,18 +88,16 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             string content = GenerateCityLocalisationFileContent();
 
-            Parallel.ForEach(
-                ["english", "french", "german", "polish", "spanish"],
-                fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
-        }
+            Parallel.ForEach(["english", "french", "german", "polish", "spanish"], locale =>
+            {
+                string fileDirectoryPath = Path.Combine(localisationDirectoryPath, locale);
+                string fileContent = $"l_{locale}:{Environment.NewLine}{content}";
+                string fileName = $"zzz999_{Settings.Mod.Id}_l_{locale}.yml";
+                string filePath = Path.Combine(fileDirectoryPath, fileName);
 
-        void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
-        {
-            string fileContent = $"l_{language}:{Environment.NewLine}{content}";
-            string fileName = $"{Settings.Mod.Id}_zzz999_MCN_l_{language}.yml";
-            string filePath = Path.Combine(localisationDirectoryPath, fileName);
-
-            File.WriteAllText(filePath, fileContent, Encoding.UTF8);
+                Directory.CreateDirectory(fileDirectoryPath);
+                File.WriteAllText(filePath, fileContent, Encoding.UTF8);
+            });
         }
 
         void CreateDescriptorFiles()
