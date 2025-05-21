@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 using NuciDAL.Repositories;
-using NuciExtensions;
 
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
@@ -16,18 +16,13 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public sealed class HOI4ModBuilder : ModBuilder
     {
-        const int MeanTimeToHappenInDays = 30;
-        const string EventsFileNameFormat = "873_mcn_{0}.txt";
+        IEnumerable<GameId> stateGameIds;
+        IEnumerable<GameId> cityGameIds;
+        IDictionary<string, IDictionary<string, Localisation>> stateLocalisations;
+        IDictionary<string, IDictionary<string, Localisation>> cityLocalisations;
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
-
-        IEnumerable<string> countryTags;
-        IEnumerable<GameId> stateGameIds;
-        IEnumerable<GameId> cityGameIds;
-        IDictionary<string, List<GameId>> stateCities;
-        IDictionary<string, IDictionary<string, Localisation>> stateLocalisations;
-        IDictionary<string, IDictionary<string, Localisation>> cityLocalisations;
 
         public HOI4ModBuilder(
             ILocalisationFetcher localisationFetcher,
@@ -35,10 +30,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             IRepository<LanguageEntity> languageRepository,
             IRepository<LocationEntity> locationRepository,
             Settings settings)
-            : base(
-                languageRepository,
-                locationRepository,
-                settings)
+            : base(languageRepository, locationRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
@@ -46,24 +38,15 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected override void LoadData()
         {
-            countryTags = languages.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Settings.Mod.Game)
-                .Select(x => x.Id);
-
             stateGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Settings.Mod.Game && x.Type == "State")
+                .Where(x => x.Game == Settings.Mod.Game && x.Type.Equals("State"))
                 .OrderBy(x => int.Parse(x.Id));
 
             cityGameIds = locations.Values
                 .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Settings.Mod.Game && x.Type == "City")
+                .Where(x => x.Game == Settings.Mod.Game && x.Type.Equals("City"))
                 .OrderBy(x => int.Parse(x.Id));
-
-            stateCities = cityGameIds
-                .GroupBy(x => x.Parent)
-                .ToDictionary(x => x.Key, x => x.ToList());
 
             stateLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
             cityLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
@@ -90,15 +73,33 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         protected override void GenerateFiles()
         {
             string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
-            string eventsDirectoryPath = Path.Combine(mainDirectoryPath, "events");
+            string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localisation");
 
             Directory.CreateDirectory(mainDirectoryPath);
-            Directory.CreateDirectory(eventsDirectoryPath);
+            Directory.CreateDirectory(localisationDirectoryPath);
 
             LoadData();
 
+            CreateLocalisationFiles(localisationDirectoryPath);
             CreateDescriptorFiles();
-            CreateEventsFiles(eventsDirectoryPath);
+        }
+
+        void CreateLocalisationFiles(string localisationDirectoryPath)
+        {
+            string content = GenerateCityLocalisationFileContent();
+
+            Parallel.ForEach(
+                ["english", "french", "german", "polish", "spanish"],
+                fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
+        }
+
+        void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
+        {
+            string fileContent = $"l_{language}:{Environment.NewLine}{content}";
+            string fileName = $"{Settings.Mod.Id}_zzz999_MCN_l_{language}.yml";
+            string filePath = Path.Combine(localisationDirectoryPath, fileName);
+
+            File.WriteAllText(filePath, fileContent, Encoding.UTF8);
         }
 
         void CreateDescriptorFiles()
@@ -113,134 +114,35 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        void CreateEventsFiles(string eventsDirectoryPath)
+        string GenerateCityLocalisationFileContent()
         {
-            Parallel.ForEach(countryTags, countryTag =>
+            ConcurrentBag<string> lines = [];
+
+            // States
+            Parallel.ForEach(stateLocalisations.Keys, stateId =>
             {
-                string eventsFileName = string.Format(EventsFileNameFormat, countryTag);
-                string eventsFilePath = Path.Combine(eventsDirectoryPath, eventsFileName);
-
-                string countryEvents = GenerateCountryEvents(countryTag);
-
-                File.WriteAllText(eventsFilePath, countryEvents);
+                foreach (Localisation localisation in stateLocalisations[stateId].Values)
+                {
+                    lines.Add(
+                        $" {localisation.LanguageGameId}_STATE_{stateId}:0 " +
+                        $"\"{nameNormaliser.ToHOI4StateCharset(localisation.Name)}\"");
+                }
             });
-        }
 
-        string GenerateCountryEvents(string countryTag)
-        {
-            string entireContent =
-                $"############### MCN ############### Country={countryTag} ###############" +
-                Environment.NewLine + Environment.NewLine + Environment.NewLine;
-
-            foreach (GameId stateGameId in stateGameIds.OrderBy(x => int.Parse(x.Id)))
+            // Cities
+            Parallel.ForEach(cityLocalisations.Keys, cityId =>
             {
-                string stateEventContentForCountry = GenerateStateEventForCountry(stateGameId, countryTag);
-
-                if (!string.IsNullOrWhiteSpace(stateEventContentForCountry))
+                foreach (Localisation localisation in cityLocalisations[cityId].Values)
                 {
-                    entireContent += stateEventContentForCountry + Environment.NewLine;
+                    lines.Add(
+                        $" {localisation.LanguageGameId}_VICTORY_POINTS_{cityId}:0 " +
+                        $"\"{nameNormaliser.ToHOI4CityCharset(localisation.Name)}\"");
                 }
-            }
+            });
 
-            return entireContent;
-        }
-
-        string GenerateStateEventForCountry(GameId stateGameId, string countryTag)
-        {
-            string eventId = $"mcn_{countryTag}.{stateGameId.Id}";
-            string stateName = string.Empty;
-
-            string eventContent = $"# Event={eventId}, State={stateGameId.Id}";
-            string nameSetsEventContent = string.Empty;
-
-            Localisation stateLocalisation = stateLocalisations
-                .TryGetValue(stateGameId.Id)
-                .TryGetValue(countryTag);
-
-            if (!(stateLocalisation is null))
-            {
-                stateName = nameNormaliser.ToHOI4StateCharset(stateLocalisation.Name);
-
-                eventContent += $", LocalisedName=\"{stateName}\"";
-                nameSetsEventContent +=
-                    $"            {stateGameId.Id} = {{ set_state_name = \"{stateName}\" }} # {stateLocalisation.Name}";
-
-                if (Settings.Output.AreVerboseCommentsEnabled)
-                {
-                    nameSetsEventContent += $" # Language={stateLocalisation.LanguageId}";
-                }
-
-                if (!string.IsNullOrWhiteSpace(stateLocalisation.Comment))
-                {
-                    nameSetsEventContent += $" # {stateLocalisation.Comment}";
-                }
-
-                nameSetsEventContent += Environment.NewLine;
-
-                if (stateName != stateLocalisation.Name)
-                {
-                    eventContent += $" # {stateLocalisation.Name}";
-                }
-            }
-
-            eventContent += Environment.NewLine +
-                $"country_event = {{" + Environment.NewLine +
-                $"    id = {eventId}" + Environment.NewLine +
-                $"    title = {eventId}.title" + Environment.NewLine +
-                $"    desc = {eventId}.description" + Environment.NewLine +
-                $"    picture = GFX_report_event_german_reichstag_gathering" + Environment.NewLine +
-                $"    hidden = yes" + Environment.NewLine +
-                $"    trigger = {{ {countryTag} = {{ owns_state = {stateGameId.Id} }} }}" + Environment.NewLine +
-                $"    mean_time_to_happen = {{ days = {MeanTimeToHappenInDays} }}" + Environment.NewLine +
-                $"    immediate = {{" + Environment.NewLine +
-                $"        hidden_effect = {{" + Environment.NewLine;
-
-            IEnumerable<GameId> currentStateCities = stateCities.TryGetValue(stateGameId.Id);
-
-            if (!EnumerableExt.IsNullOrEmpty(currentStateCities))
-            {
-                foreach (GameId cityGameId in currentStateCities.OrderBy(x => int.Parse(x.Id)))
-                {
-                    Localisation cityLocalisation = cityLocalisations
-                        .TryGetValue(cityGameId.Id)
-                        .TryGetValue(countryTag);
-
-                    if (cityLocalisation is null)
-                    {
-                        continue;
-                    }
-
-                    string cityName = nameNormaliser.ToHOI4CityCharset(cityLocalisation.Name);
-
-                    nameSetsEventContent +=
-                        $"            set_province_name = {{ id = {cityGameId.Id} name = \"{cityName}\" }} # {cityLocalisation.Name}";
-
-                    if (Settings.Output.AreVerboseCommentsEnabled)
-                    {
-                        nameSetsEventContent += $" # Language={cityLocalisation.LanguageId}";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(cityLocalisation.Comment))
-                    {
-                        nameSetsEventContent += $" # {cityLocalisation.Comment}";
-                    }
-
-                    nameSetsEventContent += Environment.NewLine;
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(nameSetsEventContent))
-            {
-                return null;
-            }
-
-            eventContent += nameSetsEventContent +
-                $"        }}" + Environment.NewLine +
-                $"    }}" + Environment.NewLine +
-                $"    option = {{ name = {eventId}.option }}" + Environment.NewLine +
-                $"}}" + Environment.NewLine;
-
-            return eventContent;
+            return string.Join(
+                Environment.NewLine,
+                lines.OrderBy(line => line));
         }
 
         string GenerateMainDescriptorContent()
@@ -249,26 +151,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"path=\"mod/{Settings.Mod.Id}\"";
 
         string GenerateInnerDescriptorContent()
-        {
-            string descriptor =
-                $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
-                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine;
-
-            if (!string.IsNullOrWhiteSpace(Settings.Mod.Dependency))
-            {
-                descriptor += $"dependencies = {{ \"{Settings.Mod.Dependency}\" }}" + Environment.NewLine;
-            }
-
-            descriptor +=
+                $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
                 $"tags={{" + Environment.NewLine +
                 $"    \"Historical\"" + Environment.NewLine +
-                $"    \"Map\"" + Environment.NewLine +
-                $"    \"Translation\"" + Environment.NewLine +
                 $"}}";
-
-            return descriptor;
-        }
     }
 }
