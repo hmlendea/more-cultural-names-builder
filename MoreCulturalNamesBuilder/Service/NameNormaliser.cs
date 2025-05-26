@@ -885,11 +885,14 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "[ʔ]", "ʾ");
             processedName = Regex.Replace(processedName, "[ʾʻʼʽʹ′]", "´");
             processedName = Regex.Replace(processedName, "[ʿ]", "`");
-            processedName = Regex.Replace(processedName, "[ꞌʿʲь]", "'");
+            processedName = Regex.Replace(processedName, "[ꞌʿˀʲь]", "'");
             processedName = Regex.Replace(processedName, "[ʺ″]", "\"");
             processedName = Regex.Replace(processedName, "[‌‍]", "");
             processedName = Regex.Replace(processedName, "[–—]", "-");
+            processedName = Regex.Replace(processedName, "[꞉]", ":");
             processedName = Regex.Replace(processedName, "[‎·]", "");
+            processedName = Regex.Replace(processedName, "[＝̷̯̰̊̒]", "");
+            processedName = Regex.Replace(processedName, "[​]", "");
             processedName = Regex.Replace(processedName, "([‎‎])", ""); // Invisible characters
 
             return processedName;
