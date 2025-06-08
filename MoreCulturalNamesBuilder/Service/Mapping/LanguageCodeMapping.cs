@@ -8,42 +8,24 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
 {
     static class LanguageCodeMapping
     {
-        internal static LanguageCode ToServiceModel(this LanguageCodeEntity dataObject)
+        internal static LanguageCode ToServiceModel(this LanguageCodeEntity dataObject) => new()
         {
-            LanguageCode serviceModel = new()
-            {
-                ISO_639_1 = dataObject.ISO_639_1,
-                ISO_639_2 = dataObject.ISO_639_2,
-                ISO_639_3 = dataObject.ISO_639_3
-            };
+            ISO_639_1 = dataObject.ISO_639_1,
+            ISO_639_2 = dataObject.ISO_639_2,
+            ISO_639_3 = dataObject.ISO_639_3
+        };
 
-            return serviceModel;
-        }
-
-        internal static LanguageCodeEntity ToDataObject(this LanguageCode serviceModel)
+        internal static LanguageCodeEntity ToDataObject(this LanguageCode serviceModel) => new()
         {
-            LanguageCodeEntity dataObject = new()
-            {
-                ISO_639_1 = serviceModel.ISO_639_1,
-                ISO_639_2 = serviceModel.ISO_639_2,
-                ISO_639_3 = serviceModel.ISO_639_3
-            };
-
-            return dataObject;
-        }
+            ISO_639_1 = serviceModel.ISO_639_1,
+            ISO_639_2 = serviceModel.ISO_639_2,
+            ISO_639_3 = serviceModel.ISO_639_3
+        };
 
         internal static IEnumerable<LanguageCode> ToServiceModels(this IEnumerable<LanguageCodeEntity> dataObjects)
-        {
-            IEnumerable<LanguageCode> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<LanguageCodeEntity> ToDataObjects(this IEnumerable<LanguageCode> serviceModels)
-        {
-            IEnumerable<LanguageCodeEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

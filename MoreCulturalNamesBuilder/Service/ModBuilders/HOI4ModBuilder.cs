@@ -14,27 +14,20 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
-    public sealed class HOI4ModBuilder : ModBuilder
+    public sealed class HOI4ModBuilder(
+        ILocalisationFetcher localisationFetcher,
+        INameNormaliser nameNormaliser,
+        IRepository<LanguageEntity> languageRepository,
+        IRepository<LocationEntity> locationRepository,
+        Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
         IEnumerable<GameId> stateGameIds;
         IEnumerable<GameId> cityGameIds;
         IDictionary<string, IDictionary<string, Localisation>> stateLocalisations;
         IDictionary<string, IDictionary<string, Localisation>> cityLocalisations;
 
-        readonly ILocalisationFetcher localisationFetcher;
-        readonly INameNormaliser nameNormaliser;
-
-        public HOI4ModBuilder(
-            ILocalisationFetcher localisationFetcher,
-            INameNormaliser nameNormaliser,
-            IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository,
-            Settings settings)
-            : base(languageRepository, locationRepository, settings)
-        {
-            this.localisationFetcher = localisationFetcher;
-            this.nameNormaliser = nameNormaliser;
-        }
+        readonly ILocalisationFetcher localisationFetcher = localisationFetcher;
+        readonly INameNormaliser nameNormaliser = nameNormaliser;
 
         protected override void LoadData()
         {

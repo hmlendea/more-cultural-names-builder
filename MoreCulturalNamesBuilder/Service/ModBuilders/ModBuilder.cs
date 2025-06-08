@@ -12,14 +12,17 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
-    public abstract class ModBuilder : IModBuilder
+    public abstract class ModBuilder(
+        IRepository<LanguageEntity> languageRepository,
+        IRepository<LocationEntity> locationRepository,
+        Settings settings) : IModBuilder
     {
         protected string OutputDirectoryPath => Path.Combine(Settings.Output.ModOutputDirectory, Settings.Mod.Game);
 
-        protected readonly IRepository<LanguageEntity> languageRepository;
-        protected readonly IRepository<LocationEntity> locationRepository;
+        protected readonly IRepository<LanguageEntity> languageRepository = languageRepository;
+        protected readonly IRepository<LocationEntity> locationRepository = locationRepository;
 
-        protected readonly Settings Settings;
+        protected readonly Settings Settings = settings;
 
         protected IDictionary<string, Language> languages;
         protected IDictionary<string, Location> locations;
@@ -28,20 +31,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         protected IEnumerable<GameId> locationGameIds;
         protected IEnumerable<GameId> titleGameIds;
 
-        public ModBuilder(
-            IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository,
-            Settings settings)
-        {
-            this.languageRepository = languageRepository;
-            this.locationRepository = locationRepository;
-
-            Settings = settings;
-        }
-
         public void Build()
         {
-
             Console.WriteLine($" > Building the mod for {Settings.Mod.Game}...");
 
             StartTimedOperation("Fetching the data", () => LoadAllData());
@@ -79,7 +70,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             LoadData();
         }
 
-        void StartTimedOperation(string message, Action operation)
+        static void StartTimedOperation(string message, Action operation)
         {
             Console.Write($"   > {message}...");
 

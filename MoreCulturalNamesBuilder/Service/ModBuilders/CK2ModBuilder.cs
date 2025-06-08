@@ -21,11 +21,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     {
         protected virtual string LocalisationDirectoryName => "localisation";
 
-        protected virtual List<string> ForbiddenTokensForPreviousLine => [
-            "allow", "dejure_liege_title", "gain_effect", "limit", "trigger"];
+        protected virtual List<string> ForbiddenTokensForPreviousLine
+            => ["allow", "dejure_liege_title", "gain_effect", "limit", "trigger"];
 
-        protected virtual List<string> ForbiddenTokensForNextLine => [
-            "any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change"];
+        protected virtual List<string> ForbiddenTokensForNextLine
+            => ["any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change"];
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
@@ -145,15 +145,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             => Windows1252File.WriteAllText(filePath, content);
 
         protected virtual string DoCleanLandedTitlesFile(string content)
-        {
-            string culturesPattern = string.Join('|', languageGameIds.Select(x => x.Id));
-
-            return Regex.Replace( // Break inline cultural name into multiple lines
+            => Regex.Replace( // Break inline cultural name into multiple lines
                 content,
-                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
+                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + string.Join('|', languageGameIds.Select(x => x.Id)) + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
                 "$1$2 = {\n$1\t$3\n$1}",
                 RegexOptions.Multiline);
-        }
 
         protected virtual void CreateDescriptorFiles()
         {
@@ -260,9 +256,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 "$1$2\n$1}",
                 RegexOptions.Multiline);
 
-            newContent = DoCleanLandedTitlesFile(newContent);
-
-            return newContent;
+            return DoCleanLandedTitlesFile(newContent);
         }
 
         string GenerateLocalisationFileContent()

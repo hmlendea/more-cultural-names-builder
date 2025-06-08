@@ -5,10 +5,7 @@ namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
     [XmlType("GameId")]
     public class GameIdEntity
     {
-        public GameIdEntity()
-        {
-
-        }
+        public GameIdEntity() { }
 
         public GameIdEntity(string game, string gameLocationId)
         {

@@ -15,6 +15,6 @@ namespace MoreCulturalNamesBuilder.Service.Models
 
         public IEnumerable<Name> Names { get; set; }
 
-        public bool IsEmpty() => Names.Count() == 0 && FallbackLocations.Count() == 0;
+        public bool IsEmpty() => !Names.Any() && !FallbackLocations.Any();
     }
 }

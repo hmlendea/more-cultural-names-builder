@@ -7,24 +7,16 @@ using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
-    public sealed class ModBuilderFactory : IModBuilderFactory
+    public sealed class ModBuilderFactory(
+        ILocalisationFetcher localisationFetcher,
+        INameNormaliser nameNormaliser,
+        IRepository<LanguageEntity> languageRepository,
+        IRepository<LocationEntity> locationRepository) : IModBuilderFactory
     {
-        readonly ILocalisationFetcher localisationFetcher;
-        readonly INameNormaliser nameNormaliser;
-        readonly IRepository<LanguageEntity> languageRepository;
-        readonly IRepository<LocationEntity> locationRepository;
-
-        public ModBuilderFactory(
-            ILocalisationFetcher localisationFetcher,
-            INameNormaliser nameNormaliser,
-            IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository)
-        {
-            this.localisationFetcher = localisationFetcher;
-            this.nameNormaliser = nameNormaliser;
-            this.languageRepository = languageRepository;
-            this.locationRepository = locationRepository;
-        }
+        readonly ILocalisationFetcher localisationFetcher = localisationFetcher;
+        readonly INameNormaliser nameNormaliser = nameNormaliser;
+        readonly IRepository<LanguageEntity> languageRepository = languageRepository;
+        readonly IRepository<LocationEntity> locationRepository = locationRepository;
 
         public IModBuilder GetModBuilder(Settings settings)
         {
