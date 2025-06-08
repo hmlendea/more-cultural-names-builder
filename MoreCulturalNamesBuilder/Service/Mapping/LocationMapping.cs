@@ -8,46 +8,28 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
 {
     static class LocationMapping
     {
-        internal static Location ToServiceModel(this LocationEntity dataObject)
+        internal static Location ToServiceModel(this LocationEntity dataObject) => new()
         {
-            Location serviceModel = new()
-            {
-                Id = dataObject.Id,
-                GeoNamesId = dataObject.GeoNamesId,
-                GameIds = dataObject.GameIds.ToServiceModels(),
-                FallbackLocations = dataObject.FallbackLocations,
-                Names = dataObject.Names.ToServiceModels()
-            };
+            Id = dataObject.Id,
+            GeoNamesId = dataObject.GeoNamesId,
+            GameIds = dataObject.GameIds.ToServiceModels(),
+            FallbackLocations = dataObject.FallbackLocations,
+            Names = dataObject.Names.ToServiceModels()
+        };
 
-            return serviceModel;
-        }
-
-        internal static LocationEntity ToDataObject(this Location serviceModel)
+        internal static LocationEntity ToDataObject(this Location serviceModel) => new()
         {
-            LocationEntity dataObject = new()
-            {
-                Id = serviceModel.Id,
-                GeoNamesId = serviceModel.GeoNamesId,
-                GameIds = serviceModel.GameIds.ToDataObjects().ToList(),
-                FallbackLocations = serviceModel.FallbackLocations.ToList(),
-                Names = serviceModel.Names.ToDataObjects().ToList()
-            };
-
-            return dataObject;
-        }
+            Id = serviceModel.Id,
+            GeoNamesId = serviceModel.GeoNamesId,
+            GameIds = serviceModel.GameIds.ToDataObjects().ToList(),
+            FallbackLocations = serviceModel.FallbackLocations.ToList(),
+            Names = serviceModel.Names.ToDataObjects().ToList()
+        };
 
         internal static IEnumerable<Location> ToServiceModels(this IEnumerable<LocationEntity> dataObjects)
-        {
-            IEnumerable<Location> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<LocationEntity> ToDataObjects(this IEnumerable<Location> serviceModels)
-        {
-            IEnumerable<LocationEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

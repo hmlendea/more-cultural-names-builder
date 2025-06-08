@@ -8,44 +8,26 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
 {
     static class NameMapping
     {
-        internal static Name ToServiceModel(this NameEntity dataObject)
+        internal static Name ToServiceModel(this NameEntity dataObject) => new()
         {
-            Name serviceModel = new()
-            {
-                LanguageId = dataObject.LanguageId,
-                Value = dataObject.Value,
-                Adjective = dataObject.Adjective,
-                Comment = dataObject.Comment
-            };
+            LanguageId = dataObject.LanguageId,
+            Value = dataObject.Value,
+            Adjective = dataObject.Adjective,
+            Comment = dataObject.Comment
+        };
 
-            return serviceModel;
-        }
-
-        internal static NameEntity ToDataObject(this Name serviceModel)
+        internal static NameEntity ToDataObject(this Name serviceModel) => new()
         {
-            NameEntity dataObject = new()
-            {
-                LanguageId = serviceModel.LanguageId,
-                Value = serviceModel.Value,
-                Adjective = serviceModel.Adjective,
-                Comment = serviceModel.Comment
-            };
-
-            return dataObject;
-        }
+            LanguageId = serviceModel.LanguageId,
+            Value = serviceModel.Value,
+            Adjective = serviceModel.Adjective,
+            Comment = serviceModel.Comment
+        };
 
         internal static IEnumerable<Name> ToServiceModels(this IEnumerable<NameEntity> dataObjects)
-        {
-            IEnumerable<Name> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<NameEntity> ToDataObjects(this IEnumerable<Name> serviceModels)
-        {
-            IEnumerable<NameEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

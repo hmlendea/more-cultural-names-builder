@@ -14,13 +14,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         const string IRCharacters = "­̦ _-–—,;:!¡?¿.…·'‘’‚‹›\"“”„«»()[]{}§¶@*/\\&#%‰†‡•`´˜^¯˘˙¨˚˝¸˛ˆˇ°©®∂∏∑+±÷×<=≠>¬|¦~−⁄√∞∫≈≤≥◊¤¢$£¥€01¹½¼2²3³¾456789aAªáÁàÀăĂâÂåÅäÄãÃąĄāĀæÆbBcCćĆčČċĊçÇdDďĎđĐðÐeEéÉèÈêÊěĚëËėĖęĘēĒfFﬁﬂƒgGğĞġĠģĢhHħĦiIíÍìÌîÎïÏİįĮīĪĳĲıjJkKķĶlLĺĹľĽļĻłŁŀĿmMnNńŃňŇñÑņŅŋŊoOºóÓòÒôÔöÖőŐõÕøØōŌœŒpPqQrRŕŔřŘŗŖsSśŚšŠşŞșȘßtTťŤţŢțȚ™ŧŦuUúÚùÙûÛůŮüÜűŰųŲūŪvVwWẃẂẁẀŵŴẅẄxXyYýÝỳỲŷŶÿŸzZźŹžŽżŻþÞΔμπΩ";
         const string Windows1252Characters = "_-–—,;:!¡?¿.…·'‘’‚‹›\"“”„«»()[]{}§¶@*/\\&#%‰†‡•`´˜^¯¨¸ˆ°©®+±÷×<=>¬|¦~¤¢$£¥€01¹½¼2²3³¾456789aAªáÁàÀâÂåÅäÄãÃæÆbBcCçÇdDðÐeEéÉèÈêÊëËfFƒgGhHiIíÍìÌîÎïÏjJkKlLmMnNñÑoOºóÓòÒôÔöÖõÕøØœŒpPqQrRsSšŠßtT™uUúÚùÙûÛüÜvVwWxXyYýÝÿŸzZžŽþÞµ";
 
-        private INameNormaliser nameNormaliser;
+        private NameNormaliser nameNormaliser;
 
         [SetUp]
-        public void SetUp()
-        {
-            this.nameNormaliser = new NameNormaliser();
-        }
+        public void SetUp() => nameNormaliser = new();
 
         // Crusader Kings 3
         [Test]
@@ -159,11 +156,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         public void WhenNormalisingForCK3_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
-        {
-            string actualResult = nameNormaliser.ToCK3Charset(name);
-
-            Assert.That(actualResult, Is.EqualTo(expectedResult));
-        }
+            => Assert.That(nameNormaliser.ToCK3Charset(name), Is.EqualTo(expectedResult));
 
         // Hearts of Iron 4 Cities
         [Test]
@@ -299,11 +292,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         public void WhenNormalisingForHOI4City_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
-        {
-            string actualResult = nameNormaliser.ToHOI4CityCharset(name);
-
-            Assert.That(actualResult, Is.EqualTo(expectedResult));
-        }
+            => Assert.That(nameNormaliser.ToHOI4CityCharset(name), Is.EqualTo(expectedResult));
 
         [Test]
         [TestCase("Â-ngì-pî-sṳ̂ sân", "Â-ngì-pî-sû sân")]
@@ -438,11 +427,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         public void WhenNormalisingForWindow1252_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
-        {
-            string actualResult = nameNormaliser.ToWindows1252(name);
-
-            Assert.That(actualResult, Is.EqualTo(expectedResult));
-        }
+            => Assert.That(nameNormaliser.ToWindows1252(name), Is.EqualTo(expectedResult));
 
         // Imperator Rome
         [Test]
@@ -578,44 +563,27 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         public void WhenNormalisingForImperatorRome_ReturnsTheExpectedNormalisedName(
             string name,
             string expectedResult)
-        {
-            string actualResult = nameNormaliser.ToImperatorRomeCharset(name);
-
-            Assert.That(actualResult, Is.EqualTo(expectedResult));
-        }
+            => Assert.That(nameNormaliser.ToImperatorRomeCharset(name), Is.EqualTo(expectedResult));
 
         [Test]
         [TestCase(StringOfVariousCharacters)]
-        public void WhenNormalisingForCK3_ReturnsTheNameWithoutCharsOutsideCharset(
-            string name)
-        {
-            string actualResult = nameNormaliser.ToCK3Charset(name);
-            TestCharsNotOutsideSet(actualResult, CK3Characters);
-        }
+        public void WhenNormalisingForCK3_ReturnsTheNameWithoutCharsOutsideCharset(string name)
+            => TestCharsNotOutsideSet(nameNormaliser.ToCK3Charset(name), CK3Characters);
 
         [Test]
         [TestCase(StringOfVariousCharacters)]
-        public void WhenNormalisingForHOI4City_ReturnsTheNameWithoutCharsOutsideCharset(
-            string name)
-        {
-            string actualResult = nameNormaliser.ToHOI4CityCharset(name);
-            TestCharsNotOutsideSet(actualResult, HOI4MapCharacters);
-        }
+        public void WhenNormalisingForHOI4City_ReturnsTheNameWithoutCharsOutsideCharset(string name)
+            => TestCharsNotOutsideSet(nameNormaliser.ToHOI4CityCharset(name), HOI4MapCharacters);
 
         [Test]
         [TestCase(StringOfVariousCharacters)]
-        public void WhenNormalisingForWindow1252_ReturnsTheNameWithoutCharsOutsideCharset(
-            string name)
-        {
-            string actualResult = nameNormaliser.ToWindows1252(name);
-            TestCharsNotOutsideSet(actualResult, Windows1252Characters);
-        }
+        public void WhenNormalisingForWindow1252_ReturnsTheNameWithoutCharsOutsideCharset(string name)
+            => TestCharsNotOutsideSet(nameNormaliser.ToWindows1252(name), Windows1252Characters);
 
-        void TestCharsNotOutsideSet(string str, string charset)
+        static void TestCharsNotOutsideSet(string str, string charset)
         {
             string actualCharset = charset + " ";
-            string charsOutisdeCharset = string.Concat(
-                str.Where(c => !actualCharset.Contains(c)));
+            string charsOutisdeCharset = string.Concat(str.Where(c => !actualCharset.Contains(c)));
 
             if (string.IsNullOrWhiteSpace(charsOutisdeCharset))
             {

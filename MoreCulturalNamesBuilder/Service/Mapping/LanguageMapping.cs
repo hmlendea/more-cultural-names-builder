@@ -8,44 +8,26 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
 {
     static class LanguageMapping
     {
-        internal static Language ToServiceModel(this LanguageEntity dataObject)
+        internal static Language ToServiceModel(this LanguageEntity dataObject) => new()
         {
-            Language serviceModel = new()
-            {
-                Id = dataObject.Id,
-                Code = dataObject.Code?.ToServiceModel(),
-                GameIds = dataObject.GameIds.ToServiceModels(),
-                FallbackLanguages = dataObject.FallbackLanguages.ToList()
-            };
+            Id = dataObject.Id,
+            Code = dataObject.Code?.ToServiceModel(),
+            GameIds = dataObject.GameIds.ToServiceModels(),
+            FallbackLanguages = dataObject.FallbackLanguages.ToList()
+        };
 
-            return serviceModel;
-        }
-
-        internal static LanguageEntity ToDataObject(this Language serviceModel)
+        internal static LanguageEntity ToDataObject(this Language serviceModel) => new()
         {
-            LanguageEntity dataObject = new()
-            {
-                Id = serviceModel.Id,
-                Code = serviceModel.Code?.ToDataObject(),
-                GameIds = serviceModel.GameIds.ToDataObjects().ToList(),
-                FallbackLanguages = serviceModel.FallbackLanguages.ToList()
-            };
-
-            return dataObject;
-        }
+            Id = serviceModel.Id,
+            Code = serviceModel.Code?.ToDataObject(),
+            GameIds = serviceModel.GameIds.ToDataObjects().ToList(),
+            FallbackLanguages = serviceModel.FallbackLanguages.ToList()
+        };
 
         internal static IEnumerable<Language> ToServiceModels(this IEnumerable<LanguageEntity> dataObjects)
-        {
-            IEnumerable<Language> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<LanguageEntity> ToDataObjects(this IEnumerable<Language> serviceModels)
-        {
-            IEnumerable<LanguageEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

@@ -5,11 +5,11 @@ namespace MoreCulturalNamesBuilder.Service
 {
     public sealed class NameNormaliser : INameNormaliser
     {
-        ConcurrentDictionary<string, string> windows1252cache;
-        ConcurrentDictionary<string, string> ck3cache;
-        ConcurrentDictionary<string, string> hoi4citiesCache;
-        ConcurrentDictionary<string, string> hoi4statesCache;
-        ConcurrentDictionary<string, string> irCache;
+        readonly ConcurrentDictionary<string, string> windows1252cache;
+        readonly ConcurrentDictionary<string, string> ck3cache;
+        readonly ConcurrentDictionary<string, string> hoi4citiesCache;
+        readonly ConcurrentDictionary<string, string> hoi4statesCache;
+        readonly ConcurrentDictionary<string, string> irCache;
 
         public NameNormaliser()
         {

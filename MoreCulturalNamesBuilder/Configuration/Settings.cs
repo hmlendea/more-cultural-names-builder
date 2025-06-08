@@ -1,18 +1,11 @@
 namespace MoreCulturalNamesBuilder.Configuration
 {
-    public sealed class Settings
+    public sealed class Settings(string[] args)
     {
-        public InputSettings Input { get; }
+        public InputSettings Input { get; } = new(args);
 
-        public ModSettings Mod { get; }
+        public ModSettings Mod { get; } = new(args);
 
-        public OutputSettings Output { get; }
-
-        public Settings(string[] args)
-        {
-            Input = new InputSettings(args);
-            Mod = new ModSettings(args);
-            Output = new OutputSettings(args);
-        }
+        public OutputSettings Output { get; } = new(args);
     }
 }
