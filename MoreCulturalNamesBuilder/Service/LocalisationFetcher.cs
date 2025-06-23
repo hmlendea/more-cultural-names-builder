@@ -13,8 +13,8 @@ namespace MoreCulturalNamesBuilder.Service
 {
     public sealed class LocalisationFetcher : ILocalisationFetcher
     {
-        readonly IRepository<LanguageEntity> languageRepository;
-        readonly IRepository<LocationEntity> locationRepository;
+        readonly IFileRepository<LanguageEntity> languageRepository;
+        readonly IFileRepository<LocationEntity> locationRepository;
 
         readonly ConcurrentDictionary<string, IDictionary<string, string>> languageGameIdsCache;
 
@@ -22,8 +22,8 @@ namespace MoreCulturalNamesBuilder.Service
         IDictionary<string, Language> languages;
 
         public LocalisationFetcher(
-            IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository)
+            IFileRepository<LanguageEntity> languageRepository,
+            IFileRepository<LocationEntity> locationRepository)
         {
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;

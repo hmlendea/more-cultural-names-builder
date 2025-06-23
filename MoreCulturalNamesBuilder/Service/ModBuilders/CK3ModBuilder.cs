@@ -19,8 +19,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     public sealed class CK3ModBuilder(
         ILocalisationFetcher localisationFetcher,
         INameNormaliser nameNormaliser,
-        IRepository<LanguageEntity> languageRepository,
-        IRepository<LocationEntity> locationRepository,
+        IFileRepository<LanguageEntity> languageRepository,
+        IFileRepository<LocationEntity> locationRepository,
         Settings settings) : CK2ModBuilder(localisationFetcher, nameNormaliser, languageRepository, locationRepository, settings)
     {
         protected override string LocalisationDirectoryName => "localization";

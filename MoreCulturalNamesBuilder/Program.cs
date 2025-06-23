@@ -36,8 +36,8 @@ namespace MoreCulturalNamesBuilder
         {
             IServiceCollection serviceCollection = new ServiceCollection()
                 .AddSingleton(settings)
-                .AddSingleton<IRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(settings.Input.LanguageStorePath))
-                .AddSingleton<IRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(settings.Input.LocationStorePath))
+                .AddSingleton<IFileRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(settings.Input.LanguageStorePath))
+                .AddSingleton<IFileRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(settings.Input.LocationStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<IModBuilderFactory, ModBuilderFactory>();
