@@ -17,8 +17,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     public sealed class HOI4ModBuilder(
         ILocalisationFetcher localisationFetcher,
         INameNormaliser nameNormaliser,
-        IRepository<LanguageEntity> languageRepository,
-        IRepository<LocationEntity> locationRepository,
+        IFileRepository<LanguageEntity> languageRepository,
+        IFileRepository<LocationEntity> locationRepository,
         Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
         IEnumerable<GameId> stateGameIds;

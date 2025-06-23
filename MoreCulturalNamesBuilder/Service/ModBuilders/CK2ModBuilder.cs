@@ -35,8 +35,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         public CK2ModBuilder(
             ILocalisationFetcher localisationFetcher,
             INameNormaliser nameNormaliser,
-            IRepository<LanguageEntity> languageRepository,
-            IRepository<LocationEntity> locationRepository,
+            IFileRepository<LanguageEntity> languageRepository,
+            IFileRepository<LocationEntity> locationRepository,
             Settings settings)
             : base(languageRepository, locationRepository, settings)
         {

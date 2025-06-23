@@ -13,14 +13,14 @@ using MoreCulturalNamesBuilder.Service.Models;
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public abstract class ModBuilder(
-        IRepository<LanguageEntity> languageRepository,
-        IRepository<LocationEntity> locationRepository,
+        IFileRepository<LanguageEntity> languageRepository,
+        IFileRepository<LocationEntity> locationRepository,
         Settings settings) : IModBuilder
     {
         protected string OutputDirectoryPath => Path.Combine(Settings.Output.ModOutputDirectory, Settings.Mod.Game);
 
-        protected readonly IRepository<LanguageEntity> languageRepository = languageRepository;
-        protected readonly IRepository<LocationEntity> locationRepository = locationRepository;
+        protected readonly IFileRepository<LanguageEntity> languageRepository = languageRepository;
+        protected readonly IFileRepository<LocationEntity> locationRepository = locationRepository;
 
         protected readonly Settings Settings = settings;
 
