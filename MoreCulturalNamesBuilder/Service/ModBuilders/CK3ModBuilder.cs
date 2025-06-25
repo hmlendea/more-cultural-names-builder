@@ -54,25 +54,22 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         protected override string DoCleanLandedTitlesFile(string content)
         {
             string nameListsPattern = string.Join('|', languageGameIds.Select(x => $"name_list_{x.Id}"));
+
+            Regex breakInlineRegex = new(
+                $"^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{{\\s*((" + nameListsPattern + ")\\s*=\\s*[a-zA-Z_-]*)\\s*\\}}",
+                RegexOptions.Multiline | RegexOptions.Compiled);
+            Regex removeOriginalRegex = new Regex(
+                $"^\\s*({nameListsPattern})\\s*=\\s*[a-zA-Z_-]*\\s*\n",
+                RegexOptions.Multiline | RegexOptions.Compiled);
+            Regex removeEmptyBlockRegex = new Regex(
+                "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
+                RegexOptions.Multiline | RegexOptions.Compiled);
+
             string cleanContent = content;
 
-            cleanContent = Regex.Replace( // Break inline cultural name into multiple lines
-                cleanContent,
-                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + nameListsPattern + ")\\s*=\\s*[a-zA-Z_-]*)\\s*\\}",
-                "$1$2 = {\n$1\t$3\n$1}",
-                RegexOptions.Multiline);
-
-            cleanContent = Regex.Replace( // Remove all original cultural names for supported languages
-                cleanContent,
-                "^\\s*(" + nameListsPattern + ")\\s*=\\s*[a-zA-Z_-]*\\s*\n",
-                string.Empty,
-                RegexOptions.Multiline);
-
-            cleanContent = Regex.Replace( // Remove empty cultural_names blocks
-                cleanContent,
-                "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
-                "",
-                RegexOptions.Multiline);
+            cleanContent = breakInlineRegex.Replace(cleanContent, "$1$2 = {\n$1\t$3\n$1}");
+            cleanContent = removeOriginalRegex.Replace(cleanContent, string.Empty);
+            cleanContent = removeEmptyBlockRegex.Replace(cleanContent, string.Empty);
 
             return cleanContent;
         }
