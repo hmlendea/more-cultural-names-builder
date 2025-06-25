@@ -27,9 +27,9 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (ck3cache.ContainsKey(name))
+            if (ck3cache.TryGetValue(name, out string value))
             {
-                return ck3cache[name];
+                return value;
             }
 
             string processedName = ApplyCommonReplacements(name);
@@ -143,9 +143,9 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (hoi4citiesCache.ContainsKey(name))
+            if (hoi4citiesCache.TryGetValue(name, out string value))
             {
-                return hoi4citiesCache[name];
+                return value;
             }
 
             string processedName = ApplyCommonReplacements(name);
@@ -268,9 +268,9 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (hoi4statesCache.ContainsKey(name))
+            if (hoi4statesCache.TryGetValue(name, out string value))
             {
-                return hoi4statesCache[name];
+                return value;
             }
 
             string processedName = name;
@@ -354,9 +354,9 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (irCache.ContainsKey(name))
+            if (irCache.TryGetValue(name, out string value))
             {
-                return irCache[name];
+                return value;
             }
 
             string processedName = name;
@@ -482,9 +482,9 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (windows1252cache.ContainsKey(name))
+            if (windows1252cache.TryGetValue(name, out string value))
             {
-                return windows1252cache[name];
+                return value;
             }
 
             string processedName = name;
