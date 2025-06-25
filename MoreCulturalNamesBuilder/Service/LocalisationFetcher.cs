@@ -137,9 +137,11 @@ namespace MoreCulturalNamesBuilder.Service
 
             foreach (string locationIdToCheck in locationIdsToCheck)
             {
+                Location locationToCheck = locations[locationIdToCheck];
+
                 foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    Name name = locations[locationIdToCheck].Names.FirstOrDefault(name => name.LanguageId.Equals(languageIdToCheck));
+                    Name name = locationToCheck.Names.FirstOrDefault(name => name.LanguageId.Equals(languageIdToCheck));
 
                     if (name is not null)
                     {
