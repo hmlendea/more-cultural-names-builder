@@ -21,6 +21,9 @@ namespace MoreCulturalNamesBuilder.Service
         IDictionary<string, Location> locations;
         IDictionary<string, Language> languages;
 
+        readonly Dictionary<(string Game, string Id), Location> locationGameIdIndex;
+        readonly Dictionary<(string Game, string GameLanguageId), string> gameLanguageIdToLanguageId;
+
         public LocalisationFetcher(
             IFileRepository<LanguageEntity> languageRepository,
             IFileRepository<LocationEntity> locationRepository)
@@ -29,6 +32,8 @@ namespace MoreCulturalNamesBuilder.Service
             this.locationRepository = locationRepository;
 
             languageGameIdsCache = new();
+            locationGameIdIndex = [];
+            gameLanguageIdToLanguageId = new Dictionary<(string, string), string>();
 
             LoadData();
         }
@@ -44,6 +49,25 @@ namespace MoreCulturalNamesBuilder.Service
                 .GetAll()
                 .ToServiceModels()
                 .ToDictionary(key => key.Id, val => val);
+
+            locationGameIdIndex.Clear();
+            gameLanguageIdToLanguageId.Clear();
+
+            foreach (Location loc in locations.Values)
+            {
+                foreach (GameId gameId in loc.GameIds)
+                {
+                    locationGameIdIndex[(gameId.Game, gameId.Id)] = loc;
+                }
+            }
+
+            foreach (var language in languages.Values)
+            {
+                foreach (var gameId in language.GameIds)
+                {
+                    gameLanguageIdToLanguageId[(gameId.Game, gameId.Id)] = language.Id;
+                }
+            }
         }
 
         public IEnumerable<Localisation> GetGameLocationLocalisations(
@@ -61,16 +85,14 @@ namespace MoreCulturalNamesBuilder.Service
 
             if (string.IsNullOrWhiteSpace(locationGameIdType))
             {
-                location = locations.Values.FirstOrDefault(x => x.GameIds.Any(
-                    x => x.Game == game &&
-                    x.Id == locationGameId));
+                locationGameIdIndex.TryGetValue((game, locationGameId), out location);
             }
             else
             {
                 location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x =>
-                x.Game == game &&
-                x.Id == locationGameId &&
-                x.Type == locationGameIdType));
+                    x.Game == game &&
+                    x.Id == locationGameId &&
+                    x.Type == locationGameIdType));
             }
 
             if (location is null)
@@ -115,9 +137,11 @@ namespace MoreCulturalNamesBuilder.Service
 
             foreach (string locationIdToCheck in locationIdsToCheck)
             {
+                Location locationToCheck = locations[locationIdToCheck];
+
                 foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    Name name = locations[locationIdToCheck].Names.FirstOrDefault(name => name.LanguageId.Equals(languageIdToCheck));
+                    Name name = locationToCheck.Names.FirstOrDefault(name => name.LanguageId.Equals(languageIdToCheck));
 
                     if (name is not null)
                     {
@@ -143,12 +167,11 @@ namespace MoreCulturalNamesBuilder.Service
                 return value;
             }
 
-            IDictionary<string, string> languageGameIds = languages.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == game)
+            IDictionary<string, string> languageGameIds = gameLanguageIdToLanguageId
+                .Where(kvp => kvp.Key.Game.Equals(game))
                 .ToDictionary(
-                    key => key.Id,
-                    val => languages.Values.First(language => language.GameIds.Any(x => x.Game == game && x.Id == val.Id)).Id);
+                    kvp => kvp.Key.GameLanguageId,
+                    kvp => kvp.Value);
 
             languageGameIdsCache.TryAdd(game, languageGameIds);
 
