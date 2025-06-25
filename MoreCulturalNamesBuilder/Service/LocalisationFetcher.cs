@@ -21,6 +21,8 @@ namespace MoreCulturalNamesBuilder.Service
         IDictionary<string, Location> locations;
         IDictionary<string, Language> languages;
 
+        readonly Dictionary<(string Game, string Id), Location> locationGameIdIndex;
+
         public LocalisationFetcher(
             IFileRepository<LanguageEntity> languageRepository,
             IFileRepository<LocationEntity> locationRepository)
@@ -29,6 +31,7 @@ namespace MoreCulturalNamesBuilder.Service
             this.locationRepository = locationRepository;
 
             languageGameIdsCache = new();
+            locationGameIdIndex = [];
 
             LoadData();
         }
@@ -44,6 +47,16 @@ namespace MoreCulturalNamesBuilder.Service
                 .GetAll()
                 .ToServiceModels()
                 .ToDictionary(key => key.Id, val => val);
+
+            locationGameIdIndex.Clear();
+
+            foreach (Location loc in locations.Values)
+            {
+                foreach (GameId gameId in loc.GameIds)
+                {
+                    locationGameIdIndex[(gameId.Game, gameId.Id)] = loc;
+                }
+            }
         }
 
         public IEnumerable<Localisation> GetGameLocationLocalisations(
@@ -61,16 +74,14 @@ namespace MoreCulturalNamesBuilder.Service
 
             if (string.IsNullOrWhiteSpace(locationGameIdType))
             {
-                location = locations.Values.FirstOrDefault(x => x.GameIds.Any(
-                    x => x.Game == game &&
-                    x.Id == locationGameId));
+                locationGameIdIndex.TryGetValue((game, locationGameId), out location);
             }
             else
             {
                 location = locations.Values.FirstOrDefault(x => x.GameIds.Any(x =>
-                x.Game == game &&
-                x.Id == locationGameId &&
-                x.Type == locationGameIdType));
+                    x.Game == game &&
+                    x.Id == locationGameId &&
+                    x.Type == locationGameIdType));
             }
 
             if (location is null)
