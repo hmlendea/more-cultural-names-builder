@@ -22,6 +22,7 @@ namespace MoreCulturalNamesBuilder.Service
         IDictionary<string, Language> languages;
 
         readonly Dictionary<(string Game, string Id), Location> locationGameIdIndex;
+        readonly Dictionary<(string Game, string GameLanguageId), string> gameLanguageIdToLanguageId;
 
         public LocalisationFetcher(
             IFileRepository<LanguageEntity> languageRepository,
@@ -32,6 +33,7 @@ namespace MoreCulturalNamesBuilder.Service
 
             languageGameIdsCache = new();
             locationGameIdIndex = [];
+            gameLanguageIdToLanguageId = new Dictionary<(string, string), string>();
 
             LoadData();
         }
@@ -49,12 +51,21 @@ namespace MoreCulturalNamesBuilder.Service
                 .ToDictionary(key => key.Id, val => val);
 
             locationGameIdIndex.Clear();
+            gameLanguageIdToLanguageId.Clear();
 
             foreach (Location loc in locations.Values)
             {
                 foreach (GameId gameId in loc.GameIds)
                 {
                     locationGameIdIndex[(gameId.Game, gameId.Id)] = loc;
+                }
+            }
+
+            foreach (var language in languages.Values)
+            {
+                foreach (var gameId in language.GameIds)
+                {
+                    gameLanguageIdToLanguageId[(gameId.Game, gameId.Id)] = language.Id;
                 }
             }
         }
@@ -154,12 +165,11 @@ namespace MoreCulturalNamesBuilder.Service
                 return value;
             }
 
-            IDictionary<string, string> languageGameIds = languages.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == game)
+            IDictionary<string, string> languageGameIds = gameLanguageIdToLanguageId
+                .Where(kvp => kvp.Key.Game.Equals(game))
                 .ToDictionary(
-                    key => key.Id,
-                    val => languages.Values.First(language => language.GameIds.Any(x => x.Game == game && x.Id == val.Id)).Id);
+                    kvp => kvp.Key.GameLanguageId,
+                    kvp => kvp.Value);
 
             languageGameIdsCache.TryAdd(game, languageGameIds);
 
