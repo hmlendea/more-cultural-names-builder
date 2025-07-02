@@ -192,8 +192,15 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             List<string> landedTitlesFileLines = landedTitlesFile.Split('\n').ToList();
             landedTitlesFileLines.Add(string.Empty);
 
-            string forbiddenTokensForPreviousLinePattern = "^.*" + string.Join('|', ForbiddenTokensForPreviousLine) + ".*$";
-            string forbiddenTokensForNextLinePattern = "^.*" + string.Join('|', ForbiddenTokensForNextLine) + ".*$";
+            Regex forbiddenTokensForPreviousLineRegEx = new(
+                "^.*" + string.Join('|', ForbiddenTokensForPreviousLine) + ".*$",
+                RegexOptions.Compiled);
+            Regex forbiddenTokensForNextLineRegEx = new(
+                "^.*" + string.Join('|', ForbiddenTokensForNextLine) + ".*$",
+                RegexOptions.Compiled);
+            Regex titleIdRegEx = new(
+                "^\\s*([ekdcb]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$",
+                RegexOptions.Compiled);
 
             for (int i = 0; i < landedTitlesFileLines.Count - 1; i++)
             {
@@ -203,13 +210,20 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
                 content.Add(line);
 
-                if (Regex.IsMatch(previousLine, forbiddenTokensForPreviousLinePattern) ||
-                    Regex.IsMatch(nextLine, forbiddenTokensForNextLinePattern))
+                if (forbiddenTokensForPreviousLineRegEx.IsMatch(previousLine) ||
+                    forbiddenTokensForNextLineRegEx.IsMatch(nextLine))
                 {
                     continue;
                 }
 
-                string titleId = Regex.Match(line, "^\\s*([ekdcb]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$").Groups[1].Value;
+                Match titleIdMatch = titleIdRegEx.Match(line);
+
+                if (!titleIdMatch.Success)
+                {
+                    continue;
+                }
+
+                string titleId = titleIdRegEx.Match(line).Groups[1].Value;
 
                 if (string.IsNullOrWhiteSpace(titleId))
                 {
