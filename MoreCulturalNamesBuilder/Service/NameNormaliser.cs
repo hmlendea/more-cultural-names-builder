@@ -13,6 +13,176 @@ namespace MoreCulturalNamesBuilder.Service
         readonly ConcurrentDictionary<string, string> hoi4statesCache;
         readonly ConcurrentDictionary<string, string> irCache;
 
+        readonly Dictionary<char, string> CommonCharacterMappings = new()
+        {
+            { 'А', "A" },
+            { 'Α', "A" },
+            { 'Ꭺ', "A" },
+            { 'ꓮ', "A" },
+            { 'Ά', "Á" },
+            { 'Ὰ', "À" }, { 'Ȁ', "À" },
+            { 'Ắ', "Ă" }, { 'Ặ', "Ă" },
+            { 'Ẩ', "Â" },
+            { 'Β', "B" }, { 'Ᏼ', "B" }, { 'ꓐ', "B" }, { 'Ḇ', "B" },
+            { 'Χ', "Ch" },
+            { 'С', "C" }, { 'Ϲ', "C" }, { 'Ꮯ', "C" }, { 'ꓚ', "C" },
+            { 'Ĉ', "C" }, { 'Ц', "C" },
+            { 'Ꭰ', "D" },
+            { 'ꓓ', "D" },
+            { 'Џ', "Dž" },
+            { 'Ɖ', "Đ" },
+            { 'Е', "E" }, { 'Ε', "E" }, { 'Ꭼ', "E" }, { 'ꓰ', "E" }, { 'Ɛ', "E" }, { 'Э', "E" },
+            { 'Ё', "Ë" },
+            { 'Έ', "É" },
+            { '∃', "Ǝ" },
+            { 'ꓝ', "F" }, { 'Ḟ', "F" },
+            { 'Ꮐ', "G" }, { 'ꓖ', "G" },
+            { 'Ƣ', "Ğ" }, // Untested in the games
+            { 'Ȝ', "Gh" }, // Or G
+            { 'Ɣ', "Gh" },
+            { 'Ю', "Iu" },
+            { 'Η', "H" }, { 'Ꮋ', "H" }, { 'ꓧ', "H" }, { 'Ḥ', "H" },
+            { 'І', "I" }, { 'Ι', "I" }, { 'Ӏ', "I" }, { 'ӏ', "I" }, { 'Ί', "I" }, { 'Ɨ', "I" },
+            { 'Ỉ', "Ì" },
+            { 'Ї', "Ï" }, { 'Ϊ', "Ï" }, { 'Ḯ', "Ï" },
+            { 'Ǐ', "Ĭ" },
+            { 'Ј', "J" }, { 'Ꭻ', "J" }, { 'ꓙ', "J" },
+            { 'К', "K" }, { 'Κ', "K" }, { 'Ꮶ', "K" }, { 'ꓗ', "K" },
+            { 'Ќ', "Ḱ" },
+            { 'Ꮮ', "L" }, { 'ꓡ', "L" }, { 'Լ', "L" },
+            { 'М', "M" }, { 'Μ', "M" }, { 'Ꮇ', "M" }, { 'ꓟ', "M" }, { 'Ṁ', "M" },
+            { 'Ǌ', "NJ" },
+            { 'Н', "N" }, { 'Ν', "N" }, { 'ꓠ', "N" }, { 'Ṉ', "N" },
+            { 'Ƞ', "Ŋ" },
+            { 'О', "O" }, { 'Ο', "O" }, { 'ꓳ', "O" }, { 'Օ', "O" }, { 'Ɔ', "O" }, { 'Ợ', "O" },
+            { 'Ӧ', "Ö" },
+            { 'Ớ', "Ó" }, { 'Ό', "Ó" },
+            { 'Ỏ', "Ò" },
+            { 'Ỗ', "Ô" },
+            { 'Ǒ', "Ŏ" },
+            { 'Ǭ', "Ǫ" },
+            { 'Р', "P" }, { 'Ρ', "P" }, { 'Ꮲ', "P" }, { 'ꓑ', "P" },
+            { 'Ƿ', "Uu" }, { 'Ỽ', "Uu" }, // Or W
+            { 'Ԛ', "Q" },
+            { 'Ꮢ', "R" }, { 'ꓣ', "R" }, { 'Ṟ', "R" },
+            { 'Ѕ', "S" }, { 'Ꮪ', "S" }, { 'ꓢ', "S" }, { 'Տ', "S" },
+            { 'Ṯ', "Th" }, { 'Θ', "Th" },
+            { 'Т', "T" }, { 'Τ', "T" }, { 'Ꭲ', "T" }, { 'ꓔ', "T" },
+            { 'Ս', "U" }, { 'ꓴ', "U" }, { 'Ʊ', "U" },
+            { 'Ǔ', "Ŭ" },
+            { 'Ǚ', "Ŭ" }, // Or Ü
+            { 'Ǜ', "Ü" },
+            { 'В', "V" }, { 'Ꮩ', "V" }, { 'ꓦ', "V" },
+            { 'Ꮃ', "W" }, { 'ꓪ', "W" }, { 'Ԝ', "W" },
+            { 'Ẇ', "Ẃ" },
+            { 'Х', "X" }, { 'ꓫ', "X" },
+            { 'Ү', "Y" }, { 'Υ', "Y" }, { 'ꓬ', "Y" },
+            { 'Ύ', "Ý" },
+            { 'Ζ', "Z" }, { 'Ꮓ', "Z" }, { 'ꓜ', "Z" }, { 'Ƶ', "Z" },
+            { 'Ǯ', "Ž" },
+
+            { 'ә', "æ" },
+            { 'α', "a" }, { 'а', "a" },
+            { 'ὰ', "à" }, { 'ȁ', "à" },
+            { 'ά', "á" }, { 'ȧ', "á" },
+            { 'ӑ', "ă" }, { 'ắ', "ă" }, { 'ǎ', "ă" }, { 'ẵ', "ă" }, { 'ặ', "ă" },
+            { 'ẩ', "â" },
+            { 'ᏼ', "b" }, { 'ḇ', "b" },
+            { 'χ', "ch" },
+            { 'ĉ', "c" }, { 'ц', "c" },
+            { 'ⅾ', "d" },
+            { 'џ', "dž" },
+            { 'е', "e" }, { 'ε', "e" }, { 'ɛ', "e" }, { 'э', "e" },
+            { 'ĕ', "ě" },
+            { 'ǝ', "ə" },
+            { 'ё', "ë" },
+            { 'έ', "é" },
+            { 'ḟ', "f" },
+            { 'г', "g" },
+            { 'ƣ', "ğ" }, // Untested in the games
+            { 'ȝ', "gh" }, // Or g
+            { 'ɣ', "gh" },
+            { 'ḥ', "h" },
+            { 'ю', "iu" },
+            { 'я', "ia" },
+            { 'і', "i" }, { 'ι', "i" }, { 'ɨ', "i" },
+            { 'ỉ', "ì" },
+            { 'ɩ', "ı" },
+            { 'ǐ', "ĭ" },
+            { 'ї', "ï" }, { 'ϊ', "ï" }, { 'ΐ', "ï" }, { 'ḯ', "ï" },
+            { 'ј', "j" },
+            { 'к', "k" }, { 'κ', "k" },
+            { 'ќ', "ḱ" },
+            { 'ẖ', "kh" },
+            { 'л', "l" },
+            { 'ɬ', "ł" },
+            { 'ƚ', "ł" },
+            { 'ṁ', "m" },
+            { 'н', "n" }, { 'ṉ', "n" },
+            { 'ƞ', "ŋ" },
+            { 'о', "o" }, { 'ο', "o" }, { 'օ', "o" }, { 'ɔ', "o" }, { 'ợ', "o" },
+            { 'ӧ', "ö" },
+            { 'ό', "ó" }, { 'ớ', "ó" },
+            { 'ỏ', "ò" },
+            { 'ỗ', "ô" },
+            { 'ǒ', "ŏ" },
+            { 'ǭ', "ǫ" },
+            { 'р', "p" }, { 'ṗ', "p" }, { 'ɸ', "p" },
+            { 'ԥ', "p" }, // It's actually ṗ but that doesn't work either
+            { 'ꮢ', "r" }, { 'ṟ', "r" },
+            { 'ṯ', "th" }, { 'θ', "th" },
+            { 'т', "t" },
+            { '‡', "t" }, // Guessed
+            { 'ƿ', "uu" }, { 'ỽ', "uu" }, // Or w
+            { 'у', "u" }, { 'ʊ', "u" },
+            { 'ǔ', "ŭ" },
+            { 'ǚ', "ŭ" }, // Or ü
+            { 'ύ', "ú" },
+            { 'ǜ', "ü" },
+            { 'ẇ', "ẃ" },
+            { 'γ', "y" },
+            { 'ƶ', "z" }, { 'ᶻ', "z" },
+            { 'ǯ', "ž" },
+
+            // Characters with apostrophe that needs to be detached
+            { 'ƙ', "k'" },
+            { 'Ƙ', "K'" },
+            { 'ư', "u'" },
+            { 'Ư', "U'" },
+            { 'ứ', "ú'" },
+            { 'Ứ', "Ú'" },
+            { 'ừ', "ù'" },
+            { 'Ừ', "Ù'" },
+            { 'ử', "ủ'" },
+            { 'Ử', "Ủ'" },
+
+            // Secondary accent diacritic
+            { 'Ấ', "Â" },
+            { 'Ḗ', "Ē" },
+            { 'Ế', "Ê" },
+            { 'Ṓ', "Ō" },
+            { 'Ố', "Ô" },
+            { 'ấ', "â" },
+            { 'ḗ', "ē" },
+            { 'ế', "ê" },
+            { 'ṓ', "ō" },
+            { 'ố', "ô" },
+
+            // Secondary grave accent diacritic
+            { 'Ầ', "Â" },
+            { 'Ề', "Ê" },
+            { 'Ồ', "Ô" },
+            { 'ầ', "â" },
+            { 'ề', "ê" },
+            { 'ồ', "ô" },
+
+            // Secondary hook diacritic
+            { 'Ể', "Ê" },
+            { 'Ổ', "Ô" },
+            { 'ể', "ê" },
+            { 'ổ', "ô" },
+        };
+
         readonly Dictionary<char, string> CK2CharacterMappings = new()
         {
             { 'Ǣ', "Æ" },
@@ -637,183 +807,50 @@ namespace MoreCulturalNamesBuilder.Service
         {
             string processedName = name;
 
-            processedName = Regex.Replace(processedName, "([АΑᎪꓮ𝖠]|A‍)", "A");
-            processedName = Regex.Replace(processedName, "([Ά])", "Á");
-            processedName = Regex.Replace(processedName, "([ᾺȀ])", "À");
-            processedName = Regex.Replace(processedName, "([ẮẶ])", "Ă");
-            processedName = Regex.Replace(processedName, "([Ẩ])", "Â");
+            processedName = Regex.Replace(processedName, "\\bɸ", "P");
+
+            processedName = ReplaceUsingMap(processedName, CommonCharacterMappings);
+
+            processedName = Regex.Replace(processedName, "(𝖠|A‍)", "A");
             processedName = Regex.Replace(processedName, "( ᐋ)", " Â");
-            processedName = Regex.Replace(processedName, "([ΒᏴꓐḆ]|B‍|B‌|پ)", "B");
-            processedName = Regex.Replace(processedName, "([Χ])", "Ch");
-            processedName = Regex.Replace(processedName, "([СϹᏟꓚ])", "C");
-            processedName = Regex.Replace(processedName, "([ĈЦ])", "C");
-            processedName = Regex.Replace(processedName, "([Ꭰꓓ]|D‍)", "D");
-            processedName = Regex.Replace(processedName, "([Џ])", "Dž");
-            processedName = Regex.Replace(processedName, "([Ɖ])", "Đ");
-            processedName = Regex.Replace(processedName, "([ЕΕᎬꓰƐЭ])", "E");
-            processedName = Regex.Replace(processedName, "([Ё])", "Ë");
-            processedName = Regex.Replace(processedName, "([Έ])", "É");
-            processedName = Regex.Replace(processedName, "([∃])", "Ǝ");
-            processedName = Regex.Replace(processedName, "([ꓝḞ])", "F");
-            processedName = Regex.Replace(processedName, "([Ꮐꓖ]|G‍)", "G");
-            processedName = Regex.Replace(processedName, "([Ƣ])", "Ğ"); // Untested in the games
-            processedName = Regex.Replace(processedName, "([Ȝ])", "Gh"); // Or G
-            processedName = Regex.Replace(processedName, "([Ɣ])", "Gh");
-            processedName = Regex.Replace(processedName, "([Ю])", "Iu");
-            processedName = Regex.Replace(processedName, "([ΗᎻꓧḤ])", "H");
-            processedName = Regex.Replace(processedName, "([ІΙӀӏΊƗ])", "I");
-            processedName = Regex.Replace(processedName, "([Ỉ])", "Ì");
-            processedName = Regex.Replace(processedName, "([ЇΪḮ]|Ϊ́)", "Ï");
-            processedName = Regex.Replace(processedName, "([Ǐ])", "Ĭ");
-            processedName = Regex.Replace(processedName, "([ЈᎫꓙ])", "J");
-            processedName = Regex.Replace(processedName, "([КΚᏦꓗ]|K‍)", "K");
-            processedName = Regex.Replace(processedName, "([Ќ])", "Ḱ");
+            processedName = Regex.Replace(processedName, "(B‍|B‌|پ)", "B");
+            processedName = Regex.Replace(processedName, "(D‍)", "D");
+            processedName = Regex.Replace(processedName, "(G‍)", "G");
+            processedName = Regex.Replace(processedName, "(Ϊ́)", "Ï");
+            processedName = Regex.Replace(processedName, "(K‍)", "K");
             processedName = Regex.Replace(processedName, "H̱", "Kh");
-            processedName = Regex.Replace(processedName, "([ᏞꓡԼ]|L‌)", "L");
-            processedName = Regex.Replace(processedName, "([МΜᎷꓟṀ]|M̄|M̐)", "M");
-            processedName = Regex.Replace(processedName, "(Ǌ)", "NJ");
-            processedName = Regex.Replace(processedName, "([НΝꓠṈ]|N‌)", "N");
+            processedName = Regex.Replace(processedName, "(L‌)", "L");
+            processedName = Regex.Replace(processedName, "(M̄|M̐)", "M");
+            processedName = Regex.Replace(processedName, "(N‌)", "N");
             processedName = Regex.Replace(processedName, "(Ṉ)", "Ņ");
-            processedName = Regex.Replace(processedName, "[Ƞ]", "Ŋ");
-            processedName = Regex.Replace(processedName, "([ОΟꓳՕƆỢ])", "O");
-            processedName = Regex.Replace(processedName, "([Ӧ])", "Ö");
-            processedName = Regex.Replace(processedName, "([ỚΌ])", "Ó");
-            processedName = Regex.Replace(processedName, "([Ỏ])", "Ò");
-            processedName = Regex.Replace(processedName, "([Ỗ])", "Ô");
-            processedName = Regex.Replace(processedName, "([Ǒ])", "Ŏ");
-            processedName = Regex.Replace(processedName, "([Ǭ])", "Ǫ");
-            processedName = Regex.Replace(processedName, "([РΡᏢꓑ]|P‍|П)", "P");
-            processedName = Regex.Replace(processedName, "([ǷỼ])", "Uu"); // Or W
-            processedName = Regex.Replace(processedName, "^ɸ", "P");
-            processedName = Regex.Replace(processedName, " ɸ", " P");
-            processedName = Regex.Replace(processedName, "([Ԛ])", "Q");
-            processedName = Regex.Replace(processedName, "([ᏒꓣṞ]|R‍|R‌)", "R");
+            processedName = Regex.Replace(processedName, "(P‍|П)", "P");
+            processedName = Regex.Replace(processedName, "(R‍|R‌)", "R");
             processedName = Regex.Replace(processedName, "(R̥̄)", "Ŕu");
             processedName = Regex.Replace(processedName, "(R̥)", "Ru");
-            processedName = Regex.Replace(processedName, "([ЅᏚꓢՏ]|S‍|S‌)", "S");
-            processedName = Regex.Replace(processedName, "([ṮΘ])", "Th");
-            processedName = Regex.Replace(processedName, "([ТΤᎢꓔ])", "T");
+            processedName = Regex.Replace(processedName, "(S‍|S‌)", "S");
             processedName = Regex.Replace(processedName, "Ṭ‍", "Ṭ");
-            processedName = Regex.Replace(processedName, "([ՍꓴƱ])", "U");
-            processedName = Regex.Replace(processedName, "([Ǔ])", "Ŭ");
-            processedName = Regex.Replace(processedName, "([Ǚ])", "Ŭ"); // Or Ü
-            processedName = Regex.Replace(processedName, "([Ǜ])", "Ü");
-            processedName = Regex.Replace(processedName, "([ВᏙꓦ])", "V");
-            processedName = Regex.Replace(processedName, "([ᎳꓪԜ])", "W");
-            processedName = Regex.Replace(processedName, "([Ẇ])", "Ẃ");
-            processedName = Regex.Replace(processedName, "([ХΧꓫ])", "X");
-            processedName = Regex.Replace(processedName, "([ҮΥꓬ])", "Y");
-            processedName = Regex.Replace(processedName, "([Ύ])", "Ý");
-            processedName = Regex.Replace(processedName, "([ΖᏃꓜƵ])", "Z");
-            processedName = Regex.Replace(processedName, "[Ǯ]", "Ž");
-            processedName = Regex.Replace(processedName, "([ә])", "æ");
-            processedName = Regex.Replace(processedName, "([αа𝖺]|a‍)", "a");
-            processedName = Regex.Replace(processedName, "([ὰȁ])", "à");
-            processedName = Regex.Replace(processedName, "([άȧ])", "á");
-            processedName = Regex.Replace(processedName, "([ӑắǎẵặ])", "ă");
-            processedName = Regex.Replace(processedName, "([ẩ])", "â");
+
+            processedName = Regex.Replace(processedName, "(𝖺|a‍)", "a");
             processedName = Regex.Replace(processedName, "([^ ])ᐋ", "$1â");
-            processedName = Regex.Replace(processedName, "([ᏼḇ]|b‍|b‌)", "b");
-            processedName = Regex.Replace(processedName, "([χ])", "ch");
-            processedName = Regex.Replace(processedName, "([ĉц])", "c");
-            processedName = Regex.Replace(processedName, "([ⅾ𝖽]|d‍)", "d");
-            processedName = Regex.Replace(processedName, "([џ])", "dž");
-            processedName = Regex.Replace(processedName, "([еεɛэ])", "e");
-            processedName = Regex.Replace(processedName, "([ĕ])", "ě");
-            processedName = Regex.Replace(processedName, "([ǝ])", "ə");
-            processedName = Regex.Replace(processedName, "([ё])", "ë");
-            processedName = Regex.Replace(processedName, "([έ])", "é");
-            processedName = Regex.Replace(processedName, "([ḟ])", "f");
-            processedName = Regex.Replace(processedName, "([г]|g‍|g‌)", "g");
-            processedName = Regex.Replace(processedName, "([ƣ]|ḡ)", "ğ"); // Untested in the games
+            processedName = Regex.Replace(processedName, "(b‍|b‌)", "b");
+            processedName = Regex.Replace(processedName, "(𝖽|d‍‌)", "d");
+            processedName = Regex.Replace(processedName, "(g‍|g‌)", "g");
+            processedName = Regex.Replace(processedName, "(ḡ)", "ğ"); // Untested in the games
             processedName = Regex.Replace(processedName, "(ڭ)", "ġ");
-            processedName = Regex.Replace(processedName, "([ȝ])", "gh"); // Or g
-            processedName = Regex.Replace(processedName, "([ɣ])", "gh");
-            processedName = Regex.Replace(processedName, "([ḥ])", "h");
-            processedName = Regex.Replace(processedName, "([ю])", "iu");
-            processedName = Regex.Replace(processedName, "([я])", "ia");
-            processedName = Regex.Replace(processedName, "([іιɨ])", "i");
-            processedName = Regex.Replace(processedName, "([ỉ])", "ì");
-            processedName = Regex.Replace(processedName, "([ɩ])", "ı");
-            processedName = Regex.Replace(processedName, "([ǐ])", "ĭ");
-            processedName = Regex.Replace(processedName, "([їϊΐḯ])", "ï");
-            processedName = Regex.Replace(processedName, "([ј]|j‌)", "j");
-            processedName = Regex.Replace(processedName, "([кκ]|k‍)", "k");
-            processedName = Regex.Replace(processedName, "([ќ])", "ḱ");
-            processedName = Regex.Replace(processedName, "([ẖ])", "kh");
-            processedName = Regex.Replace(processedName, "([л]|l‌)", "l");
-            processedName = Regex.Replace(processedName, "([ɬƚ])", "ł");
-            processedName = Regex.Replace(processedName, "([ṁ]|m̄|m̐|m̃)", "m");
+            processedName = Regex.Replace(processedName, "(j‌)", "j");
+            processedName = Regex.Replace(processedName, "(k‍)", "k");
+            processedName = Regex.Replace(processedName, "(l‌)", "l");
+            processedName = Regex.Replace(processedName, "(m̄|m̐|m̃)", "m");
             processedName = Regex.Replace(processedName, "(ǌ)", "nj");
             processedName = Regex.Replace(processedName, "(ⁿ)", "n"); // Superscript n - nasal sound
-            processedName = Regex.Replace(processedName, "([нṉ]|n‌)", "n");
+            processedName = Regex.Replace(processedName, "(n‌)", "n");
             processedName = Regex.Replace(processedName, "(ṉ)", "ņ");
-            processedName = Regex.Replace(processedName, "[ƞ]", "ŋ");
-            processedName = Regex.Replace(processedName, "([оοօɔợ])", "o");
-            processedName = Regex.Replace(processedName, "([ӧ])", "ö");
-            processedName = Regex.Replace(processedName, "([όớ])", "ó");
-            processedName = Regex.Replace(processedName, "([ỏ])", "ò");
-            processedName = Regex.Replace(processedName, "([ỗ])", "ô");
-            processedName = Regex.Replace(processedName, "([ǒ])", "ŏ");
-            processedName = Regex.Replace(processedName, "([ǭ])", "ǫ");
-            processedName = Regex.Replace(processedName, "([рṗɸ]|p‍|п)", "p");
-            processedName = Regex.Replace(processedName, "([ԥ])", "p"); // It's actually ṗ but that doesn't work either
-            processedName = Regex.Replace(processedName, "([ꮢṟ]|r‍|r‌)", "r");
+            processedName = Regex.Replace(processedName, "(p‍|п)", "p");
+            processedName = Regex.Replace(processedName, "(r‍|r‌)", "r");
             processedName = Regex.Replace(processedName, "(r̥̄)", "ŕu");
             processedName = Regex.Replace(processedName, "(r̥)", "ru");
             processedName = Regex.Replace(processedName, "(s‍|s‌)", "s");
-            processedName = Regex.Replace(processedName, "([ṯθ])", "th");
-            processedName = Regex.Replace(processedName, "([т])", "t");
-            processedName = Regex.Replace(processedName, "([‡])", "t"); // Guessed
             processedName = Regex.Replace(processedName, "ṭ‍", "ṭ");
-            processedName = Regex.Replace(processedName, "([ƿỽ])", "uu"); // Or w
-            processedName = Regex.Replace(processedName, "([уʊ])", "u");
-            processedName = Regex.Replace(processedName, "([ǔ])", "ŭ");
-            processedName = Regex.Replace(processedName, "([ǚ])", "ŭ"); // Or ü
-            processedName = Regex.Replace(processedName, "([ύ])", "ú");
-            processedName = Regex.Replace(processedName, "([ǜ])", "ü");
-            processedName = Regex.Replace(processedName, "([ẇ])", "ẃ");
-            processedName = Regex.Replace(processedName, "([γ])", "y");
-            processedName = Regex.Replace(processedName, "([ƶᶻ])", "z");
-            processedName = Regex.Replace(processedName, "[ǯ]", "ž");
-
-            // Characters with apostrophe that needs to be detached
-            processedName = processedName.Replace("ƙ", "k'");
-            processedName = processedName.Replace("Ƙ", "K'");
-            processedName = processedName.Replace("ư", "u'");
-            processedName = processedName.Replace("Ư", "U'");
-            processedName = processedName.Replace("ứ", "ú'");
-            processedName = processedName.Replace("Ứ", "Ú'");
-            processedName = processedName.Replace("ừ", "ù'");
-            processedName = processedName.Replace("Ừ", "Ù'");
-            processedName = processedName.Replace("ử", "ủ'");
-            processedName = processedName.Replace("Ử", "Ủ'");
-
-            // Secondary accent diacritic
-            processedName = processedName.Replace('Ấ', 'Â');
-            processedName = processedName.Replace('Ḗ', 'Ē');
-            processedName = processedName.Replace('Ế', 'Ê');
-            processedName = processedName.Replace('Ṓ', 'Ō');
-            processedName = processedName.Replace('Ố', 'Ô');
-            processedName = processedName.Replace('ấ', 'â');
-            processedName = processedName.Replace('ḗ', 'ē');
-            processedName = processedName.Replace('ế', 'ê');
-            processedName = processedName.Replace('ṓ', 'ō');
-            processedName = processedName.Replace('ố', 'ô');
-
-            // Secondary grave accent diacritic
-            processedName = processedName.Replace('Ầ', 'Â');
-            processedName = processedName.Replace('Ề', 'Ê');
-            processedName = processedName.Replace('Ồ', 'Ô');
-            processedName = processedName.Replace('ầ', 'â');
-            processedName = processedName.Replace('ề', 'ê');
-            processedName = processedName.Replace('ồ', 'ô');
-
-            // Secondary hook diacritic
-            processedName = processedName.Replace('Ể', 'Ê');
-            processedName = processedName.Replace('Ổ', 'Ô');
-            processedName = processedName.Replace('ể', 'ê');
-            processedName = processedName.Replace('ổ', 'ô');
 
             // Floating vertical lines
             processedName = processedName.Replace("a̍", "ȧ");
