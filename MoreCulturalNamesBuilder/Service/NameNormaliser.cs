@@ -833,118 +833,127 @@ namespace MoreCulturalNamesBuilder.Service
 
             processedName = ReplaceUsingMap(processedName, CommonCharacterMappings);
 
+            processedName = processedName
+                .Replace("D‍", "D")
+                .Replace("G‍", "G")
+                .Replace("H̱", "Kh")
+                .Replace("Ϊ́", "Ï")
+                .Replace("K‍", "K")
+                .Replace("L‌", "L")
+                .Replace("N‌", "N")
+                .Replace("Ṉ", "Ņ")
+                .Replace("R̥̄", "Ŕu")
+                .Replace("R̥", "Ru")
+                .Replace("Ṭ‍", "Ṭ");
+
             processedName = Regex.Replace(processedName, "(𝖠|A‍)", "A");
             processedName = Regex.Replace(processedName, "( ᐋ)", " Â");
             processedName = Regex.Replace(processedName, "(B‍|B‌|پ)", "B");
-            processedName = Regex.Replace(processedName, "(D‍)", "D");
-            processedName = Regex.Replace(processedName, "(G‍)", "G");
-            processedName = Regex.Replace(processedName, "(Ϊ́)", "Ï");
-            processedName = Regex.Replace(processedName, "(K‍)", "K");
-            processedName = Regex.Replace(processedName, "H̱", "Kh");
-            processedName = Regex.Replace(processedName, "(L‌)", "L");
             processedName = Regex.Replace(processedName, "(M̄|M̐)", "M");
-            processedName = Regex.Replace(processedName, "(N‌)", "N");
-            processedName = Regex.Replace(processedName, "(Ṉ)", "Ņ");
             processedName = Regex.Replace(processedName, "(P‍|П)", "P");
             processedName = Regex.Replace(processedName, "(R‍|R‌)", "R");
-            processedName = Regex.Replace(processedName, "(R̥̄)", "Ŕu");
-            processedName = Regex.Replace(processedName, "(R̥)", "Ru");
             processedName = Regex.Replace(processedName, "(S‍|S‌)", "S");
-            processedName = Regex.Replace(processedName, "Ṭ‍", "Ṭ");
+
+            processedName = processedName
+                .Replace("ḡ", "ğ") // Untested in the games
+                .Replace("ڭ", "ġ")
+                .Replace("j‌", "j")
+                .Replace("k‍", "k")
+                .Replace("l‌", "l")
+                .Replace("ǌ", "nj")
+                .Replace("ⁿ", "n") // Superscript n - nasal sound
+                .Replace("n‌", "n")
+                .Replace("ṉ", "ņ")
+                .Replace("r̥̄", "ŕu")
+                .Replace("r̥", "ru")
+                .Replace("ṭ‍", "ṭ");
 
             processedName = Regex.Replace(processedName, "(𝖺|a‍)", "a");
             processedName = Regex.Replace(processedName, "([^ ])ᐋ", "$1â");
             processedName = Regex.Replace(processedName, "(b‍|b‌)", "b");
             processedName = Regex.Replace(processedName, "(𝖽|d‍‌)", "d");
             processedName = Regex.Replace(processedName, "(g‍|g‌)", "g");
-            processedName = Regex.Replace(processedName, "(ḡ)", "ğ"); // Untested in the games
-            processedName = Regex.Replace(processedName, "(ڭ)", "ġ");
-            processedName = Regex.Replace(processedName, "(j‌)", "j");
-            processedName = Regex.Replace(processedName, "(k‍)", "k");
-            processedName = Regex.Replace(processedName, "(l‌)", "l");
             processedName = Regex.Replace(processedName, "(m̄|m̐|m̃)", "m");
-            processedName = Regex.Replace(processedName, "(ǌ)", "nj");
-            processedName = Regex.Replace(processedName, "(ⁿ)", "n"); // Superscript n - nasal sound
-            processedName = Regex.Replace(processedName, "(n‌)", "n");
-            processedName = Regex.Replace(processedName, "(ṉ)", "ņ");
             processedName = Regex.Replace(processedName, "(p‍|п)", "p");
             processedName = Regex.Replace(processedName, "(r‍|r‌)", "r");
-            processedName = Regex.Replace(processedName, "(r̥̄)", "ŕu");
-            processedName = Regex.Replace(processedName, "(r̥)", "ru");
             processedName = Regex.Replace(processedName, "(s‍|s‌)", "s");
-            processedName = Regex.Replace(processedName, "ṭ‍", "ṭ");
 
             // Floating vertical lines
-            processedName = processedName.Replace("a̍", "ȧ");
-            processedName = processedName.Replace("e̍", "ė");
-            processedName = processedName.Replace("i̍", "i");
-            processedName = processedName.Replace("o̍", "ȯ");
-            processedName = processedName.Replace("u̍", "ú");
+            processedName = processedName
+                .Replace("a̍", "ȧ")
+                .Replace("e̍", "ė")
+                .Replace("i̍", "i")
+                .Replace("o̍", "ȯ")
+                .Replace("u̍", "ú");
 
             // Floating accents
-            processedName = processedName.Replace("á", "á");
-            processedName = processedName.Replace("ć", "ć");
-            processedName = processedName.Replace("é", "é");
-            processedName = processedName.Replace("ǵ", "ǵ");
-            processedName = processedName.Replace("í", "í");
-            processedName = processedName.Replace("ḿ", "ḿ");
-            processedName = processedName.Replace("ń", "ń");
-            processedName = processedName.Replace("ṕ", "ṕ");
-            processedName = processedName.Replace("ŕ", "ŕ");
-            processedName = processedName.Replace("ś", "ś");
-            processedName = processedName.Replace("ú", "ú");
-            processedName = processedName.Replace("ý", "ý");
-            processedName = processedName.Replace("ź", "ź");
+            processedName = processedName
+                .Replace("á", "á")
+                .Replace("ć", "ć")
+                .Replace("é", "é")
+                .Replace("ǵ", "ǵ")
+                .Replace("í", "í")
+                .Replace("ḿ", "ḿ")
+                .Replace("ń", "ń")
+                .Replace("ṕ", "ṕ")
+                .Replace("ŕ", "ŕ")
+                .Replace("ś", "ś")
+                .Replace("ú", "ú")
+                .Replace("ý", "ý")
+                .Replace("ź", "ź");
 
             // Floating grave accents
-            processedName = processedName.Replace("ì", "ì");
-            processedName = processedName.Replace("ǹ", "ǹ");
-            processedName = processedName.Replace("ò", "ò");
-            processedName = processedName.Replace("ù", "ù");
-            processedName = processedName.Replace("ỳ", "ỳ");
+            processedName = processedName
+                .Replace("ì", "ì")
+                .Replace("ǹ", "ǹ")
+                .Replace("ò", "ò")
+                .Replace("ù", "ù")
+                .Replace("ỳ", "ỳ");
 
             // Floating umlauts
-            processedName = processedName.Replace("T̈", "T̈");
-            processedName = processedName.Replace("ä", "ä");
-            processedName = processedName.Replace("ā̈", "ǟ");
-            processedName = processedName.Replace("ą̈", "ą̈");
-            processedName = processedName.Replace("b̈", "b̈");
-            processedName = processedName.Replace("c̈", "c̈");
-            processedName = processedName.Replace("ë", "ë");
-            processedName = processedName.Replace("ɛ̈̈", "ë");
-            processedName = processedName.Replace("ḧ", "ḧ");
-            processedName = processedName.Replace("ï", "ï");
-            processedName = processedName.Replace("j̈", "j̈");
-            processedName = processedName.Replace("k̈", "k̈");
-            processedName = processedName.Replace("l̈", "l̈");
-            processedName = processedName.Replace("m̈", "m̈");
-            processedName = processedName.Replace("n̈", "n̈");
-            processedName = processedName.Replace("ö", "ö");
-            processedName = processedName.Replace("ō̈", "ȫ");
-            processedName = processedName.Replace("ǫ̈", "ǫ̈");
-            processedName = processedName.Replace("ɔ̈̈", "ö");
-            processedName = processedName.Replace("p̈", "p̈");
-            processedName = processedName.Replace("q̈", "q̈");
-            processedName = processedName.Replace("q̣̈", "q̣̈");
-            processedName = processedName.Replace("r̈", "r̈");
-            processedName = processedName.Replace("s̈", "s̈");
-            processedName = processedName.Replace("ẗ", "t"); // Because ẗ is a
-            processedName = processedName.Replace("ü", "ü");
-            processedName = processedName.Replace("v̈", "v̈");
-            processedName = processedName.Replace("ẅ", "ẅ");
-            processedName = processedName.Replace("ẍ", "ẍ");
-            processedName = processedName.Replace("ÿ", "ÿ");
-            processedName = processedName.Replace("z̈", "z̈");
+            processedName = processedName
+                .Replace("T̈", "T̈")
+                .Replace("ä", "ä")
+                .Replace("ā̈", "ǟ")
+                .Replace("ą̈", "ą̈")
+                .Replace("b̈", "b̈")
+                .Replace("c̈", "c̈")
+                .Replace("ë", "ë")
+                .Replace("ɛ̈̈", "ë")
+                .Replace("ḧ", "ḧ")
+                .Replace("ï", "ï")
+                .Replace("j̈", "j̈")
+                .Replace("k̈", "k̈")
+                .Replace("l̈", "l̈")
+                .Replace("m̈", "m̈")
+                .Replace("n̈", "n̈")
+                .Replace("ö", "ö")
+                .Replace("ō̈", "ȫ")
+                .Replace("ǫ̈", "ǫ̈")
+                .Replace("ɔ̈̈", "ö")
+                .Replace("p̈", "p̈")
+                .Replace("q̈", "q̈")
+                .Replace("q̣̈", "q̣̈")
+                .Replace("r̈", "r̈")
+                .Replace("s̈", "s̈")
+                .Replace("ẗ", "t") // Because ẗ is a
+                .Replace("ü", "ü")
+                .Replace("v̈", "v̈")
+                .Replace("ẅ", "ẅ")
+                .Replace("ẍ", "ẍ")
+                .Replace("ÿ", "ÿ")
+                .Replace("z̈", "z̈");
 
             // Floating tildas
-            processedName = processedName.Replace("ã", "ã");
-            processedName = processedName.Replace("ẽ", "ẽ");
-            processedName = processedName.Replace("ĩ", "ĩ");
-            processedName = processedName.Replace("ñ", "ñ");
-            processedName = processedName.Replace("õ", "õ");
-            processedName = processedName.Replace("ũ", "ũ");
-            processedName = processedName.Replace("ṽ", "ṽ");
-            processedName = processedName.Replace("ỹ", "ỹ");
+            processedName = processedName
+                .Replace("ã", "ã")
+                .Replace("ẽ", "ẽ")
+                .Replace("ĩ", "ĩ")
+                .Replace("ñ", "ñ")
+                .Replace("õ", "õ")
+                .Replace("ũ", "ũ")
+                .Replace("ṽ", "ṽ")
+                .Replace("ỹ", "ỹ");
 
             // Floating carets
             processedName = processedName.Replace("ṳ̂", "û");
