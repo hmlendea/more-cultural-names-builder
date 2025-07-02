@@ -79,10 +79,9 @@ namespace MoreCulturalNamesBuilder.Service
             { 'ć', "c" }, { 'ċ', "c" },
             { 'č', "ch" },
             { 'đ', "dž" },
-            { 'ḏ', "d" }, { 'ɗ', "d" }, { 'ɖ', "d" }, { 'ḑ', "d" }, { 'ď', "d" }, { 'ď', "d" }, { 'ḍ', "d" },
+            { 'ḏ', "d" }, { 'ɗ', "d" }, { 'ɖ', "d" }, { 'ḑ', "d" }, { 'ď', "d" }, { 'ḍ', "d" },
             { 'ē', "ë" }, { 'ẽ', "ë" },
             { 'ė', "é" },
-            { 'ẻ', "è" },
             { 'ệ', "ê" }, { 'ě', "ê" },
             { 'ę', "e" }, { 'ẹ', "e" },
             { 'ğ', "g" }, { 'ĝ', "g" }, { 'ģ', "g" }, { 'ǵ', "g" },
@@ -615,6 +614,8 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = ApplyCommonReplacements(processedName);
 
             // Crusader Kings II
+            processedName = Regex.Replace(processedName, "ā[ẗ]", "āh");
+
             processedName = ReplaceUsingMap(processedName, CK2CharacterMappings);
 
             processedName = Regex.Replace(processedName, "[Ġ]([^h])", "Gh$1");
@@ -622,7 +623,6 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = Regex.Replace(processedName, "J̌", "J");
             processedName = Regex.Replace(processedName, "Ŏ̤", "Õ"); // Maybe replace with "Eo"
             processedName = Regex.Replace(processedName, "T̈", "T");
-            processedName = Regex.Replace(processedName, "ā[ẗ]", "āh");
             processedName = Regex.Replace(processedName, "[a]*[ẗ]", "ah");
             processedName = Regex.Replace(processedName, "[ġ]([^h])", "gh$1");
             processedName = Regex.Replace(processedName, "[ġ](h)", "gh");
