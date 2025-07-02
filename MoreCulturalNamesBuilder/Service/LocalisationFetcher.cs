@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Mapping;
@@ -16,7 +15,7 @@ namespace MoreCulturalNamesBuilder.Service
         readonly IFileRepository<LanguageEntity> languageRepository;
         readonly IFileRepository<LocationEntity> locationRepository;
 
-        readonly Dictionary<string, Dictionary<string, string>> languageGameIdsCache;
+        readonly ConcurrentDictionary<string, Dictionary<string, string>> languageGameIdsCache;
 
         Dictionary<string, Location> locations;
         Dictionary<string, Language> languages;
@@ -100,9 +99,7 @@ namespace MoreCulturalNamesBuilder.Service
                 return localisations;
             }
 
-            Dictionary<string, string> languageGameIds = GetLanguageGameIds(game);
-
-            foreach (var languageGameId in languageGameIds)
+            foreach (var languageGameId in GetLanguageGameIds(game))
             {
                 Localisation localisation = GetLocationLocalisation(location, languageGameId.Value);
 
