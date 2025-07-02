@@ -683,9 +683,9 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = ReplaceUsingMap(processedName, CK3CharacterMappings);
 
             // Crusader Kings III
-            processedName = Regex.Replace(processedName, "J̌", "Ĵ");
-            processedName = Regex.Replace(processedName, "T̈", "T");
-            processedName = Regex.Replace(processedName, "ā[ẗ]", "āh");
+            processedName = processedName.Replace("J̌", "Ĵ");
+            processedName = processedName.Replace("T̈", "T");
+            processedName = processedName.Replace("āẗ", "āh");
             processedName = Regex.Replace(processedName, "[a]*[ẗ]", "ah");
 
             ck3cache.TryAdd(name, processedName);
@@ -708,7 +708,7 @@ namespace MoreCulturalNamesBuilder.Service
             string processedName = ApplyCommonReplacements(name);
 
             // Hearts of Iron IV Cities
-            processedName = Regex.Replace(processedName, "ā[ẗ]", "āh");
+            processedName = processedName.Replace("āẗ", "āh");
             processedName = Regex.Replace(processedName, "[a]*[ẗ]", "ah");
 
             processedName = ReplaceUsingMap(processedName, Hoi4CityCharacterMappings);
@@ -732,16 +732,14 @@ namespace MoreCulturalNamesBuilder.Service
                 return value;
             }
 
-            string processedName = name;
+            string processedName = name
+                .Replace("Ġh", "Gh")
+                .Replace("ġh", "gh")
+                .Replace("iīẗ", "iyyah")
+                .Replace("īẗ", "iyah");
 
-            processedName = Regex.Replace(processedName, "iīẗ", "iyyah");
-            processedName = Regex.Replace(processedName, "īẗ", "iyah");
-
-            // Hearts of Iron IV
             processedName = Regex.Replace(processedName, "[Ġ]([^h])", "Gh$1");
-            processedName = Regex.Replace(processedName, "[Ġ](h)", "Gh");
             processedName = Regex.Replace(processedName, "[ġ]([^h])", "gh$1");
-            processedName = Regex.Replace(processedName, "[ġ](h)", "gh");
 
             processedName = ReplaceUsingMap(processedName, Hoi4StateCharacterMappings);
             processedName = ToHOI4CityCharset(processedName);
@@ -806,17 +804,17 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = ApplyCommonReplacements(processedName);
 
             // Crusader Kings II
-            processedName = Regex.Replace(processedName, "ā[ẗ]", "āh");
+            processedName = processedName.Replace("āẗ", "āh");
 
             processedName = ReplaceUsingMap(processedName, CK2CharacterMappings);
 
             processedName = Regex.Replace(processedName, "[Ġ]([^h])", "Gh$1");
-            processedName = Regex.Replace(processedName, "[Ġ](h)", "Gh");
             processedName = Regex.Replace(processedName, "[a]*[ẗ]", "ah");
             processedName = Regex.Replace(processedName, "[ġ]([^h])", "gh$1");
-            processedName = Regex.Replace(processedName, "[ġ](h)", "gh");
 
             processedName = processedName
+                .Replace("Ġh", "Gh")
+                .Replace("ġh", "gh")
                 .Replace("J̌", "J")
                 .Replace("Ŏ̤", "Õ") // Maybe replace with "Eo"
                 .Replace("T̈", "T")
