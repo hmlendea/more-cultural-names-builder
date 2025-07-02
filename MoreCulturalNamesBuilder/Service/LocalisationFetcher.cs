@@ -16,10 +16,10 @@ namespace MoreCulturalNamesBuilder.Service
         readonly IFileRepository<LanguageEntity> languageRepository;
         readonly IFileRepository<LocationEntity> locationRepository;
 
-        readonly ConcurrentDictionary<string, IDictionary<string, string>> languageGameIdsCache;
+        readonly Dictionary<string, Dictionary<string, string>> languageGameIdsCache;
 
-        IDictionary<string, Location> locations;
-        IDictionary<string, Language> languages;
+        Dictionary<string, Location> locations;
+        Dictionary<string, Language> languages;
 
         readonly Dictionary<(string Game, string Id), Location> locationGameIdIndex;
         readonly Dictionary<(string Game, string GameLanguageId), string> gameLanguageIdToLanguageId;
@@ -31,9 +31,9 @@ namespace MoreCulturalNamesBuilder.Service
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;
 
-            languageGameIdsCache = new();
+            languageGameIdsCache = [];
             locationGameIdIndex = [];
-            gameLanguageIdToLanguageId = new Dictionary<(string, string), string>();
+            gameLanguageIdToLanguageId = [];
 
             LoadData();
         }
@@ -43,12 +43,12 @@ namespace MoreCulturalNamesBuilder.Service
             locations = locationRepository
                 .GetAll()
                 .ToServiceModels()
-                .ToDictionary(key => key.Id, val => val);
+                .ToDictionary(location => location.Id, location => location);
 
             languages = languageRepository
                 .GetAll()
                 .ToServiceModels()
-                .ToDictionary(key => key.Id, val => val);
+                .ToDictionary(language => language.Id, language => language);
 
             locationGameIdIndex.Clear();
             gameLanguageIdToLanguageId.Clear();
@@ -80,7 +80,7 @@ namespace MoreCulturalNamesBuilder.Service
             string locationGameIdType,
             string game)
         {
-            ConcurrentBag<Localisation> localisations = [];
+            List<Localisation> localisations = [];
             Location location;
 
             if (string.IsNullOrWhiteSpace(locationGameIdType))
@@ -100,22 +100,22 @@ namespace MoreCulturalNamesBuilder.Service
                 return localisations;
             }
 
-            IDictionary<string, string> languageGameIds = GetLanguageGameIds(game);
+            Dictionary<string, string> languageGameIds = GetLanguageGameIds(game);
 
-            Parallel.ForEach(languageGameIds, languageGameId =>
+            foreach (var languageGameId in languageGameIds)
             {
                 Localisation localisation = GetLocationLocalisation(location, languageGameId.Value);
 
                 if (localisation is null)
                 {
-                    return;
+                    continue;
                 }
 
                 localisation.GameId = locationGameId;
                 localisation.LanguageGameId = languageGameId.Key;
 
                 localisations.Add(localisation);
-            });
+            };
 
             return localisations;
         }
@@ -160,14 +160,14 @@ namespace MoreCulturalNamesBuilder.Service
             return null;
         }
 
-        IDictionary<string, string> GetLanguageGameIds(string game)
+        Dictionary<string, string> GetLanguageGameIds(string game)
         {
-            if (languageGameIdsCache.TryGetValue(game, out IDictionary<string, string> value))
+            if (languageGameIdsCache.TryGetValue(game, out Dictionary<string, string> value))
             {
                 return value;
             }
 
-            IDictionary<string, string> languageGameIds = gameLanguageIdToLanguageId
+            Dictionary<string, string> languageGameIds = gameLanguageIdToLanguageId
                 .Where(kvp => kvp.Key.Game.Equals(game))
                 .ToDictionary(
                     kvp => kvp.Key.GameLanguageId,
