@@ -2,16 +2,16 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using NuciText.Conversion;
 
 namespace MoreCulturalNamesBuilder.Service
 {
-    public sealed class NameNormaliser : INameNormaliser
+    public sealed class NameNormaliser(INuciTextConverter textConverter) : INameNormaliser
     {
-        readonly ConcurrentDictionary<string, string> windows1252cache;
-        readonly ConcurrentDictionary<string, string> ck3cache;
-        readonly ConcurrentDictionary<string, string> hoi4citiesCache;
-        readonly ConcurrentDictionary<string, string> hoi4statesCache;
-        readonly ConcurrentDictionary<string, string> irCache;
+        readonly ConcurrentDictionary<string, string> ck3cache = new();
+        readonly ConcurrentDictionary<string, string> hoi4citiesCache = new();
+        readonly ConcurrentDictionary<string, string> hoi4statesCache = new();
+        readonly ConcurrentDictionary<string, string> irCache = new();
 
         readonly Dictionary<char, string> CommonCharacterMappings = new()
         {
@@ -181,117 +181,6 @@ namespace MoreCulturalNamesBuilder.Service
             { 'Ổ', "Ô" },
             { 'ể', "ê" },
             { 'ổ', "ô" },
-        };
-
-        readonly Dictionary<char, string> CK2CharacterMappings = new()
-        {
-            { 'Ǣ', "Æ" },
-            { 'Ạ', "A" }, { 'Ə', "A" },
-            { 'Ả', "À" },
-            { 'Ậ', "Â" },
-            { 'Ă', "Ã" }, { 'Ā', "Ã" },
-            { 'Ǟ', "Ä" },
-            { 'Ḃ', "B" }, { 'Ḅ', "B" },
-            { 'Ć', "C" }, { 'Ċ', "C" },
-            { 'Č', "Ch" },
-            { 'Ḏ', "D" }, { 'Ɗ', "D" }, { 'Ḑ', "D" }, { 'Ď', "D" }, { 'Ḍ', "D" },
-            { 'Đ', "Ð" }, { 'Ɖ', "Ð" },
-            { 'Ē', "Ë" }, { 'Ẹ', "Ë" }, { 'Ẽ', "Ë" },
-            { 'Ė', "É" },
-            { 'Ẻ', "È" },
-            { 'Ệ', "È" }, { 'Ě', "È" },
-            { 'Ę', "E" }, { 'Ǝ', "E" },
-            { 'Ĕ', "Ê" },
-            { 'Ğ', "G" }, { 'Ĝ', "G" }, { 'Ģ', "G" }, { 'Ǵ', "G" },
-            { 'Ĥ', "H" }, { 'Ȟ', "H" }, { 'Ḧ', "H" }, { 'Ḩ', "H" }, { 'Ħ', "H" },
-            { 'İ', "I" }, { 'Į', "I" }, { 'Ị', "I" },
-            { 'Ĭ', "Ï" }, { 'Ī', "Ï" }, { 'Ĩ', "Ï" },
-            { 'Ĵ', "J" }, { 'Ǧ', "J" },
-            { 'Ḫ', "Kh" },
-            { 'Ḱ', "K" }, { 'Ḳ', "K" }, { 'Ķ', "K" }, { 'Ḵ', "K" }, { 'Ǩ', "K" },
-            { 'Ĺ', "L" }, { 'Ł', "L" }, { 'Ľ', "L" }, { 'Ḷ', "L" }, { 'Ļ', "L" },
-            { 'Ṃ', "M" }, { 'Ḿ', "M" },
-            { 'Ň', "Ñ" },
-            { 'Ǹ', "En" },
-            { 'Ń', "N" }, { 'Ņ', "N" }, { 'Ṅ', "N" }, { 'Ṇ', "N" }, { 'Ŋ', "N" }, { 'Ɲ', "N" },
-            { 'Ơ', "O" }, { 'Ọ', "O" },
-            { 'Ȯ', "Ó" },
-            { 'Ờ', "Ò" },
-            { 'Ỡ', "Õ" }, { 'Ō', "Õ" }, { 'Ȫ', "Õ" },
-            { 'Ŏ', "Õ" }, // Maybe replace with "Eo"
-            { 'Ő', "Ö" }, { 'Ǫ', "Ö" },
-            { 'Ǿ', "Ø" },
-            { 'Ộ', "Ô" },
-            { 'Ṕ', "P" },
-            { 'Ř', "Rz" },
-            { 'Ŕ', "R" }, { 'Ṙ', "R" }, { 'Ṛ', "R" }, { 'Ŗ', "R" },
-            { 'Ś', "S" }, { 'Ŝ', "S" }, { 'Ş', "S" }, { 'Ș', "S" }, { 'Ṣ', "S" }, { 'Ṡ', "S" },
-            { 'Ť', "Ty" },
-            { 'Ț', "T" }, { 'Ţ', "T" }, { 'Ṭ', "T" }, { 'Ŧ', "T" },
-            { 'Ů', "U" }, { 'Ų', "U" }, { 'Ụ', "U" },
-            { 'Ũ', "Ü" }, { 'Ū', "Ü" }, { 'Ŭ', "Ü" }, { 'Ű', "Ü" }, { 'Ṳ', "Ü" },
-            { 'Ủ', "Ù" },
-            { 'Ṿ', "V" },
-            { 'Ẃ', "W" }, { 'Ẅ', "W" }, { 'Ŵ', "W" },
-            { 'Ẍ', "X" },
-            { 'Ŷ', "Y" },
-            { 'Ȳ', "Ÿ" },
-            { 'Ỳ', "Ý" }, { 'Ẏ', "Ý" },
-            { 'Ź', "Z" }, { 'Ẓ', "Z" },
-            { 'Ż', "Ž" },
-            { 'ǣ', "æ" },
-            { 'ạ', "a" }, { 'ə', "a" }, { 'ą', "a" },
-            { 'ả', "à" },
-            { 'ậ', "â" },
-            { 'ă', "ã" }, { 'ā', "ã" },
-            { 'ǟ', "ä" },
-            { 'ḃ', "b" }, { 'ḅ', "b" },
-            { 'ć', "c" }, { 'ċ', "c" },
-            { 'č', "ch" },
-            { 'đ', "dž" },
-            { 'ḏ', "d" }, { 'ɗ', "d" }, { 'ɖ', "d" }, { 'ḑ', "d" }, { 'ď', "d" }, { 'ḍ', "d" },
-            { 'ē', "ë" }, { 'ẽ', "ë" },
-            { 'ė', "é" },
-            { 'ệ', "ê" }, { 'ě', "ê" },
-            { 'ę', "e" }, { 'ẹ', "e" },
-            { 'ğ', "g" }, { 'ĝ', "g" }, { 'ģ', "g" }, { 'ǵ', "g" },
-            { 'ẻ', "è" },
-            { 'ĥ', "h" }, { 'ȟ', "h" }, { 'ḧ', "h" }, { 'ḩ', "h" }, { 'ħ', "h" },
-            { 'ı', "i" }, { 'į', "i" }, { 'ị', "i" },
-            { 'ĭ', "ï" }, { 'ī', "ï" }, { 'ĩ', "ï" },
-            { 'ĵ', "j" }, { 'ǰ', "j" }, { 'ǧ', "j" },
-            { 'ḫ', "kh" },
-            { 'ḱ', "k" }, { 'ḳ', "k" }, { 'ķ', "k" }, { 'ḵ', "k" }, { 'ǩ', "k" },
-            { 'ĺ', "l" }, { 'ł', "l" }, { 'ľ', "l" }, { 'ḷ', "l" }, { 'ļ', "l" },
-            { 'ṃ', "m" }, { 'ḿ', "m" },
-            { 'ň', "ñ" },
-            { 'ǹ', "en" },
-            { 'ń', "n" }, { 'ņ', "n" }, { 'ṅ', "n" }, { 'ṇ', "n" }, { 'ŋ', "n" }, { 'ɲ', "n" },
-            { 'ơ', "o" }, { 'ọ', "o" },
-            { 'ȯ', "ó" },
-            { 'ờ', "ò" },
-            { 'ỡ', "õ" }, { 'ō', "õ" }, { 'ȫ', "õ" },
-            { 'ŏ', "õ" }, // Maybe replace with "eo"
-            { 'ő', "ö" }, { 'ǫ', "ö" },
-            { 'ǿ', "ø" },
-            { 'ộ', "ô" },
-            { 'ṕ', "p" },
-            { 'ř', "rz" },
-            { 'ŕ', "r" }, { 'ṙ', "r" }, { 'ṛ', "r" }, { 'ŗ', "r" },
-            { 'ś', "s" }, { 'ŝ', "s" }, { 'ş', "s" }, { 'ș', "s" }, { 'ṣ', "s" }, { 'ṡ', "s" },
-            { 'ť', "ty" },
-            { 'ț', "t" }, { 'ţ', "t" }, { 'ṭ', "t" }, { 'ŧ', "t" },
-            { 'ů', "u" }, { 'ų', "u" }, { 'ụ', "u" },
-            { 'ũ', "ü" }, { 'ū', "ü" }, { 'ŭ', "ü" }, { 'ű', "ü" }, { 'ṳ', "ü" },
-            { 'ủ', "ù" },
-            { 'ṿ', "v" },
-            { 'ẅ', "w" }, { 'ŵ', "w" },
-            { 'ẍ', "x" },
-            { 'ŷ', "y" },
-            { 'ȳ', "ÿ" },
-            { 'ỳ', "ý" }, { 'ẏ', "ý" },
-            { 'ź', "z" }, { 'ẓ', "z" }, { 'ʐ', "z" },
-            { 'ż', "ž" },
         };
 
         readonly Dictionary<char, string> CK3CharacterMappings = new()
@@ -658,15 +547,6 @@ namespace MoreCulturalNamesBuilder.Service
             { 'ž', "zh" }
         };
 
-        public NameNormaliser()
-        {
-            windows1252cache = new ConcurrentDictionary<string, string>();
-            ck3cache = new ConcurrentDictionary<string, string>();
-            hoi4citiesCache = new ConcurrentDictionary<string, string>();
-            hoi4statesCache = new ConcurrentDictionary<string, string>();
-            irCache = new ConcurrentDictionary<string, string>();
-        }
-
         public string ToCK3Charset(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -786,44 +666,7 @@ namespace MoreCulturalNamesBuilder.Service
         }
 
         public string ToWindows1252(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return string.Empty;
-            }
-
-            if (windows1252cache.TryGetValue(name, out string value))
-            {
-                return value;
-            }
-
-            string processedName = name
-                .Replace("iīẗ", "iyyah")
-                .Replace("īẗ", "iyah");
-
-            processedName = ApplyCommonReplacements(processedName);
-
-            // Crusader Kings II
-            processedName = processedName.Replace("āẗ", "āh");
-
-            processedName = ReplaceUsingMap(processedName, CK2CharacterMappings);
-
-            processedName = Regex.Replace(processedName, "[Ġ]([^h])", "Gh$1");
-            processedName = Regex.Replace(processedName, "[a]*[ẗ]", "ah");
-            processedName = Regex.Replace(processedName, "[ġ]([^h])", "gh$1");
-
-            processedName = processedName
-                .Replace("Ġh", "Gh")
-                .Replace("ġh", "gh")
-                .Replace("J̌", "J")
-                .Replace("Ŏ̤", "Õ") // Maybe replace with "Eo"
-                .Replace("T̈", "T")
-                .Replace("ŏ̤", "õ"); // Maybe replace with "eo"
-
-            windows1252cache.TryAdd(name, processedName);
-
-            return processedName;
-        }
+            => textConverter.ToWindows1252(name);
 
         private string ApplyCommonReplacements(string name)
         {

@@ -14,6 +14,7 @@
     <PackageReference Include="NuciCLI" Version="2.0.1" />
     <PackageReference Include="NuciDAL" Version="2.3.3" />
     <PackageReference Include="NuciExtensions" Version="5.2.0" />
+    <PackageReference Include="NuciText.Conversion" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
