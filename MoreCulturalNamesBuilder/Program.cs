@@ -8,6 +8,7 @@ using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service;
 using MoreCulturalNamesBuilder.Service.ModBuilders;
+using NuciText.Conversion;
 
 namespace MoreCulturalNamesBuilder
 {
@@ -40,6 +41,7 @@ namespace MoreCulturalNamesBuilder
                 .AddSingleton<IFileRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(settings.Input.LocationStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
+                .AddSingleton<INuciTextConverter, NuciTextConverter>()
                 .AddSingleton<IModBuilderFactory, ModBuilderFactory>();
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
