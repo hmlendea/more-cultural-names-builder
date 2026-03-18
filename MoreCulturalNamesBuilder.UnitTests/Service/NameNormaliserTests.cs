@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 
 using MoreCulturalNamesBuilder.Service;
+using NuciText.Conversion;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service
 {
@@ -17,7 +18,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         private NameNormaliser nameNormaliser;
 
         [SetUp]
-        public void SetUp() => nameNormaliser = new();
+        public void SetUp() => nameNormaliser = new(new NuciTextConverter());
 
         // Crusader Kings 3
         [Test]
