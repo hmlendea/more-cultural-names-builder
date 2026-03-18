@@ -34,17 +34,14 @@ namespace MoreCulturalNamesBuilder
         }
 
         static void BuildServiceProvider()
-        {
-            IServiceCollection serviceCollection = new ServiceCollection()
+            => ServiceProvider = new ServiceCollection()
                 .AddSingleton(settings)
                 .AddSingleton<IFileRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(settings.Input.LanguageStorePath))
                 .AddSingleton<IFileRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(settings.Input.LocationStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<INuciTextConverter, NuciTextConverter>()
-                .AddSingleton<IModBuilderFactory, ModBuilderFactory>();
-
-            ServiceProvider = serviceCollection.BuildServiceProvider();
-        }
+                .AddSingleton<IModBuilderFactory, ModBuilderFactory>()
+                .BuildServiceProvider();
     }
 }
