@@ -1,31 +1,19 @@
-using NuciCLI;
+using NuciCLI.Arguments;
 
 namespace MoreCulturalNamesBuilder.Configuration
 {
-    public sealed class ModSettings(string[] args)
+    public sealed class ModSettings(ArgumentsCollection args)
     {
-        static readonly string[] IdOptions = ["--id"];
+        public string Id { get; } = args.Get<string>("id");
 
-        static readonly string[] NameOptions = ["-n", "--name"];
+        public string Name { get; } = args.Get<string>("name");
 
-        static readonly string[] VersionOptions = ["-v", "--ver", "--version"];
+        public string Version { get; set; } = args.Get<string>("version");
 
-        static readonly string[] DependencyOptions = ["--dep", "--dependency"];
+        public string Dependency { get; set; } = (string)args["dependency"];
 
-        static readonly string[] GameOptions = ["-g", "--game"];
+        public string Game { get; } = args.Get<string>("game");
 
-        static readonly string[] GameVersionOptions = ["--game-ver", "--game-version"];
-
-        public string Id { get; } = CliArgumentsReader.GetOptionValue(args, IdOptions);
-
-        public string Name { get; } = CliArgumentsReader.GetOptionValue(args, NameOptions);
-
-        public string Version { get; set; } = CliArgumentsReader.GetOptionValue(args, VersionOptions);
-
-        public string Dependency { get; set; } = CliArgumentsReader.TryGetOptionValue(args, DependencyOptions);
-
-        public string Game { get; } = CliArgumentsReader.GetOptionValue(args, GameOptions);
-
-        public string GameVersion { get; } = CliArgumentsReader.GetOptionValue(args, GameVersionOptions);
+        public string GameVersion { get; } = args.Get<string>("game-version");
     }
 }
