@@ -23,7 +23,7 @@ A CLI tool that generates game mods which localise place names into different la
 ## Usage
 
 ```
-MoreCulturalNamesBuilder \
+./MoreCulturalNamesBuilder \
   --lang <path>          \
   --loc <path>           \
   --output <path>        \
@@ -58,7 +58,7 @@ MoreCulturalNamesBuilder \
 ### Example
 
 ```bash
-dotnet run -- \
+./MoreCulturalNamesBuilder \
   --lang /data/languages.xml \
   --loc /data/locations.xml \
   --output /mods/more-cultural-names \
@@ -66,7 +66,7 @@ dotnet run -- \
   --name "More Cultural Names" \
   --version 1.0.0 \
   --game CK3 \
-  --game-version "1.12.*"
+  --game-version "1.18.*"
 ```
 
 ## Development
