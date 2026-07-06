@@ -1,17 +1,13 @@
-using NuciCLI;
+using NuciCLI.Arguments;
 
 namespace MoreCulturalNamesBuilder.Configuration
 {
-    public sealed class InputSettings(string[] args)
+    public sealed class InputSettings(ArgumentsCollection args)
     {
-        static readonly string[] LanguageStorePathOptions = ["--lang", "--languages"];
-        static readonly string[] LocationsStorePathOptions = ["--loc", "--locations"];
-        static readonly string[] LandedTitlesFilePathOptions = ["--landed-titles", "--landed-titles-in", "--landed-titles-input"];
+        public string LanguageStorePath { get; set; } = args.Get<string>("lang");
 
-        public string LanguageStorePath { get; set; } = CliArgumentsReader.GetOptionValue(args, LanguageStorePathOptions);
+        public string LocationStorePath { get; set; } = args.Get<string>("loc");
 
-        public string LocationStorePath { get; set; } = CliArgumentsReader.GetOptionValue(args, LocationsStorePathOptions);
-
-        public string LandedTitlesFilePath { get; set; } = CliArgumentsReader.TryGetOptionValue(args, LandedTitlesFilePathOptions);
+        public string LandedTitlesFilePath { get; set; } = (string)args["landed-titles"];
     }
 }

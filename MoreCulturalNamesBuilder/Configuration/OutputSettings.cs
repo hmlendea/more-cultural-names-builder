@@ -1,19 +1,13 @@
-using NuciCLI;
+using NuciCLI.Arguments;
 
 namespace MoreCulturalNamesBuilder.Configuration
 {
-    public sealed class OutputSettings(string[] args)
+    public sealed class OutputSettings(ArgumentsCollection args)
     {
-        static readonly string[] OutputDirectoryPathOptions = ["-o", "--out", "--output"];
+        public string ModOutputDirectory { get; set; } = args.Get<string>("output");
 
-        static readonly string[] VerboseCommentsOptions = ["--verbose"];
+        public bool AreVerboseCommentsEnabled { get; set; } = args.Get<string>("verbose") == "true";
 
-        static readonly string[] LandedTitlesFileNameOptions = ["--landed-titles-name"];
-
-        public string ModOutputDirectory { get; set; } = CliArgumentsReader.GetOptionValue(args, OutputDirectoryPathOptions);
-
-        public bool AreVerboseCommentsEnabled { get; set; } = CliArgumentsReader.HasOption(args, VerboseCommentsOptions);
-
-        public string LandedTitlesFileName { get; set; } = CliArgumentsReader.TryGetOptionValue(args, LandedTitlesFileNameOptions);
+        public string LandedTitlesFileName { get; set; } = (string)args["landed-titles-name"];
     }
 }
