@@ -146,6 +146,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         string GenerateDefaultNamesLocalisationFileContent()
         {
             ConcurrentBag<string> lines = [];
+            Dictionary<string, Dictionary<string, Localisation>> localisationsByGameIdAndLanguage =
+                BuildLocalisationsByGameIdAndLanguage();
 
             Parallel.ForEach(locations.Values, location =>
             {
@@ -156,8 +158,15 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                         continue;
                     }
 
-                    Localisation defaultLocalisation = localisations[gameId.Id]
-                        .FirstOrDefault(x => x.LanguageId.Equals(gameId.DefaultNameLanguageId));
+                    if (!localisationsByGameIdAndLanguage.TryGetValue(gameId.Id, out Dictionary<string, Localisation> localisationsByLanguage))
+                    {
+                        continue;
+                    }
+
+                    if (!localisationsByLanguage.TryGetValue(gameId.DefaultNameLanguageId, out Localisation defaultLocalisation))
+                    {
+                        continue;
+                    }
 
                     if (defaultLocalisation is null)
                     {
@@ -182,6 +191,28 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             return string.Join(
                 Environment.NewLine,
                 lines.OrderBy(line => line));
+        }
+
+        Dictionary<string, Dictionary<string, Localisation>> BuildLocalisationsByGameIdAndLanguage()
+        {
+            Dictionary<string, Dictionary<string, Localisation>> indexedLocalisations = [];
+
+            foreach ((string gameId, IEnumerable<Localisation> localisationsForGameId) in localisations)
+            {
+                Dictionary<string, Localisation> indexedLocalisationsForGameId = [];
+
+                foreach (Localisation localisation in localisationsForGameId)
+                {
+                    if (!indexedLocalisationsForGameId.ContainsKey(localisation.LanguageId))
+                    {
+                        indexedLocalisationsForGameId[localisation.LanguageId] = localisation;
+                    }
+                }
+
+                indexedLocalisations[gameId] = indexedLocalisationsForGameId;
+            }
+
+            return indexedLocalisations;
         }
 
         string GenerateDynamicNamesLocalisationFileContent()

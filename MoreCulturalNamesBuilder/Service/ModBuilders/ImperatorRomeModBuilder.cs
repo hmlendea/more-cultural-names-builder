@@ -22,6 +22,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
+        IDictionary<string, GameId> locationGameIdsById;
 
         readonly ILocalisationFetcher localisationFetcher = localisationFetcher;
         readonly INameNormaliser nameNormaliser = nameNormaliser;
@@ -40,6 +41,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             });
 
             localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
+            locationGameIdsById = locationGameIds
+                .GroupBy(gameId => gameId.Id)
+                .ToDictionary(group => group.Key, group => group.First());
         }
 
         protected override void GenerateFiles()
@@ -133,7 +137,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             Parallel.ForEach(localisations.Keys, provinceId =>
             {
-                GameId gameId = locationGameIds.First(x => x.Id.Equals(provinceId));
+                GameId gameId = locationGameIdsById[provinceId];
 
                 IDictionary<string, Localisation> provinceLocalisations = localisations[provinceId];
                 Localisation defaultLocalisation = provinceLocalisations.Values

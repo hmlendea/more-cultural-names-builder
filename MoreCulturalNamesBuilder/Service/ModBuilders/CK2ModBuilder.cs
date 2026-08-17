@@ -31,6 +31,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         readonly INameNormaliser nameNormaliser;
 
         protected IDictionary<string, IEnumerable<Localisation>> localisations;
+        IDictionary<string, GameId> locationGameIdsById;
 
         public CK2ModBuilder(
             ILocalisationFetcher localisationFetcher,
@@ -58,6 +59,10 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             });
 
             localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
+
+            locationGameIdsById = locationGameIds
+                .GroupBy(gameId => gameId.Id)
+                .ToDictionary(group => group.Key, group => group.First());
         }
 
         protected override void GenerateFiles()
@@ -223,7 +228,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     continue;
                 }
 
-                string titleId = titleIdRegEx.Match(line).Groups[1].Value;
+                string titleId = titleIdMatch.Groups[1].Value;
 
                 if (string.IsNullOrWhiteSpace(titleId))
                 {
@@ -283,7 +288,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
                 foreach (Localisation localisation in localisationKvp.Value)
                 {
-                    GameId gameId = locationGameIds.First(x => x.Id.Equals(locationGameId));
+                    GameId gameId = locationGameIdsById[locationGameId];
 
                     if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
                     {
