@@ -31,6 +31,7 @@ namespace MoreCulturalNamesBuilder.Configuration
             parser.AddArgument("version");
             parser.AddArgument("ver");
             parser.AddArgument("dependency");
+            parser.AddArgument("dep");
             parser.AddArgument("game", required: true);
             parser.AddArgument("game-version", required: true);
 

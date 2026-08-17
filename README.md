@@ -67,7 +67,7 @@ Complete example with all available options:
   --game-version "1.18.*" \
   --landed-titles /game/common/landed_titles/00_landed_titles.txt \
   --landed-titles-name landed_titles.txt \
-  --dependency other-mod-id \
+  --dep other-mod-id \
   --verbose true
 ```
 
@@ -98,6 +98,7 @@ Note: Use either `--output` or `--out` (required), and either `--version` or `--
 | `--landed-titles` | `<path>` | — | Path to an existing landed titles file to patch (CK2/CK3 only) |
 | `--landed-titles-name` | `<value>` | — | File name to use for the output landed titles file |
 | `--dependency` | `<value>` | — | Mod ID that this mod depends on |
+| `--dep` | `<value>` | — | Alias for `--dependency` |
 | `--verbose` | `true` | `false` | Include verbose comments in the generated output |
 
 ## 🧩 Compatibility
