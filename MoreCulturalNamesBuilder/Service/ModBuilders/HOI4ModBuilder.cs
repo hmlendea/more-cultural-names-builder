@@ -107,29 +107,54 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateCityLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = [];
+            List<string> lines = [];
+            object lineCollectionLock = new();
 
             // States
-            Parallel.ForEach(stateLocalisations.Keys, stateId =>
-            {
-                foreach (Localisation localisation in stateLocalisations[stateId].Values)
+            Parallel.ForEach(
+                stateLocalisations,
+                () => new List<string>(),
+                (stateLocalisationEntry, _, localLines) =>
                 {
-                    lines.Add(
-                        $" {localisation.LanguageGameId}_STATE_{stateId}:0 " +
-                        $"\"{nameNormaliser.ToHOI4StateCharset(localisation.Name)}\"");
-                }
-            });
+                    foreach (Localisation localisation in stateLocalisationEntry.Value.Values)
+                    {
+                        localLines.Add(
+                            $" {localisation.LanguageGameId}_STATE_{stateLocalisationEntry.Key}:0 " +
+                            $"\"{nameNormaliser.ToHOI4StateCharset(localisation.Name)}\"");
+                    }
+
+                    return localLines;
+                },
+                localLines =>
+                {
+                    lock (lineCollectionLock)
+                    {
+                        lines.AddRange(localLines);
+                    }
+                });
 
             // Cities
-            Parallel.ForEach(cityLocalisations.Keys, cityId =>
-            {
-                foreach (Localisation localisation in cityLocalisations[cityId].Values)
+            Parallel.ForEach(
+                cityLocalisations,
+                () => new List<string>(),
+                (cityLocalisationEntry, _, localLines) =>
                 {
-                    lines.Add(
-                        $" {localisation.LanguageGameId}_VICTORY_POINTS_{cityId}:0 " +
-                        $"\"{nameNormaliser.ToHOI4CityCharset(localisation.Name)}\"");
-                }
-            });
+                    foreach (Localisation localisation in cityLocalisationEntry.Value.Values)
+                    {
+                        localLines.Add(
+                            $" {localisation.LanguageGameId}_VICTORY_POINTS_{cityLocalisationEntry.Key}:0 " +
+                            $"\"{nameNormaliser.ToHOI4CityCharset(localisation.Name)}\"");
+                    }
+
+                    return localLines;
+                },
+                localLines =>
+                {
+                    lock (lineCollectionLock)
+                    {
+                        lines.AddRange(localLines);
+                    }
+                });
 
             return string.Join(
                 Environment.NewLine,
