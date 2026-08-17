@@ -12,7 +12,7 @@ namespace MoreCulturalNamesBuilder.Configuration
 
         public string Version { get; set; } = ResolveVersion(args);
 
-        public string Dependency { get; set; } = (string)args["dependency"];
+        public string Dependency { get; set; } = ResolveDependency(args);
 
         public string Game { get; } = args.Get<string>("game");
 
@@ -35,6 +35,25 @@ namespace MoreCulturalNamesBuilder.Configuration
             }
 
             throw new ArgumentException("Missing required argument: --version (alias: --ver).");
+        }
+
+        private static string ResolveDependency(ArgumentsCollection args)
+        {
+            string dependency = (string)args["dependency"];
+
+            if (!string.IsNullOrWhiteSpace(dependency))
+            {
+                return dependency;
+            }
+
+            string dependencyAlias = (string)args["dep"];
+
+            if (!string.IsNullOrWhiteSpace(dependencyAlias))
+            {
+                return dependencyAlias;
+            }
+
+            return dependency;
         }
     }
 }

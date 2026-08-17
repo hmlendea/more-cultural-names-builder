@@ -105,6 +105,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
                 "--id", "more-cultural-names",
                 "--name", "More Cultural Names",
                 "--ver", "2.4.0",
+                "--dep", "agot",
                 "--game", "CK2",
                 "--game-version", "3.3.*",
                 "--out", "./alias-output"
@@ -113,6 +114,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
             Settings settings = new(arguments);
 
             Assert.That(settings.Mod.Version, Is.EqualTo("2.4.0"));
+            Assert.That(settings.Mod.Dependency, Is.EqualTo("agot"));
             Assert.That(settings.Output.ModOutputDirectory, Is.EqualTo("./alias-output"));
         }
 
