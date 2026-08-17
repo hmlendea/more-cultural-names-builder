@@ -45,15 +45,19 @@ A CLI tool that generates game mods which localise place names into different la
 | `--lang <path>` | Yes | Path to the languages XML data store |
 | `--loc <path>` | Yes | Path to the locations XML data store |
 | `--output <path>` | Yes | Output directory where the mod will be written |
+| `--out <path>` | Yes* | Alias for `--output` |
 | `--id <value>` | Yes | Mod identifier (e.g. `more-cultural-names`) |
 | `--name <value>` | Yes | Human-readable mod name |
 | `--version <value>` | Yes | Mod version (e.g. `1.0.0`) |
+| `--ver <value>` | Yes* | Alias for `--version` |
 | `--game <value>` | Yes | Target game (see table above) |
 | `--game-version <value>` | Yes | Supported game version (e.g. `1.12.*`) |
 | `--landed-titles <path>` | No | Path to an existing landed titles file to patch (CK2/CK3) |
 | `--landed-titles-name <value>` | No | File name to use for the output landed titles file |
 | `--dependency <value>` | No | Mod ID this mod depends on |
 | `--verbose true` | No | Include verbose comments in the generated output |
+
+`*` One of each alias pair is required: `--output` or `--out`, and `--version` or `--ver`.
 
 ### Example
 
