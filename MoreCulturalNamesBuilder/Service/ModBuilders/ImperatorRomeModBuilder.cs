@@ -22,6 +22,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
         IDictionary<string, IDictionary<string, Localisation>> localisations;
+        IDictionary<string, GameId> locationGameIdsById;
 
         readonly ILocalisationFetcher localisationFetcher = localisationFetcher;
         readonly INameNormaliser nameNormaliser = nameNormaliser;
@@ -40,6 +41,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             });
 
             localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
+            locationGameIdsById = locationGameIds
+                .GroupBy(gameId => gameId.Id)
+                .ToDictionary(group => group.Key, group => group.First());
         }
 
         protected override void GenerateFiles()
@@ -54,7 +58,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Directory.CreateDirectory(localisationDirectoryPath);
             Directory.CreateDirectory(provinceNamesDirectoryPath);
 
-            LoadData();
             CreateDataFiles(provinceNamesDirectoryPath);
             CreateLocalisationFiles(localisationDirectoryPath);
             CreateDescriptorFiles();
@@ -65,9 +68,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Parallel.ForEach(languageGameIds, languageGameId =>
             {
                 string path = Path.Combine(provinceNamesDirectoryPath, $"{languageGameId.Id.ToLower()}.txt");
-                string content = $"{languageGameId.Id} = {{" + Environment.NewLine;
+                StringBuilder contentBuilder = new();
+                contentBuilder.Append($"{languageGameId.Id} = {{");
+                contentBuilder.Append(Environment.NewLine);
 
-                foreach (string provinceId in localisations.Keys.OrderBy(x => int.Parse(x)))
+                foreach (string provinceId in localisations.Keys.OrderBy(provinceId => int.Parse(provinceId)))
                 {
                     if (!localisations[provinceId].ContainsKey(languageGameId.Id))
                     {
@@ -76,24 +81,25 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
                     Localisation localisation = localisations[provinceId][languageGameId.Id];
 
-                    content += $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id} # {nameNormaliser.ToImperatorRomeCharset(localisation.Name)}";
+                    contentBuilder.Append(
+                        $"    {localisation.GameId} = PROV{localisation.GameId}_{languageGameId.Id} # {nameNormaliser.ToImperatorRomeCharset(localisation.Name)}");
 
                     if (Settings.Output.AreVerboseCommentsEnabled)
                     {
-                        content += $" # Language={localisation.LanguageId}";
+                        contentBuilder.Append($" # Language={localisation.LanguageId}");
                     }
 
                     if (!string.IsNullOrWhiteSpace(localisation.Comment))
                     {
-                        content += $" # {localisation.Comment}";
+                        contentBuilder.Append($" # {localisation.Comment}");
                     }
 
-                    content += Environment.NewLine;
+                    contentBuilder.Append(Environment.NewLine);
                 }
 
-                content += "}";
+                contentBuilder.Append("}");
 
-                File.WriteAllText(path, content);
+                File.WriteAllText(path, contentBuilder.ToString());
             });
         }
 
@@ -129,40 +135,52 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = [];
+            List<string> lines = [];
+            object lineCollectionLock = new();
 
-            Parallel.ForEach(localisations.Keys, provinceId =>
-            {
-                GameId gameId = locationGameIds.First(x => x.Id.Equals(provinceId));
-
-                IDictionary<string, Localisation> provinceLocalisations = localisations[provinceId];
-                Localisation defaultLocalisation = provinceLocalisations.Values
-                    .FirstOrDefault(x => x.LanguageId.Equals(gameId.DefaultNameLanguageId));
-
-                if (defaultLocalisation is not null)
+            Parallel.ForEach(
+                localisations,
+                () => new List<string>(),
+                (provinceLocalisationsEntry, _, localLines) =>
                 {
-                    string provinceDefaultLocalisationDefinition = GenerateLocationLocalisationLine(
-                        defaultLocalisation,
-                        $"PROV{provinceId}");
+                    string provinceId = provinceLocalisationsEntry.Key;
+                    IDictionary<string, Localisation> provinceLocalisations = provinceLocalisationsEntry.Value;
+                    GameId gameId = locationGameIdsById[provinceId];
 
-                    lines.Add(provinceDefaultLocalisationDefinition);
-                }
+                    Localisation defaultLocalisation = provinceLocalisations.Values
+                        .FirstOrDefault(localisation => localisation.LanguageId.Equals(gameId.DefaultNameLanguageId));
 
-                foreach (string culture in provinceLocalisations.Keys.OrderBy(x => x))
+                    if (defaultLocalisation is not null)
+                    {
+                        localLines.Add(GenerateLocationLocalisationLine(
+                            defaultLocalisation,
+                            $"PROV{provinceId}"));
+                    }
+
+                    foreach (string culture in provinceLocalisations.Keys.OrderBy(culture => culture))
+                    {
+                        Localisation localisation = provinceLocalisations[culture];
+
+                        localLines.Add(GenerateLocationLocalisationLine(
+                            localisation,
+                            $"PROV{provinceId}_{localisation.LanguageGameId}"));
+                    }
+
+                    return localLines;
+                },
+                localLines =>
                 {
-                    Localisation localisation = provinceLocalisations[culture];
+                    lock (lineCollectionLock)
+                    {
+                        lines.AddRange(localLines);
+                    }
+                });
 
-                    string provinceCulturalLocalisationDefinition = GenerateLocationLocalisationLine(
-                        localisation,
-                        $"PROV{provinceId}_{localisation.LanguageGameId}");
-
-                    lines.Add(provinceCulturalLocalisationDefinition);
-                }
-            });
+            lines.Sort();
 
             return string.Join(
                 Environment.NewLine,
-                lines.OrderBy(line => line));
+                lines);
         }
 
         string GenerateLocationLocalisationLine(Localisation localisation, string localisationKey)

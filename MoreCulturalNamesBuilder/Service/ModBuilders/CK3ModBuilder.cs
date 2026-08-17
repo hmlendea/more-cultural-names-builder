@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         protected override List<string> ForbiddenTokensForNextLine => ["has_holder"];
 
         readonly INameNormaliser nameNormaliser = nameNormaliser;
+        IDictionary<string, IEnumerable<Localisation>> localisationsOrderedByLanguageId;
 
         protected override string GenerateMainDescriptorContent()
             => GenerateDescriptorContent() + Environment.NewLine +
@@ -76,18 +78,20 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected override string GetTitleLocalisationsContent(string line, string gameId)
         {
-            IEnumerable<Localisation> titleLocalisations = localisations.TryGetValue(gameId);
+            EnsureLocalisationsOrderedByLanguageId();
+
+            IEnumerable<Localisation> titleLocalisations = localisationsOrderedByLanguageId.TryGetValue(gameId);
 
             if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
             {
                 return null;
             }
 
-            string indentation1 = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "    ";
+            string indentation1 = GetLeadingWhitespace(line) + "    ";
             string indentation2 = indentation1 + "    ";
             List<string> lines = [$"{indentation1}cultural_names = {{"];
 
-            foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
+            foreach (Localisation localisation in titleLocalisations)
             {
                 string lineToAdd =
                     $"{indentation2}name_list_{localisation.LanguageGameId} = cn_{localisation.Id}_{localisation.LanguageGameId}" +
@@ -145,75 +149,179 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         string GenerateDefaultNamesLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = [];
+            List<string> lines = [];
+            object lineCollectionLock = new();
+            Dictionary<string, Dictionary<string, Localisation>> localisationsByGameIdAndLanguage =
+                BuildLocalisationsByGameIdAndLanguage();
 
-            Parallel.ForEach(locations.Values, location =>
-            {
-                foreach (GameId gameId in location.GameIds.Where(x => x.Game.Equals(Settings.Mod.Game)))
+            Parallel.ForEach(
+                locations.Values,
+                () => new List<string>(),
+                (location, _, localLines) =>
                 {
-                    if (string.IsNullOrWhiteSpace(gameId.DefaultNameLanguageId))
+                    foreach (GameId gameId in location.GameIds.Where(x => x.Game.Equals(Settings.Mod.Game)))
                     {
-                        continue;
-                    }
+                        if (string.IsNullOrWhiteSpace(gameId.DefaultNameLanguageId))
+                        {
+                            continue;
+                        }
 
-                    Localisation defaultLocalisation = localisations[gameId.Id]
-                        .FirstOrDefault(x => x.LanguageId.Equals(gameId.DefaultNameLanguageId));
+                        if (!localisationsByGameIdAndLanguage.TryGetValue(gameId.Id, out Dictionary<string, Localisation> localisationsByLanguage))
+                        {
+                            continue;
+                        }
 
-                    if (defaultLocalisation is null)
-                    {
-                        continue;
-                    }
+                        if (!localisationsByLanguage.TryGetValue(gameId.DefaultNameLanguageId, out Localisation defaultLocalisation))
+                        {
+                            continue;
+                        }
 
-                    lines.Add(GenerateLocationLocalisationLine(
-                        defaultLocalisation.GameId,
-                        defaultLocalisation.Name,
-                        defaultLocalisation));
+                        if (defaultLocalisation is null)
+                        {
+                            continue;
+                        }
 
-                    if (!string.IsNullOrWhiteSpace(defaultLocalisation.Adjective))
-                    {
-                        lines.Add(GenerateLocationLocalisationLine(
-                            $"{defaultLocalisation.GameId}_adj",
-                            defaultLocalisation.Adjective,
+                        localLines.Add(GenerateLocationLocalisationLine(
+                            defaultLocalisation.GameId,
+                            defaultLocalisation.Name,
                             defaultLocalisation));
+
+                        if (!string.IsNullOrWhiteSpace(defaultLocalisation.Adjective))
+                        {
+                            localLines.Add(GenerateLocationLocalisationLine(
+                                $"{defaultLocalisation.GameId}_adj",
+                                defaultLocalisation.Adjective,
+                                defaultLocalisation));
+                        }
                     }
-                }
-            });
+
+                    return localLines;
+                },
+                localLines =>
+                {
+                    lock (lineCollectionLock)
+                    {
+                        lines.AddRange(localLines);
+                    }
+                });
+
+            lines.Sort();
 
             return string.Join(
                 Environment.NewLine,
-                lines.OrderBy(line => line));
+                lines);
+        }
+
+        Dictionary<string, Dictionary<string, Localisation>> BuildLocalisationsByGameIdAndLanguage()
+        {
+            Dictionary<string, Dictionary<string, Localisation>> indexedLocalisations = [];
+
+            foreach ((string gameId, IEnumerable<Localisation> localisationsForGameId) in localisations)
+            {
+                Dictionary<string, Localisation> indexedLocalisationsForGameId = [];
+
+                foreach (Localisation localisation in localisationsForGameId)
+                {
+                    if (!indexedLocalisationsForGameId.ContainsKey(localisation.LanguageId))
+                    {
+                        indexedLocalisationsForGameId[localisation.LanguageId] = localisation;
+                    }
+                }
+
+                indexedLocalisations[gameId] = indexedLocalisationsForGameId;
+            }
+
+            return indexedLocalisations;
         }
 
         string GenerateDynamicNamesLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = [];
+            List<string> lines = [];
+            object lineCollectionLock = new();
 
-            List<Localisation> locs = localisations
-                .SelectMany(x => x.Value)
-                .GroupBy(x => $"{x.Id}_{x.LanguageGameId}")
-                .Select(x => x.First())
-                .ToList();
+            List<Localisation> uniqueLocalisations = BuildUniqueLocalisations();
 
-            Parallel.ForEach(locs, localisation =>
-            {
-                lines.Add(GenerateLocationLocalisationLine(
-                    $"cn_{localisation.Id}_{localisation.LanguageGameId}",
-                    localisation.Name,
-                    localisation));
-
-                if (!string.IsNullOrWhiteSpace(localisation.Adjective))
+            Parallel.ForEach(
+                uniqueLocalisations,
+                () => new List<string>(),
+                (localisation, _, localLines) =>
                 {
-                    lines.Add(GenerateLocationLocalisationLine(
-                        $"cn_{localisation.Id}_{localisation.LanguageGameId}_adj",
-                        localisation.Adjective,
+                    localLines.Add(GenerateLocationLocalisationLine(
+                        $"cn_{localisation.Id}_{localisation.LanguageGameId}",
+                        localisation.Name,
                         localisation));
-                }
-            });
+
+                    if (!string.IsNullOrWhiteSpace(localisation.Adjective))
+                    {
+                        localLines.Add(GenerateLocationLocalisationLine(
+                            $"cn_{localisation.Id}_{localisation.LanguageGameId}_adj",
+                            localisation.Adjective,
+                            localisation));
+                    }
+
+                    return localLines;
+                },
+                localLines =>
+                {
+                    lock (lineCollectionLock)
+                    {
+                        lines.AddRange(localLines);
+                    }
+                });
+
+            lines.Sort();
 
             return string.Join(
                 Environment.NewLine,
-                lines.OrderBy(line => line));
+                lines);
         }
+
+        void EnsureLocalisationsOrderedByLanguageId()
+        {
+            if (localisationsOrderedByLanguageId is not null)
+            {
+                return;
+            }
+
+            IDictionary<string, IEnumerable<Localisation>> orderedLocalisationsByLanguageId = localisations
+                .ToDictionary(
+                    localisationsByGameId => localisationsByGameId.Key,
+                    localisationsByGameId =>
+                        (IEnumerable<Localisation>)localisationsByGameId.Value
+                            .OrderBy(localisation => localisation.LanguageId)
+                            .ToArray());
+
+            Interlocked.CompareExchange(
+                ref localisationsOrderedByLanguageId,
+                orderedLocalisationsByLanguageId,
+                null);
+        }
+
+        static List<Localisation> BuildUniqueLocalisations(
+            IDictionary<string, IEnumerable<Localisation>> localisations)
+        {
+            HashSet<string> seenLocalisationKeys = [];
+            List<Localisation> uniqueLocalisations = [];
+
+            foreach (IEnumerable<Localisation> localisationsForGameId in localisations.Values)
+            {
+                foreach (Localisation localisation in localisationsForGameId)
+                {
+                    string localisationKey = $"{localisation.Id}_{localisation.LanguageGameId}";
+
+                    if (!seenLocalisationKeys.Add(localisationKey))
+                    {
+                        continue;
+                    }
+
+                    uniqueLocalisations.Add(localisation);
+                }
+            }
+
+            return uniqueLocalisations;
+        }
+
+        List<Localisation> BuildUniqueLocalisations() => BuildUniqueLocalisations(localisations);
 
         void CreateLocalisationFile(string localisationDirectoryPath, string fileLabel, string language, string content)
         {

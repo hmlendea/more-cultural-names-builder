@@ -19,6 +19,15 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public class CK2ModBuilder : ModBuilder
     {
+        static readonly Regex TabRegex = new("\\t", RegexOptions.Multiline | RegexOptions.Compiled);
+        static readonly Regex AroundEqualsRegex = new("\\s*=\\s*", RegexOptions.Multiline | RegexOptions.Compiled);
+        static readonly Regex CommentRegex = new("\\s*#[^\\n]*", RegexOptions.Multiline | RegexOptions.Compiled);
+        static readonly Regex EmptyLineRegex = new("^\\s*\\n", RegexOptions.Multiline | RegexOptions.Compiled);
+        static readonly Regex TrailingWhitespaceRegex = new("\\s+$", RegexOptions.Multiline | RegexOptions.Compiled);
+        static readonly Regex EmptyBlockRegex = new(
+            "(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}",
+            RegexOptions.Multiline | RegexOptions.Compiled);
+
         protected virtual string LocalisationDirectoryName => "localisation";
 
         protected virtual List<string> ForbiddenTokensForPreviousLine
@@ -29,8 +38,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         readonly ILocalisationFetcher localisationFetcher;
         readonly INameNormaliser nameNormaliser;
+        readonly ConcurrentDictionary<string, string> windows1252NameCache;
 
         protected IDictionary<string, IEnumerable<Localisation>> localisations;
+        protected IDictionary<string, IEnumerable<Localisation>> localisationsOrderedByLanguageGameId;
+        IDictionary<string, GameId> locationGameIdsById;
 
         public CK2ModBuilder(
             ILocalisationFetcher localisationFetcher,
@@ -42,9 +54,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             this.localisationFetcher = localisationFetcher;
             this.nameNormaliser = nameNormaliser;
+            windows1252NameCache = [];
 
             EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(encodingProvider);
+
+            localisationsOrderedByLanguageGameId = new Dictionary<string, IEnumerable<Localisation>>();
         }
 
         protected override void LoadData()
@@ -58,6 +73,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             });
 
             localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
+            localisationsOrderedByLanguageGameId = localisations
+                .ToDictionary(
+                    localisationsByGameId => localisationsByGameId.Key,
+                    localisationsByGameId =>
+                        (IEnumerable<Localisation>)localisationsByGameId.Value
+                            .OrderBy(localisation => localisation.LanguageGameId)
+                            .ToArray());
+
+            locationGameIdsById = locationGameIds
+                .GroupBy(gameId => gameId.Id)
+                .ToDictionary(group => group.Key, group => group.First());
         }
 
         protected override void GenerateFiles()
@@ -71,8 +97,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Directory.CreateDirectory(commonDirectoryPath);
             Directory.CreateDirectory(landedTitlesDirectoryPath);
             Directory.CreateDirectory(localisationDirectoryPath);
-
-            LoadData();
 
             CreateDescriptorFiles();
             CreateLandedTitlesFile(landedTitlesDirectoryPath);
@@ -105,19 +129,19 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected virtual string GetTitleLocalisationsContent(string line, string gameId)
         {
-            IEnumerable<Localisation> titleLocalisations = localisations.TryGetValue(gameId);
+            IEnumerable<Localisation> titleLocalisations = localisationsOrderedByLanguageGameId.TryGetValue(gameId);
 
             if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
             {
                 return null;
             }
 
-            string indentation = Regex.Match(line, "^(\\s*)" + gameId + "\\s*=\\s*\\{.*$").Groups[1].Value + "    ";
+            string indentation = GetLeadingWhitespace(line) + "    ";
             List<string> lines = [];
 
-            foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageGameId))
+            foreach (Localisation localisation in titleLocalisations)
             {
-                string normalisedName = nameNormaliser.ToWindows1252(localisation.Name);
+                string normalisedName = ToWindows1252(localisation.Name);
                 string lineToAdd = $"{indentation}{localisation.LanguageGameId} = \"{normalisedName}\"";
 
                 if (Settings.Output.AreVerboseCommentsEnabled)
@@ -127,7 +151,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
                 if (!string.IsNullOrWhiteSpace(localisation.Comment))
                 {
-                    lineToAdd += $" # {nameNormaliser.ToWindows1252(localisation.Comment)}";
+                    lineToAdd += $" # {ToWindows1252(localisation.Comment)}";
                 }
 
                 lines.Add(lineToAdd);
@@ -188,9 +212,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string landedTitlesFile = ReadLandedTitlesFile();
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
 
-            List<string> content = [string.Empty];
-            List<string> landedTitlesFileLines = landedTitlesFile.Split('\n').ToList();
-            landedTitlesFileLines.Add(string.Empty);
+            List<string> content = [];
+            string[] landedTitlesFileLines = landedTitlesFile.Split('\n');
 
             Regex forbiddenTokensForPreviousLineRegEx = new(
                 "^.*" + string.Join('|', ForbiddenTokensForPreviousLine) + ".*$",
@@ -202,11 +225,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 "^\\s*([ekdcb]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$",
                 RegexOptions.Compiled);
 
-            for (int i = 0; i < landedTitlesFileLines.Count - 1; i++)
+            string previousLine = string.Empty;
+
+            for (int lineIndex = 0; lineIndex < landedTitlesFileLines.Length; lineIndex += 1)
             {
-                string line = landedTitlesFileLines[i];
-                string previousLine = content.Last();
-                string nextLine = landedTitlesFileLines[i + 1];
+                string line = landedTitlesFileLines[lineIndex];
+                string nextLine = string.Empty;
+
+                if (lineIndex + 1 < landedTitlesFileLines.Length)
+                {
+                    nextLine = landedTitlesFileLines[lineIndex + 1];
+                }
 
                 content.Add(line);
 
@@ -223,7 +252,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     continue;
                 }
 
-                string titleId = titleIdRegEx.Match(line).Groups[1].Value;
+                string titleId = titleIdMatch.Groups[1].Value;
 
                 if (string.IsNullOrWhiteSpace(titleId))
                 {
@@ -236,9 +265,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 {
                     content.Add(titleLocalisationsContent);
                 }
+
+                previousLine = content.Last();
             }
 
-            return string.Join(Environment.NewLine, content.Skip(1));
+            return string.Join(Environment.NewLine, content);
         }
 
         string CleanLandedTitlesFile(string content)
@@ -246,11 +277,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string culturesPattern = string.Join('|', languageGameIds.Select(x => x.Id));
 
             string newContent = content.Replace("\r", ""); // Remove carriage returns
-            newContent = Regex.Replace(newContent, "\\t", "    ", RegexOptions.Multiline); // Replace tabs
-            newContent = Regex.Replace(newContent, "\\s*=\\s*", " = ", RegexOptions.Multiline); // Standardise spacings aroung equals
-            newContent = Regex.Replace(newContent, "\\s*#[^\n]*", "", RegexOptions.Multiline); // Remove comments
-            newContent = Regex.Replace(newContent, "^\\s*\n", "", RegexOptions.Multiline); // Remove empty/whitespace lines
-            newContent = Regex.Replace(newContent, "\\s+$", "", RegexOptions.Multiline); // Remove trailing whitespaces
+            newContent = TabRegex.Replace(newContent, "    "); // Replace tabs
+            newContent = AroundEqualsRegex.Replace(newContent, " = "); // Standardise spacings aroung equals
+            newContent = CommentRegex.Replace(newContent, string.Empty); // Remove comments
+            newContent = EmptyLineRegex.Replace(newContent, string.Empty); // Remove empty/whitespace lines
+            newContent = TrailingWhitespaceRegex.Replace(newContent, string.Empty); // Remove trailing whitespaces
 
             newContent = Regex.Replace( // Break inline cultural name into multiple lines
                 newContent,
@@ -264,63 +295,104 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 "",
                 RegexOptions.Multiline);
 
-            newContent = Regex.Replace( // Break ={} into multiple lines
-                newContent,
-                "(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}",
-                "$1$2\n$1}",
-                RegexOptions.Multiline);
+            newContent = EmptyBlockRegex.Replace(newContent, "$1$2\n$1}"); // Break ={} into multiple lines
 
             return DoCleanLandedTitlesFile(newContent);
         }
 
         string GenerateLocalisationFileContent()
         {
-            ConcurrentBag<string> lines = [];
+            List<string> lines = [];
+            object lineCollectionLock = new();
 
-            Parallel.ForEach(localisations, localisationKvp =>
-            {
-                string locationGameId = localisationKvp.Key;
-
-                foreach (Localisation localisation in localisationKvp.Value)
+            Parallel.ForEach(
+                localisations,
+                () => new List<string>(),
+                (localisationEntry, _, localLines) =>
                 {
-                    GameId gameId = locationGameIds.First(x => x.Id.Equals(locationGameId));
+                    string locationGameId = localisationEntry.Key;
+                    GameId gameId = locationGameIdsById[locationGameId];
 
-                    if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
+                    foreach (Localisation localisation in localisationEntry.Value)
                     {
-                        lines.Add(GenerateLocationLocalisationLine(
-                            locationGameId,
-                            localisation.Name));
+                        if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
+                        {
+                            localLines.Add(GenerateLocationLocalisationLine(
+                                locationGameId,
+                                localisation.Name));
+                        }
+
+                        if (string.IsNullOrWhiteSpace(localisation.Adjective))
+                        {
+                            continue;
+                        }
+
+                        localLines.Add(GenerateLocationLocalisationLine(
+                            $"{locationGameId}_adj_{localisation.LanguageGameId}",
+                            localisation.Adjective));
+
+                        if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
+                        {
+                            localLines.Add(GenerateLocationLocalisationLine(
+                                $"{locationGameId}_adj",
+                                localisation.Adjective));
+                        }
                     }
 
-                    if (string.IsNullOrWhiteSpace(localisation.Adjective))
+                    return localLines;
+                },
+                localLines =>
+                {
+                    lock (lineCollectionLock)
                     {
-                        continue;
+                        lines.AddRange(localLines);
                     }
+                });
 
-                    lines.Add(GenerateLocationLocalisationLine(
-                        $"{locationGameId}_adj_{localisation.LanguageGameId}",
-                        localisation.Adjective));
+            lines.Sort();
 
-                    if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
-                    {
-                    lines.Add(GenerateLocationLocalisationLine(
-                        $"{locationGameId}_adj",
-                        localisation.Adjective));
-                    }
-                }
-            });
-
-            return string.Join(Environment.NewLine, lines.OrderBy(x => x));
+            return string.Join(Environment.NewLine, lines);
         }
 
         string GenerateLocationLocalisationLine(string localisationKey, string localisationValue)
         {
-            string normalisedName = nameNormaliser.ToWindows1252(localisationValue);
+            string normalisedName = ToWindows1252(localisationValue);
             string localisationDefinition =
                 $"{localisationKey}" +
                 $";{normalisedName};{normalisedName};{normalisedName};;{normalisedName};;;;;;;;;x";
 
             return localisationDefinition;
+        }
+
+        string ToWindows1252(string text)
+        {
+            if (text is null)
+            {
+                return null;
+            }
+
+            if (windows1252NameCache.TryGetValue(text, out string cachedNormalisedText))
+            {
+                return cachedNormalisedText;
+            }
+
+            string normalisedText = nameNormaliser.ToWindows1252(text);
+            windows1252NameCache.TryAdd(text, normalisedText);
+
+            return normalisedText;
+        }
+
+        protected static string GetLeadingWhitespace(string line)
+        {
+            int firstNonWhitespaceCharacterIndex = 0;
+
+            while (firstNonWhitespaceCharacterIndex < line.Length &&
+                char.IsWhiteSpace(line[firstNonWhitespaceCharacterIndex]))
+            {
+                firstNonWhitespaceCharacterIndex += 1;
+            }
+
+            return line[..firstNonWhitespaceCharacterIndex];
         }
     }
 }

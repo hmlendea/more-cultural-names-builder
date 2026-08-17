@@ -181,7 +181,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 Assert.That(File.Exists(localisationsFilePath), Is.False);
                 localisationFetcher.Verify(
                     fetcher => fetcher.GetGameLocationLocalisations("c_cluj", Game),
-                    Times.Exactly(2));
+                    Times.Once());
             });
         }
 
