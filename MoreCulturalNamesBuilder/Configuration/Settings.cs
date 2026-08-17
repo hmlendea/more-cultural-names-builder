@@ -20,14 +20,16 @@ namespace MoreCulturalNamesBuilder.Configuration
             parser.AddArgument("landed-titles");
 
             // OutputSettings arguments
-            parser.AddArgument("output", required: true);
+            parser.AddArgument("output");
+            parser.AddArgument("out");
             parser.AddArgument("verbose", defaultValue: "false");
             parser.AddArgument("landed-titles-name");
 
             // ModSettings arguments
             parser.AddArgument("id", required: true);
             parser.AddArgument("name", required: true);
-            parser.AddArgument("version", required: true);
+            parser.AddArgument("version");
+            parser.AddArgument("ver");
             parser.AddArgument("dependency");
             parser.AddArgument("game", required: true);
             parser.AddArgument("game-version", required: true);
