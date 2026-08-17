@@ -23,6 +23,7 @@ A CLI tool that generates game mods which localise place names into different la
 - [Project Structure](#project-structure)
   - [Projects and Packages](#projects-and-packages)
   - [Directories](#directories)
+- [Architecture](#architecture)
 - [Contributing](#contributing)
 - [Project Engagement](#project-engagement)
 - [License](#license)
@@ -132,7 +133,7 @@ dotnet test
 The repository includes `release.sh`, which delegates to the upstream deployment script used by the project maintainer.
 
 ```bash
-bash ./release.sh 7.1.1
+bash ./release.sh 7.1.2
 ```
 
 This script downloads and executes an external release helper from `https://raw.githubusercontent.com/hmlendea/deployment-scripts/master/release/dotnet/10.0.sh`.
@@ -160,6 +161,10 @@ The solution comprises two projects:
 | `MoreCulturalNamesBuilder/Service/Mapping/` | Data mapping between entities and models |
 | `MoreCulturalNamesBuilder/Service/ModBuilders/` | Game-specific mod file generation |
 | `MoreCulturalNamesBuilder/Service/Models/` | Application domain models |
+
+## 🏗️ Architecture
+
+See the [ARCHITECTURE.md](./ARCHITECTURE.md) for the system context, principal components, runtime flows, ownership boundaries, dependencies, constraints, and extension points.
 
 ## 🤝 Contributing
 
