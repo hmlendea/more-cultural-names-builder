@@ -58,7 +58,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Directory.CreateDirectory(localisationDirectoryPath);
             Directory.CreateDirectory(provinceNamesDirectoryPath);
 
-            LoadData();
             CreateDataFiles(provinceNamesDirectoryPath);
             CreateLocalisationFiles(localisationDirectoryPath);
             CreateDescriptorFiles();
@@ -177,9 +176,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     }
                 });
 
+            lines.Sort();
+
             return string.Join(
                 Environment.NewLine,
-                lines.OrderBy(line => line));
+                lines);
         }
 
         string GenerateLocationLocalisationLine(Localisation localisation, string localisationKey)

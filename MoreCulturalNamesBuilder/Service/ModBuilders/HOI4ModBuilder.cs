@@ -71,8 +71,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Directory.CreateDirectory(mainDirectoryPath);
             Directory.CreateDirectory(localisationDirectoryPath);
 
-            LoadData();
-
             CreateLocalisationFiles(localisationDirectoryPath);
             CreateDescriptorFiles();
         }
@@ -156,9 +154,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     }
                 });
 
+            lines.Sort();
+
             return string.Join(
                 Environment.NewLine,
-                lines.OrderBy(line => line));
+                lines);
         }
 
         string GenerateMainDescriptorContent()

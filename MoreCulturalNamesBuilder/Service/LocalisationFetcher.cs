@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,6 +26,7 @@ namespace MoreCulturalNamesBuilder.Service
         readonly Dictionary<string, Dictionary<string, Name>> locationNamesByLanguage;
         readonly Dictionary<string, string[]> locationIdsToCheckByLocationId;
         readonly Dictionary<string, string[]> languageIdsToCheckByLanguageId;
+        readonly ConcurrentDictionary<(string LocationId, string LanguageId), CachedLocalisation> resolvedLocalisationCache;
 
         public LocalisationFetcher(
             IFileRepository<LanguageEntity> languageRepository,
@@ -39,6 +41,7 @@ namespace MoreCulturalNamesBuilder.Service
             locationNamesByLanguage = [];
             locationIdsToCheckByLocationId = [];
             languageIdsToCheckByLanguageId = [];
+            resolvedLocalisationCache = [];
 
             LoadData();
         }
@@ -61,6 +64,7 @@ namespace MoreCulturalNamesBuilder.Service
             locationNamesByLanguage.Clear();
             locationIdsToCheckByLocationId.Clear();
             languageIdsToCheckByLanguageId.Clear();
+            resolvedLocalisationCache.Clear();
 
             foreach (Location location in locations.Values)
             {
@@ -143,6 +147,13 @@ namespace MoreCulturalNamesBuilder.Service
                 return null;
             }
 
+            (string LocationId, string LanguageId) localisationCacheKey = (location.Id, languageId);
+
+            if (resolvedLocalisationCache.TryGetValue(localisationCacheKey, out CachedLocalisation cachedLocalisation))
+            {
+                return cachedLocalisation.ToServiceModel();
+            }
+
             string[] locationIdsToCheck = locationIdsToCheckByLocationId[location.Id];
             string[] languageIdsToCheck = languageIdsToCheckByLanguageId[languageId];
 
@@ -159,17 +170,30 @@ namespace MoreCulturalNamesBuilder.Service
 
                     if (name is not null)
                     {
-                        return new()
-                        {
-                            Id = locationIdToCheck,
-                            LanguageId = languageIdToCheck,
-                            Name = name.Value,
-                            Adjective = name.Adjective,
-                            Comment = name.Comment
-                        };
+                        CachedLocalisation resolvedLocalisation = new(
+                            true,
+                            locationIdToCheck,
+                            languageIdToCheck,
+                            name.Value,
+                            name.Adjective,
+                            name.Comment);
+
+                        resolvedLocalisationCache.TryAdd(localisationCacheKey, resolvedLocalisation);
+
+                        return resolvedLocalisation.ToServiceModel();
                     }
                 }
             }
+
+            CachedLocalisation missingLocalisation = new(
+                false,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+            resolvedLocalisationCache.TryAdd(localisationCacheKey, missingLocalisation);
 
             return null;
         }
@@ -213,6 +237,54 @@ namespace MoreCulturalNamesBuilder.Service
             languageIdsToCheck.AddRange(language.FallbackLanguages);
 
             return [.. languageIdsToCheck];
+        }
+
+        sealed class CachedLocalisation
+        {
+            internal bool HasValue { get; }
+
+            internal string LocationId { get; }
+
+            internal string LanguageId { get; }
+
+            internal string Name { get; }
+
+            internal string Adjective { get; }
+
+            internal string Comment { get; }
+
+            internal CachedLocalisation(
+                bool hasValue,
+                string locationId,
+                string languageId,
+                string name,
+                string adjective,
+                string comment)
+            {
+                HasValue = hasValue;
+                LocationId = locationId;
+                LanguageId = languageId;
+                Name = name;
+                Adjective = adjective;
+                Comment = comment;
+            }
+
+            internal Localisation ToServiceModel()
+            {
+                if (!HasValue)
+                {
+                    return null;
+                }
+
+                return new()
+                {
+                    Id = LocationId,
+                    LanguageId = LanguageId,
+                    Name = Name,
+                    Adjective = Adjective,
+                    Comment = Comment
+                };
+            }
         }
     }
 }
