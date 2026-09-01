@@ -49,7 +49,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             => File.ReadAllText(Settings.Input.LandedTitlesFilePath);
 
         protected override void WriteLandedTitlesFile(string filePath, string content)
-            => File.WriteAllText(filePath, content);
+            => File.WriteAllText(filePath, MergeCulturalNameBlocks(content));
 
         protected override string DoCleanLandedTitlesFile(string content)
         {
@@ -70,6 +70,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             cleanContent = breakInlineRegex.Replace(cleanContent, "$1$2 = {\n$1\t$3\n$1}");
             cleanContent = removeOriginalRegex.Replace(cleanContent, string.Empty);
             cleanContent = removeEmptyBlockRegex.Replace(cleanContent, string.Empty);
+            cleanContent = RemoveDuplicateScoreDefinitions(cleanContent);
+            cleanContent = Regex.Replace(
+                cleanContent,
+                "^(\\s*\\S+)\\s+\\?\\s+=\\s+(scope:\\S+.*)$",
+                "$1 ?= $2",
+                RegexOptions.Multiline | RegexOptions.Compiled);
 
             return cleanContent;
         }
@@ -90,7 +96,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             foreach (Localisation localisation in titleLocalisations.OrderBy(x => x.LanguageId))
             {
                 string lineToAdd =
-                    $"{indentation2}name_list_{localisation.LanguageGameId} = cn_{localisation.Id}_{localisation.LanguageGameId}" +
+                    $"{indentation2}name_list_{localisation.LanguageGameId} = {GetDynamicLocalisationKey(localisation)}" +
                     $" # {nameNormaliser.ToCK3Charset(localisation.Name)}";
 
                 if (Settings.Output.AreVerboseCommentsEnabled)
@@ -116,7 +122,18 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string defaultLocalisationsFileContent = GenerateDefaultNamesLocalisationFileContent();
             string dynamicLocalisationsFileContent = GenerateDynamicNamesLocalisationFileContent();
 
-            List<string> localisationLanguages = ["english", "french", "german", "spanish"];
+            List<string> localisationLanguages =
+            [
+                "english",
+                "french",
+                "german",
+                "polish",
+                "spanish",
+                "simp_chinese",
+                "russian",
+                "korean",
+                "japanese",
+            ];
 
             Parallel.ForEach(localisationLanguages, fileLanguage => CreateLocalisationFile(
                 localisationDirectoryPath,
@@ -190,8 +207,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             List<Localisation> locs = localisations
                 .SelectMany(x => x.Value)
-                .GroupBy(x => $"{x.Id}_{x.LanguageGameId}")
-                .Select(x => x.First())
+                .GroupBy(x => $"{x.LanguageGameId}_{nameNormaliser.ToCK3Charset(x.Name)}")
+                .Select(x => x.OrderBy(localisation => localisation.Id).First())
                 .ToList();
 
             Parallel.ForEach(locs, localisation =>
@@ -215,13 +232,182 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 lines.OrderBy(line => line));
         }
 
+        string GetDynamicLocalisationKey(Localisation localisation)
+        {
+            Localisation canonicalLocalisation = localisations
+                .SelectMany(localisationEntry => localisationEntry.Value)
+                .Where(candidate =>
+                    candidate.LanguageGameId.Equals(localisation.LanguageGameId) &&
+                    nameNormaliser.ToCK3Charset(candidate.Name)
+                        .Equals(nameNormaliser.ToCK3Charset(localisation.Name)))
+                .OrderBy(candidate => candidate.Id)
+                .First();
+
+            return $"cn_{canonicalLocalisation.Id}_{canonicalLocalisation.LanguageGameId}";
+        }
+
         void CreateLocalisationFile(string localisationDirectoryPath, string fileLabel, string language, string content)
         {
+            string languageDirectoryPath = Path.Combine(localisationDirectoryPath, language);
             string fileContent = $"l_{language}:{Environment.NewLine}{content}";
             string fileName = $"{Settings.Mod.Id}_{fileLabel}_l_{language}.yml";
-            string filePath = Path.Combine(localisationDirectoryPath, fileName);
+            string filePath = Path.Combine(languageDirectoryPath, fileName);
 
+            Directory.CreateDirectory(languageDirectoryPath);
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
+        }
+
+        static string RemoveDuplicateScoreDefinitions(string content)
+        {
+            HashSet<string> scoreDefinitions = [];
+            List<string> lines = [];
+            List<string> sourceLines = content.Split('\n').ToList();
+
+            for (int lineIndex = 0; lineIndex < sourceLines.Count; lineIndex += 1)
+            {
+                string line = sourceLines[lineIndex];
+
+                if (Regex.IsMatch(line, "^\\s*@.*=.*$", RegexOptions.Compiled) &&
+                    !scoreDefinitions.Add(line.Trim()))
+                {
+                    lineIndex = FindBlockEndLineIndex(sourceLines, lineIndex);
+                    continue;
+                }
+
+                lines.Add(line);
+            }
+
+            return string.Join(Environment.NewLine, lines);
+        }
+
+        static string MergeCulturalNameBlocks(string content)
+        {
+            List<string> lines = content.Split('\n').ToList();
+            Dictionary<int, List<string>> replacementBlocks = [];
+            HashSet<int> omittedLines = [];
+
+            for (int lineIndex = 0; lineIndex < lines.Count; lineIndex += 1)
+            {
+                if (!Regex.IsMatch(lines[lineIndex], "^\\s*[ekdcb]_.*=\\s*\\{.*$", RegexOptions.Compiled))
+                {
+                    continue;
+                }
+
+                int titleEndLineIndex = FindBlockEndLineIndex(lines, lineIndex);
+                List<CulturalNameBlock> culturalNameBlocks = FindCulturalNameBlocks(
+                    lines,
+                    lineIndex + 1,
+                    titleEndLineIndex);
+
+                if (culturalNameBlocks.Count > 1)
+                {
+                    AddMergedCulturalNameBlock(culturalNameBlocks, lines, replacementBlocks, omittedLines);
+                }
+
+                lineIndex = titleEndLineIndex;
+            }
+
+            List<string> mergedContentLines = [];
+
+            for (int lineIndex = 0; lineIndex < lines.Count; lineIndex += 1)
+            {
+                if (omittedLines.Contains(lineIndex))
+                {
+                    continue;
+                }
+
+                if (replacementBlocks.ContainsKey(lineIndex))
+                {
+                    mergedContentLines.Add(string.Join(Environment.NewLine, replacementBlocks[lineIndex]));
+                    continue;
+                }
+
+                mergedContentLines.Add(lines[lineIndex]);
+            }
+
+            return string.Join(Environment.NewLine, mergedContentLines);
+        }
+
+        static int FindBlockEndLineIndex(IList<string> lines, int blockStartLineIndex)
+        {
+            int blockDepth = 0;
+
+            for (int lineIndex = blockStartLineIndex; lineIndex < lines.Count; lineIndex += 1)
+            {
+                blockDepth += lines[lineIndex].Count(character => character.Equals('{'));
+                blockDepth -= lines[lineIndex].Count(character => character.Equals('}'));
+
+                if (blockDepth == 0)
+                {
+                    return lineIndex;
+                }
+            }
+
+            return lines.Count - 1;
+        }
+
+        static List<CulturalNameBlock> FindCulturalNameBlocks(
+            IList<string> lines,
+            int firstLineIndex,
+            int lastLineIndex)
+        {
+            List<CulturalNameBlock> culturalNameBlocks = [];
+
+            for (int lineIndex = firstLineIndex; lineIndex < lastLineIndex; lineIndex += 1)
+            {
+                if (!Regex.IsMatch(lines[lineIndex], "^\\s*cultural_names\\s*=\\s*\\{.*$", RegexOptions.Compiled))
+                {
+                    continue;
+                }
+
+                culturalNameBlocks.Add(new CulturalNameBlock(
+                    lineIndex,
+                    FindBlockEndLineIndex(lines, lineIndex)));
+            }
+
+            return culturalNameBlocks;
+        }
+
+        static void AddMergedCulturalNameBlock(
+            IEnumerable<CulturalNameBlock> culturalNameBlocks,
+            IList<string> lines,
+            IDictionary<int, List<string>> replacementBlocks,
+            ISet<int> omittedLines)
+        {
+            CulturalNameBlock firstCulturalNameBlock = culturalNameBlocks.First();
+            HashSet<string> nameListKeys = [];
+            List<string> mergedLines = [lines[firstCulturalNameBlock.StartLineIndex]];
+
+            foreach (CulturalNameBlock culturalNameBlock in culturalNameBlocks)
+            {
+                for (int lineIndex = culturalNameBlock.StartLineIndex + 1;
+                    lineIndex < culturalNameBlock.EndLineIndex;
+                    lineIndex += 1)
+                {
+                    Match nameListMatch = Regex.Match(
+                        lines[lineIndex],
+                        "^\\s*(name_list_\\S+)\\s*=.*$",
+                        RegexOptions.Compiled);
+
+                    if (!nameListMatch.Success || nameListKeys.Add(nameListMatch.Groups[1].Value))
+                    {
+                        mergedLines.Add(lines[lineIndex]);
+                    }
+                }
+            }
+
+            mergedLines.Add(lines[firstCulturalNameBlock.EndLineIndex]);
+            replacementBlocks.Add(firstCulturalNameBlock.StartLineIndex, mergedLines);
+
+            foreach (CulturalNameBlock culturalNameBlock in culturalNameBlocks)
+            {
+                for (int lineIndex = culturalNameBlock.StartLineIndex + 1;
+                    lineIndex <= culturalNameBlock.EndLineIndex;
+                    lineIndex += 1)
+                {
+                    omittedLines.Add(lineIndex);
+                }
+            }
         }
 
         string GenerateLocationLocalisationLine(string key, string value, Localisation localisation)

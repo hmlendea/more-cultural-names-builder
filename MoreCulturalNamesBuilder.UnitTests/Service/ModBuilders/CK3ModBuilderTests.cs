@@ -119,8 +119,18 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 
             File.WriteAllText(
                 landedTitlesFilePath,
+                "@vassal_score = {\n" +
+                "    value = 10\n" +
+                "}\n" +
+                "@vassal_score = {\n" +
+                "    value = 10\n" +
+                "}\n" +
+                "scope:vassal ? = scope:target\n" +
                 "c_cluj = {\n" +
                 "    name_list_romanian = original_name\n" +
+                "    cultural_names = {\n" +
+                "        name_list_french = old_name\n" +
+                "    }\n" +
                 "}\n" +
                 "allow = {\n" +
                 "c_oradea = {\n" +
@@ -156,10 +166,12 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             string defaultLocalisationsPath = Path.Combine(
                 mainDirectoryPath,
                 "localization",
+                "english",
                 $"{ModId}_titles_l_english.yml");
             string dynamicLocalisationsPath = Path.Combine(
                 mainDirectoryPath,
                 "localization",
+                "english",
                 $"{ModId}_titles_cultural_names_l_english.yml");
 
             string mainDescriptor = File.ReadAllText(mainDescriptorPath);
@@ -176,6 +188,11 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 Assert.That(landedTitles, Does.Contain("cultural_names = {"));
                 Assert.That(landedTitles, Does.Contain("name_list_romanian = cn_Cluj-Napoca_romanian # Cluj-Napoca # Language=Romanian # Praise the Sun!"));
                 Assert.That(landedTitles, Does.Not.Contain("original_name"));
+                Assert.That(landedTitles.Split("@vassal_score = {").Length, Is.EqualTo(2));
+                Assert.That(landedTitles, Does.Contain("scope:vassal ?= scope:target"));
+                Assert.That(landedTitles, Does.Not.Contain("scope:vassal ? = scope:target"));
+                Assert.That(landedTitles.Split("cultural_names = {").Length, Is.EqualTo(3));
+                Assert.That(landedTitles, Does.Contain("name_list_french = old_name"));
                 Assert.That(defaultLocalisations, Does.StartWith("l_english:"));
                 Assert.That(defaultLocalisations, Does.Contain(" c_cluj:0 \"Cluj-Napoca\" # Language=Romanian # Praise the Sun!"));
                 Assert.That(defaultLocalisations, Does.Contain(" c_cluj_adj:0 \"Clujean\" # Language=Romanian # Praise the Sun!"));
@@ -184,7 +201,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 Assert.That(dynamicLocalisations, Does.Contain(" cn_Cluj-Napoca_romanian:0 \"Cluj-Napoca\""));
                 Assert.That(dynamicLocalisations, Does.Contain(" cn_Cluj-Napoca_romanian_adj:0 \"Clujean\""));
                 Assert.That(dynamicLocalisations, Does.Contain(" cn_Dezmir_romanian_adj:0 \"Dezmirian\""));
-                Assert.That(Directory.GetFiles(Path.Combine(mainDirectoryPath, "localization")), Has.Length.EqualTo(8));
+                Assert.That(Directory.GetDirectories(Path.Combine(mainDirectoryPath, "localization")), Has.Length.EqualTo(9));
+                Assert.That(Directory.GetFiles(Path.Combine(mainDirectoryPath, "localization"), "*.yml", SearchOption.AllDirectories), Has.Length.EqualTo(18));
                 Assert.That(
                     dynamicLocalisations.Split("cn_Cluj-Napoca_romanian:0").Length,
                     Is.EqualTo(2));
@@ -230,6 +248,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             string defaultLocalisations = File.ReadAllText(Path.Combine(
                 mainDirectoryPath,
                 "localization",
+                "english",
                 $"{ModId}_titles_l_english.yml"));
 
             Assert.Multiple(() =>
