@@ -272,7 +272,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             return string.Join(Environment.NewLine, content);
         }
 
-        string CleanLandedTitlesFile(string content)
+        protected virtual string CleanLandedTitlesFile(string content)
         {
             string culturesPattern = string.Join('|', languageGameIds.Select(x => x.Id));
 

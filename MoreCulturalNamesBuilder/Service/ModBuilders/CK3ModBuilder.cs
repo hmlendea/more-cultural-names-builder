@@ -51,30 +51,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             => File.ReadAllText(Settings.Input.LandedTitlesFilePath);
 
         protected override void WriteLandedTitlesFile(string filePath, string content)
-            => File.WriteAllText(filePath, content);
+            => File.WriteAllText(filePath, CK3CulturalNameBlockMerger.Merge(content));
 
-        protected override string DoCleanLandedTitlesFile(string content)
-        {
-            string nameListsPattern = string.Join('|', languageGameIds.Select(x => $"name_list_{x.Id}"));
-
-            Regex breakInlineRegex = new(
-                $"^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{{\\s*((" + nameListsPattern + ")\\s*=\\s*[a-zA-Z_-]*)\\s*\\}}",
-                RegexOptions.Multiline | RegexOptions.Compiled);
-            Regex removeOriginalRegex = new Regex(
-                $"^\\s*({nameListsPattern})\\s*=\\s*[a-zA-Z_-]*\\s*\n",
-                RegexOptions.Multiline | RegexOptions.Compiled);
-            Regex removeEmptyBlockRegex = new Regex(
-                "^\\s*cultural_names\\s*=\\s*{\\s*\r*\n\\s*}\\s*\r*\n",
-                RegexOptions.Multiline | RegexOptions.Compiled);
-
-            string cleanContent = content;
-
-            cleanContent = breakInlineRegex.Replace(cleanContent, "$1$2 = {\n$1\t$3\n$1}");
-            cleanContent = removeOriginalRegex.Replace(cleanContent, string.Empty);
-            cleanContent = removeEmptyBlockRegex.Replace(cleanContent, string.Empty);
-
-            return cleanContent;
-        }
+        protected override string CleanLandedTitlesFile(string content) => content;
 
         protected override string GetTitleLocalisationsContent(string line, string gameId)
         {
@@ -94,7 +73,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             foreach (Localisation localisation in titleLocalisations)
             {
                 string lineToAdd =
-                    $"{indentation2}name_list_{localisation.LanguageGameId} = cn_{localisation.Id}_{localisation.LanguageGameId}" +
+                    $"{indentation2}name_list_{localisation.LanguageGameId} = {GetDynamicLocalisationKey(localisation)}" +
                     $" # {nameNormaliser.ToCK3Charset(localisation.Name)}";
 
                 if (Settings.Output.AreVerboseCommentsEnabled)
@@ -120,7 +99,18 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             string defaultLocalisationsFileContent = GenerateDefaultNamesLocalisationFileContent();
             string dynamicLocalisationsFileContent = GenerateDynamicNamesLocalisationFileContent();
 
-            List<string> localisationLanguages = ["english", "french", "german", "spanish"];
+            List<string> localisationLanguages =
+            [
+                "english",
+                "french",
+                "german",
+                "polish",
+                "spanish",
+                "simp_chinese",
+                "russian",
+                "korean",
+                "japanese",
+            ];
 
             Parallel.ForEach(localisationLanguages, fileLanguage => CreateLocalisationFile(
                 localisationDirectoryPath,
@@ -239,7 +229,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             List<string> lines = [];
             object lineCollectionLock = new();
 
-            List<Localisation> uniqueLocalisations = BuildUniqueLocalisations();
+            List<Localisation> uniqueLocalisations = localisations
+                .SelectMany(x => x.Value)
+                .GroupBy(x => $"{x.LanguageGameId}_{nameNormaliser.ToCK3Charset(x.Name)}")
+                .Select(x => x.OrderBy(localisation => localisation.Id).First())
+                .ToList();
 
             Parallel.ForEach(
                 uniqueLocalisations,
@@ -276,6 +270,20 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 lines);
         }
 
+        string GetDynamicLocalisationKey(Localisation localisation)
+        {
+            Localisation canonicalLocalisation = localisations
+                .SelectMany(localisationEntry => localisationEntry.Value)
+                .Where(candidate =>
+                    candidate.LanguageGameId.Equals(localisation.LanguageGameId) &&
+                    nameNormaliser.ToCK3Charset(candidate.Name)
+                        .Equals(nameNormaliser.ToCK3Charset(localisation.Name)))
+                .OrderBy(candidate => candidate.Id)
+                .First();
+
+            return $"cn_{canonicalLocalisation.Id}_{canonicalLocalisation.LanguageGameId}";
+        }
+
         void EnsureLocalisationsOrderedByLanguageId()
         {
             if (localisationsOrderedByLanguageId is not null)
@@ -297,38 +305,14 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 null);
         }
 
-        static List<Localisation> BuildUniqueLocalisations(
-            IDictionary<string, IEnumerable<Localisation>> localisations)
-        {
-            HashSet<string> seenLocalisationKeys = [];
-            List<Localisation> uniqueLocalisations = [];
-
-            foreach (IEnumerable<Localisation> localisationsForGameId in localisations.Values)
-            {
-                foreach (Localisation localisation in localisationsForGameId)
-                {
-                    string localisationKey = $"{localisation.Id}_{localisation.LanguageGameId}";
-
-                    if (!seenLocalisationKeys.Add(localisationKey))
-                    {
-                        continue;
-                    }
-
-                    uniqueLocalisations.Add(localisation);
-                }
-            }
-
-            return uniqueLocalisations;
-        }
-
-        List<Localisation> BuildUniqueLocalisations() => BuildUniqueLocalisations(localisations);
-
         void CreateLocalisationFile(string localisationDirectoryPath, string fileLabel, string language, string content)
         {
+            string languageDirectoryPath = Path.Combine(localisationDirectoryPath, language);
             string fileContent = $"l_{language}:{Environment.NewLine}{content}";
             string fileName = $"{Settings.Mod.Id}_{fileLabel}_l_{language}.yml";
-            string filePath = Path.Combine(localisationDirectoryPath, fileName);
+            string filePath = Path.Combine(languageDirectoryPath, fileName);
 
+            Directory.CreateDirectory(languageDirectoryPath);
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
         }
 
