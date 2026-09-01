@@ -125,7 +125,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 "@vassal_score = {\n" +
                 "    value = 10\n" +
                 "}\n" +
-                "scope:vassal ? = scope:target\n" +
+                "scope:vassal ? = scope:target # Source comment\n" +
                 "c_cluj = {\n" +
                 "    name_list_romanian = original_name\n" +
                 "    cultural_names = {\n" +
@@ -187,11 +187,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 Assert.That(innerDescriptor, Does.Contain("supported_version=\"1.12.*\""));
                 Assert.That(landedTitles, Does.Contain("cultural_names = {"));
                 Assert.That(landedTitles, Does.Contain("name_list_romanian = cn_Cluj-Napoca_romanian # Cluj-Napoca # Language=Romanian # Praise the Sun!"));
-                Assert.That(landedTitles, Does.Not.Contain("original_name"));
-                Assert.That(landedTitles.Split("@vassal_score = {").Length, Is.EqualTo(2));
-                Assert.That(landedTitles, Does.Contain("scope:vassal ?= scope:target"));
-                Assert.That(landedTitles, Does.Not.Contain("scope:vassal ? = scope:target"));
-                Assert.That(landedTitles.Split("cultural_names = {").Length, Is.EqualTo(3));
+                Assert.That(landedTitles, Does.Contain("name_list_romanian = original_name"));
+                Assert.That(landedTitles.Split("@vassal_score = {").Length, Is.EqualTo(3));
+                Assert.That(landedTitles, Does.Contain("scope:vassal ? = scope:target # Source comment"));
+                Assert.That(landedTitles.Split("cultural_names = {").Length, Is.EqualTo(4));
                 Assert.That(landedTitles, Does.Contain("name_list_french = old_name"));
                 Assert.That(defaultLocalisations, Does.StartWith("l_english:"));
                 Assert.That(defaultLocalisations, Does.Contain(" c_cluj:0 \"Cluj-Napoca\" # Language=Romanian # Praise the Sun!"));

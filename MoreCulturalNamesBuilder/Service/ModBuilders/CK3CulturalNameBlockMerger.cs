@@ -7,29 +7,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     internal static class CK3CulturalNameBlockMerger
     {
-        internal static string RemoveDuplicateScoreDefinitions(string content)
-        {
-            HashSet<string> scoreDefinitions = [];
-            List<string> lines = [];
-            List<string> sourceLines = content.Split('\n').ToList();
-
-            for (int lineIndex = 0; lineIndex < sourceLines.Count; lineIndex += 1)
-            {
-                string line = sourceLines[lineIndex];
-
-                if (Regex.IsMatch(line, "^\\s*@.*=.*$", RegexOptions.Compiled) &&
-                    !scoreDefinitions.Add(line.Trim()))
-                {
-                    lineIndex = FindBlockEndLineIndex(sourceLines, lineIndex);
-                    continue;
-                }
-
-                lines.Add(line);
-            }
-
-            return string.Join(Environment.NewLine, lines);
-        }
-
         internal static string Merge(string content)
         {
             List<string> lines = content.Split('\n').ToList();
@@ -151,7 +128,14 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             foreach (CulturalNameBlock culturalNameBlock in culturalNameBlocks)
             {
-                for (int lineIndex = culturalNameBlock.StartLineIndex + 1;
+                int firstLineToOmit = culturalNameBlock.StartLineIndex + 1;
+
+                if (culturalNameBlock.StartLineIndex != firstCulturalNameBlock.StartLineIndex)
+                {
+                    firstLineToOmit = culturalNameBlock.StartLineIndex;
+                }
+
+                for (int lineIndex = firstLineToOmit;
                     lineIndex <= culturalNameBlock.EndLineIndex;
                     lineIndex += 1)
                 {

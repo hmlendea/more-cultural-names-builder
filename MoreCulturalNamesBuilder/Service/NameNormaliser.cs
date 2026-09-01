@@ -8,6 +8,45 @@ namespace MoreCulturalNamesBuilder.Service
 {
     public sealed class NameNormaliser(INuciTextConverter textConverter) : INameNormaliser
     {
+        static readonly Regex StartsWithPhiRegex = new("\\bɸ", RegexOptions.Compiled);
+        static readonly Regex TaMarbutaRegex = new("[a]*[ẗ]", RegexOptions.Compiled);
+        static readonly Regex UpperGWithOptionalHRegex = new("[Ġ]([^h])", RegexOptions.Compiled);
+        static readonly Regex LowerGWithOptionalHRegex = new("[ġ]([^h])", RegexOptions.Compiled);
+        static readonly Regex UpperGWithHRegex = new("[Ġ](h)", RegexOptions.Compiled);
+        static readonly Regex LowerGWithHRegex = new("[ġ](h)", RegexOptions.Compiled);
+        static readonly Regex CurlyApostropheRegex = new("[‘’]", RegexOptions.Compiled);
+        static readonly Regex FloatingDiacriticsRegex = new("[̧̣̤̦̓́̀̆̂̌̈̋̄̍̃͘᠌̬]", RegexOptions.Compiled);
+        static readonly Regex OtherFloatingDiacriticsRegex = new("(ॎ|઼|‌ॎ)", RegexOptions.Compiled);
+        static readonly Regex AttachedDiacriticsRegex = new("[・̲̥̮̱̇̐͡]", RegexOptions.Compiled);
+        static readonly Regex ReversedGlottalStopRegex = new("[ʔ]", RegexOptions.Compiled);
+        static readonly Regex AcuteApostropheLikeRegex = new("[ʾʻʼʽʹ′]", RegexOptions.Compiled);
+        static readonly Regex BacktickApostropheLikeRegex = new("[ʿ]", RegexOptions.Compiled);
+        static readonly Regex StraightApostropheLikeRegex = new("[ꞌʿˀʲь]", RegexOptions.Compiled);
+        static readonly Regex QuoteLikeRegex = new("[ʺ″]", RegexOptions.Compiled);
+        static readonly Regex ZeroWidthJoinersRegex = new("[‌‍]", RegexOptions.Compiled);
+        static readonly Regex DashLikeRegex = new("[–—]", RegexOptions.Compiled);
+        static readonly Regex ColonLikeRegex = new("[꞉]", RegexOptions.Compiled);
+        static readonly Regex DirectionalityMarksRegex = new("[‎·]", RegexOptions.Compiled);
+        static readonly Regex OtherInvisibleMarksRegex = new("[＝̷̯̰̊̒]", RegexOptions.Compiled);
+        static readonly Regex ZeroWidthSpaceRegex = new("[​]", RegexOptions.Compiled);
+        static readonly Regex InvisibleCharactersRegex = new("([‎‎])", RegexOptions.Compiled);
+        static readonly Regex UpperAAlternativesRegex = new("(𝖠|A‍)", RegexOptions.Compiled);
+        static readonly Regex UpperABeforeCanadianSyllabicsRegex = new("( ᐋ)", RegexOptions.Compiled);
+        static readonly Regex UpperBAlternativesRegex = new("(B‍|B‌|پ)", RegexOptions.Compiled);
+        static readonly Regex UpperMAlternativesRegex = new("(M̄|M̐)", RegexOptions.Compiled);
+        static readonly Regex UpperPAlternativesRegex = new("(P‍|П)", RegexOptions.Compiled);
+        static readonly Regex UpperRAlternativesRegex = new("(R‍|R‌)", RegexOptions.Compiled);
+        static readonly Regex UpperSAlternativesRegex = new("(S‍|S‌)", RegexOptions.Compiled);
+        static readonly Regex LowerAAlternativesRegex = new("(𝖺|a‍)", RegexOptions.Compiled);
+        static readonly Regex LowerACanadianSyllabicsRegex = new("([^ ])ᐋ", RegexOptions.Compiled);
+        static readonly Regex LowerBAlternativesRegex = new("(b‍|b‌)", RegexOptions.Compiled);
+        static readonly Regex LowerDAlternativesRegex = new("(𝖽|d‍‌)", RegexOptions.Compiled);
+        static readonly Regex LowerGAlternativesRegex = new("(g‍|g‌)", RegexOptions.Compiled);
+        static readonly Regex LowerMAlternativesRegex = new("(m̄|m̐|m̃)", RegexOptions.Compiled);
+        static readonly Regex LowerPAlternativesRegex = new("(p‍|п)", RegexOptions.Compiled);
+        static readonly Regex LowerRAlternativesRegex = new("(r‍|r‌)", RegexOptions.Compiled);
+        static readonly Regex LowerSAlternativesRegex = new("(s‍|s‌)", RegexOptions.Compiled);
+
         readonly ConcurrentDictionary<string, string> ck3cache = new();
         readonly ConcurrentDictionary<string, string> hoi4citiesCache = new();
         readonly ConcurrentDictionary<string, string> hoi4statesCache = new();
@@ -566,7 +605,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = processedName.Replace("J̌", "Ĵ");
             processedName = processedName.Replace("T̈", "T");
             processedName = processedName.Replace("āẗ", "āh");
-            processedName = Regex.Replace(processedName, "[a]*[ẗ]", "ah");
+            processedName = TaMarbutaRegex.Replace(processedName, "ah");
 
             ck3cache.TryAdd(name, processedName);
 
@@ -589,11 +628,11 @@ namespace MoreCulturalNamesBuilder.Service
 
             // Hearts of Iron IV Cities
             processedName = processedName.Replace("āẗ", "āh");
-            processedName = Regex.Replace(processedName, "[a]*[ẗ]", "ah");
+            processedName = TaMarbutaRegex.Replace(processedName, "ah");
 
             processedName = ReplaceUsingMap(processedName, Hoi4CityCharacterMappings);
 
-            processedName = Regex.Replace(processedName, "[‘’]", "´");
+            processedName = CurlyApostropheRegex.Replace(processedName, "´");
 
             hoi4citiesCache.TryAdd(name, processedName);
 
@@ -618,8 +657,8 @@ namespace MoreCulturalNamesBuilder.Service
                 .Replace("iīẗ", "iyyah")
                 .Replace("īẗ", "iyah");
 
-            processedName = Regex.Replace(processedName, "[Ġ]([^h])", "Gh$1");
-            processedName = Regex.Replace(processedName, "[ġ]([^h])", "gh$1");
+            processedName = UpperGWithOptionalHRegex.Replace(processedName, "Gh$1");
+            processedName = LowerGWithOptionalHRegex.Replace(processedName, "gh$1");
 
             processedName = ReplaceUsingMap(processedName, Hoi4StateCharacterMappings);
             processedName = ToHOI4CityCharset(processedName);
@@ -649,14 +688,14 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = ApplyCommonReplacements(processedName);
 
             // Imperator: Rome
-            processedName = Regex.Replace(processedName, "[Ġ]([^h])", "Gh$1");
-            processedName = Regex.Replace(processedName, "[Ġ](h)", "Gh");
-            processedName = Regex.Replace(processedName, "J̌", "J");
-            processedName = Regex.Replace(processedName, "T̈", "T");
-            processedName = Regex.Replace(processedName, "ā[ẗ]", "āh");
-            processedName = Regex.Replace(processedName, "[a]*[ẗ]", "ah");
-            processedName = Regex.Replace(processedName, "[ġ]([^h])", "gh$1");
-            processedName = Regex.Replace(processedName, "[ġ](h)", "gh");
+            processedName = UpperGWithOptionalHRegex.Replace(processedName, "Gh$1");
+            processedName = UpperGWithHRegex.Replace(processedName, "Gh");
+            processedName = processedName.Replace("J̌", "J");
+            processedName = processedName.Replace("T̈", "T");
+            processedName = processedName.Replace("āẗ", "āh");
+            processedName = TaMarbutaRegex.Replace(processedName, "ah");
+            processedName = LowerGWithOptionalHRegex.Replace(processedName, "gh$1");
+            processedName = LowerGWithHRegex.Replace(processedName, "gh");
 
             processedName = ReplaceUsingMap(processedName, ImperatorRomeCharacterMappings);
 
@@ -672,7 +711,7 @@ namespace MoreCulturalNamesBuilder.Service
         {
             string processedName = name;
 
-            processedName = Regex.Replace(processedName, "\\bɸ", "P");
+            processedName = StartsWithPhiRegex.Replace(processedName, "P");
 
             processedName = ReplaceUsingMap(processedName, CommonCharacterMappings);
 
@@ -689,13 +728,13 @@ namespace MoreCulturalNamesBuilder.Service
                 .Replace("R̥", "Ru")
                 .Replace("Ṭ‍", "Ṭ");
 
-            processedName = Regex.Replace(processedName, "(𝖠|A‍)", "A");
-            processedName = Regex.Replace(processedName, "( ᐋ)", " Â");
-            processedName = Regex.Replace(processedName, "(B‍|B‌|پ)", "B");
-            processedName = Regex.Replace(processedName, "(M̄|M̐)", "M");
-            processedName = Regex.Replace(processedName, "(P‍|П)", "P");
-            processedName = Regex.Replace(processedName, "(R‍|R‌)", "R");
-            processedName = Regex.Replace(processedName, "(S‍|S‌)", "S");
+            processedName = UpperAAlternativesRegex.Replace(processedName, "A");
+            processedName = UpperABeforeCanadianSyllabicsRegex.Replace(processedName, " Â");
+            processedName = UpperBAlternativesRegex.Replace(processedName, "B");
+            processedName = UpperMAlternativesRegex.Replace(processedName, "M");
+            processedName = UpperPAlternativesRegex.Replace(processedName, "P");
+            processedName = UpperRAlternativesRegex.Replace(processedName, "R");
+            processedName = UpperSAlternativesRegex.Replace(processedName, "S");
 
             processedName = processedName
                 .Replace("ḡ", "ğ") // Untested in the games
@@ -711,15 +750,15 @@ namespace MoreCulturalNamesBuilder.Service
                 .Replace("r̥", "ru")
                 .Replace("ṭ‍", "ṭ");
 
-            processedName = Regex.Replace(processedName, "(𝖺|a‍)", "a");
-            processedName = Regex.Replace(processedName, "([^ ])ᐋ", "$1â");
-            processedName = Regex.Replace(processedName, "(b‍|b‌)", "b");
-            processedName = Regex.Replace(processedName, "(𝖽|d‍‌)", "d");
-            processedName = Regex.Replace(processedName, "(g‍|g‌)", "g");
-            processedName = Regex.Replace(processedName, "(m̄|m̐|m̃)", "m");
-            processedName = Regex.Replace(processedName, "(p‍|п)", "p");
-            processedName = Regex.Replace(processedName, "(r‍|r‌)", "r");
-            processedName = Regex.Replace(processedName, "(s‍|s‌)", "s");
+            processedName = LowerAAlternativesRegex.Replace(processedName, "a");
+            processedName = LowerACanadianSyllabicsRegex.Replace(processedName, "$1â");
+            processedName = LowerBAlternativesRegex.Replace(processedName, "b");
+            processedName = LowerDAlternativesRegex.Replace(processedName, "d");
+            processedName = LowerGAlternativesRegex.Replace(processedName, "g");
+            processedName = LowerMAlternativesRegex.Replace(processedName, "m");
+            processedName = LowerPAlternativesRegex.Replace(processedName, "p");
+            processedName = LowerRAlternativesRegex.Replace(processedName, "r");
+            processedName = LowerSAlternativesRegex.Replace(processedName, "s");
 
             // Floating vertical lines
             processedName = processedName
@@ -805,22 +844,22 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = processedName.Replace("A̓", "Á"); // Or Á?
 
             // Other floating diacritics
-            processedName = Regex.Replace(processedName, "[̧̣̤̦̓́̀̆̂̌̈̋̄̍̃͘᠌̬]", "");
-            processedName = Regex.Replace(processedName, "(ॎ|઼|‌ॎ)", ""); // ???
-            processedName = Regex.Replace(processedName, "[・̲̥̮̱̇̐͡]", ""); // Diacritics that attach to characters... I guess
+            processedName = FloatingDiacriticsRegex.Replace(processedName, "");
+            processedName = OtherFloatingDiacriticsRegex.Replace(processedName, ""); // ???
+            processedName = AttachedDiacriticsRegex.Replace(processedName, ""); // Diacritics that attach to characters... I guess
 
-            processedName = Regex.Replace(processedName, "[ʔ]", "ʾ");
-            processedName = Regex.Replace(processedName, "[ʾʻʼʽʹ′]", "´");
-            processedName = Regex.Replace(processedName, "[ʿ]", "`");
-            processedName = Regex.Replace(processedName, "[ꞌʿˀʲь]", "'");
-            processedName = Regex.Replace(processedName, "[ʺ″]", "\"");
-            processedName = Regex.Replace(processedName, "[‌‍]", "");
-            processedName = Regex.Replace(processedName, "[–—]", "-");
-            processedName = Regex.Replace(processedName, "[꞉]", ":");
-            processedName = Regex.Replace(processedName, "[‎·]", "");
-            processedName = Regex.Replace(processedName, "[＝̷̯̰̊̒]", "");
-            processedName = Regex.Replace(processedName, "[​]", "");
-            processedName = Regex.Replace(processedName, "([‎‎])", ""); // Invisible characters
+            processedName = ReversedGlottalStopRegex.Replace(processedName, "ʾ");
+            processedName = AcuteApostropheLikeRegex.Replace(processedName, "´");
+            processedName = BacktickApostropheLikeRegex.Replace(processedName, "`");
+            processedName = StraightApostropheLikeRegex.Replace(processedName, "'");
+            processedName = QuoteLikeRegex.Replace(processedName, "\"");
+            processedName = ZeroWidthJoinersRegex.Replace(processedName, "");
+            processedName = DashLikeRegex.Replace(processedName, "-");
+            processedName = ColonLikeRegex.Replace(processedName, ":");
+            processedName = DirectionalityMarksRegex.Replace(processedName, "");
+            processedName = OtherInvisibleMarksRegex.Replace(processedName, "");
+            processedName = ZeroWidthSpaceRegex.Replace(processedName, "");
+            processedName = InvisibleCharactersRegex.Replace(processedName, ""); // Invisible characters
 
             return processedName;
         }
@@ -832,18 +871,36 @@ namespace MoreCulturalNamesBuilder.Service
                 return null;
             }
 
-            StringBuilder sb = new(input.Length);
+            int firstReplaceableCharacterIndex = -1;
 
-            foreach (char c in input)
+            for (int characterIndex = 0; characterIndex < input.Length; characterIndex += 1)
             {
-                if (map.TryGetValue(c, out string replacement))
+                if (map.ContainsKey(input[characterIndex]))
+                {
+                    firstReplaceableCharacterIndex = characterIndex;
+                    break;
+                }
+            }
+
+            if (firstReplaceableCharacterIndex is -1)
+            {
+                return input;
+            }
+
+            StringBuilder sb = new(input.Length);
+            sb.Append(input, 0, firstReplaceableCharacterIndex);
+
+            for (int characterIndex = firstReplaceableCharacterIndex; characterIndex < input.Length; characterIndex += 1)
+            {
+                char currentCharacter = input[characterIndex];
+
+                if (map.TryGetValue(currentCharacter, out string replacement))
                 {
                     sb.Append(replacement);
+                    continue;
                 }
-                else
-                {
-                    sb.Append(c);
-                }
+
+                sb.Append(currentCharacter);
             }
 
             return sb.ToString();
