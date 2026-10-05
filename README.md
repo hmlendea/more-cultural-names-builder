@@ -25,6 +25,7 @@ A CLI tool that generates game mods which localise place names into different la
   - [Directories](#directories)
 - [Architecture](#architecture)
 - [Contributing](#contributing)
+- [Security](#security)
 - [Project Engagement](#project-engagement)
 - [License](#license)
 
