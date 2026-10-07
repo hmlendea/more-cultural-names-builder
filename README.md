@@ -26,6 +26,7 @@ A CLI tool that generates game mods which localise place names into different la
 - [Architecture](#architecture)
 - [Contributing](#contributing)
 - [Security](#security)
+- [Privacy](#privacy)
 - [Project Engagement](#project-engagement)
 - [License](#license)
 
@@ -180,6 +181,10 @@ When doing so, please:
 - Revise the documentation when functionality changes
 - Properly test all modifications, including edge cases and error conditions
 - Add tests for additional or modified functionality
+
+## 🔒 Privacy
+
+See [PRIVACY.md](./PRIVACY.md) for the data handling practices of this application.
 
 ## 💝 Project Engagement
 
