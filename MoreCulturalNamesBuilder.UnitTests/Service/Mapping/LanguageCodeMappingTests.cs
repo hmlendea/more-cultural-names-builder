@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
 {
@@ -22,7 +22,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 ISO_639_3 = "ron"
             };
 
-            LanguageCodeEntity dataObject = InternalMappingInvoker.Invoke<LanguageCodeEntity>(
+            LanguageCodeDataObject dataObject = InternalMappingInvoker.Invoke<LanguageCodeDataObject>(
                 "LanguageCodeMapping",
                 "ToDataObject",
                 serviceModel);
@@ -40,7 +40,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
         {
             LanguageCode serviceModel = new();
 
-            LanguageCodeEntity dataObject = InternalMappingInvoker.Invoke<LanguageCodeEntity>(
+            LanguageCodeDataObject dataObject = InternalMappingInvoker.Invoke<LanguageCodeDataObject>(
                 "LanguageCodeMapping",
                 "ToDataObject",
                 serviceModel);
@@ -56,7 +56,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
         [Test]
         public void GivenMultipleDataObjects_WhenMappingToServiceModels_ThenOrderAndValuesArePreserved()
         {
-            IEnumerable<LanguageCodeEntity> dataObjects =
+            IEnumerable<LanguageCodeDataObject> dataObjects =
             [
                 new() { ISO_639_1 = "en", ISO_639_2 = "eng", ISO_639_3 = "eng" },
                 new() { ISO_639_1 = "ro", ISO_639_2 = "ron", ISO_639_3 = "ron" }
@@ -67,7 +67,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 "ToServiceModels",
                 dataObjects);
 
-            Assert.That(serviceModels.Select(serviceModel => serviceModel.ISO_639_1), Is.EqualTo(new[] { "en", "ro" }));
+            Assert.That(serviceModels.Select(serviceModel => serviceModel.ISO_639_1), Is.EqualTo(["en", "ro"]));
         }
 
         [Test]
@@ -79,12 +79,12 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 new() { ISO_639_1 = "ro", ISO_639_2 = "ron", ISO_639_3 = "ron" }
             ];
 
-            IEnumerable<LanguageCodeEntity> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<LanguageCodeEntity>>(
+            IEnumerable<LanguageCodeDataObject> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<LanguageCodeDataObject>>(
                 "LanguageCodeMapping",
                 "ToDataObjects",
                 serviceModels);
 
-            Assert.That(dataObjects.Select(dataObject => dataObject.ISO_639_1), Is.EqualTo(new[] { "en", "ro" }));
+            Assert.That(dataObjects.Select(dataObject => dataObject.ISO_639_1), Is.EqualTo(["en", "ro"]));
         }
     }
 }

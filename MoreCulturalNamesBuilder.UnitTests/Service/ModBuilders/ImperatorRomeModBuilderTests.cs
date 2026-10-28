@@ -4,10 +4,6 @@ using System.IO;
 
 using Moq;
 
-using NuciDAL.Repositories;
-
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service;
@@ -15,6 +11,10 @@ using MoreCulturalNamesBuilder.Service.ModBuilders;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.Configuration;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NuciDAL.Repositories;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 {
@@ -26,8 +26,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 
         private Mock<ILocalisationFetcher> localisationFetcher = null!;
         private Mock<INameNormaliser> nameNormaliser = null!;
-        private Mock<IFileRepository<LanguageEntity>> languageRepository = null!;
-        private Mock<IFileRepository<LocationEntity>> locationRepository = null!;
+        private Mock<IFileRepository<LanguageDataObject>> languageRepository = null!;
+        private Mock<IFileRepository<LocationDataObject>> locationRepository = null!;
         private TemporaryDirectory temporaryDirectory = null!;
         private ImperatorRomeModBuilder modBuilder = null!;
 
@@ -44,23 +44,23 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 .Setup(normaliser => normaliser.ToImperatorRomeCharset(It.IsAny<string>()))
                 .Returns((string value) => $"IR {value}");
 
-            LanguageEntity romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
             romanian.GameIds.Add(new("CK3", "romanian"));
-            LanguageEntity english = ModBuilderTestDataFactory.CreateLanguage(Game, "English", "english");
-            LocationEntity cluj = ModBuilderTestDataFactory.CreateLocation(
+            LanguageDataObject english = ModBuilderTestDataFactory.CreateLanguage(Game, "English", "english");
+            LocationDataObject cluj = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 "42",
                 "Province",
                 "Romanian");
             cluj.GameIds.Add(new("CK3", "c_cluj"));
-            LocationEntity oradea = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject oradea = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Oradea",
                 "4",
                 "Province",
                 "English");
-            LocationEntity dezmir = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject dezmir = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Dezmir",
                 "8",
@@ -123,8 +123,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         [Test]
         public void GivenNonVerboseLocalisationsWithoutComments_WhenBuilding_ThenNoCommentsAreGenerated()
         {
-            LanguageEntity romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
-            LocationEntity cluj = ModBuilderTestDataFactory.CreateLocation(
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LocationDataObject cluj = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 "42",
@@ -169,7 +169,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         [Test]
         public void GivenNoLocations_WhenBuilding_ThenHeaderOnlyLocalisationAndEmptyDataFilesAreGenerated()
         {
-            LanguageEntity romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
             ConfigureRepositories([romanian], []);
             modBuilder = CreateModBuilder(false);
 
@@ -202,13 +202,13 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             string locationGameId,
             Type expectedExceptionType)
         {
-            LocationEntity location = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject location = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 locationGameId,
                 "Province",
                 "Romanian");
-            LanguageEntity language = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LanguageDataObject language = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
             ConfigureRepositories([language], [location]);
             localisationFetcher
                 .Setup(fetcher => fetcher.GetGameLocationLocalisations(locationGameId, Game))
@@ -224,7 +224,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         [Test]
         public void GivenDuplicateCultureLocalisations_WhenBuilding_ThenAnAggregateExceptionIsThrown()
         {
-            LocationEntity location = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject location = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 "42",
@@ -248,8 +248,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         }
 
         private void ConfigureRepositories(
-            IEnumerable<LanguageEntity> languages,
-            IEnumerable<LocationEntity> locations)
+            IEnumerable<LanguageDataObject> languages,
+            IEnumerable<LocationDataObject> locations)
         {
             languageRepository.Setup(repository => repository.GetAll()).Returns(languages);
             locationRepository.Setup(repository => repository.GetAll()).Returns(locations);

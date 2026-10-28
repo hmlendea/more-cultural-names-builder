@@ -5,7 +5,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 {
     internal static class ModBuilderTestDataFactory
     {
-        internal static LanguageEntity CreateLanguage(
+        internal static LanguageDataObject CreateLanguage(
             string game,
             string languageId,
             string languageGameId)
@@ -17,12 +17,12 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 FallbackLanguages = []
             };
 
-        internal static LocationEntity CreateLocation(
+        internal static LocationDataObject CreateLocation(
             string game,
             string locationId,
             string locationGameId,
-            string locationGameIdType,
-            string defaultNameLanguageId)
+            string? locationGameIdType,
+            string? defaultNameLanguageId)
             => new()
             {
                 Id = locationId,
@@ -45,8 +45,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             string languageId,
             string languageGameId,
             string name,
-            string adjective,
-            string comment)
+            string? adjective,
+            string? comment)
             => new()
             {
                 Id = id,

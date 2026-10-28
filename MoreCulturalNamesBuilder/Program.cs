@@ -2,21 +2,22 @@ using System;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using NuciDAL.Repositories;
-
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service;
 using MoreCulturalNamesBuilder.Service.ModBuilders;
+
+using NuciDAL.Repositories;
+
 using NuciText.Conversion;
 
 namespace MoreCulturalNamesBuilder
 {
-    public class Program
+    public static class Program
     {
-        public static IServiceProvider ServiceProvider;
+        public static IServiceProvider ServiceProvider = null!;
 
-        static Settings settings = null;
+        private static Settings settings = null!;
 
         /// <summary>
         /// The entry point of the program, where the program control starts and ends.
@@ -24,20 +25,22 @@ namespace MoreCulturalNamesBuilder
         /// <param name="args">The command line arguments.</param>
         public static void Main(string[] args)
         {
-            settings = new Settings(args);
+            settings = new(args);
             BuildServiceProvider();
 
             ServiceProvider
-                .GetService<IModBuilderFactory>()
+                .GetRequiredService<IModBuilderFactory>()
                 .GetModBuilder(settings)
                 .Build();
         }
 
-        static void BuildServiceProvider()
+        private static void BuildServiceProvider()
             => ServiceProvider = new ServiceCollection()
                 .AddSingleton(settings)
-                .AddSingleton<IFileRepository<LanguageEntity>>(s => new XmlRepository<LanguageEntity>(settings.Input.LanguageStorePath))
-                .AddSingleton<IFileRepository<LocationEntity>>(s => new XmlRepository<LocationEntity>(settings.Input.LocationStorePath))
+                .AddSingleton<IFileRepository<LanguageDataObject>>(
+                    serviceProvider => new XmlRepository<LanguageDataObject>(settings.Input.LanguageStorePath))
+                .AddSingleton<IFileRepository<LocationDataObject>>(
+                    serviceProvider => new XmlRepository<LocationDataObject>(settings.Input.LocationStorePath))
                 .AddSingleton<ILocalisationFetcher, LocalisationFetcher>()
                 .AddSingleton<INameNormaliser, NameNormaliser>()
                 .AddSingleton<INuciTextConverter, NuciTextConverter>()

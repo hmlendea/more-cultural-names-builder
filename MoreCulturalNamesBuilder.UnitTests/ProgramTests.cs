@@ -6,12 +6,12 @@ using System.Xml.Serialization;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service;
 using MoreCulturalNamesBuilder.Service.ModBuilders;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests
 {
@@ -42,8 +42,8 @@ namespace MoreCulturalNamesBuilder.UnitTests
         {
             string languageStorePath = Path.Combine(temporaryDirectory.DirectoryPath, "languages.xml");
             string locationStorePath = Path.Combine(temporaryDirectory.DirectoryPath, "locations.xml");
-            WriteXmlCollection(languageStorePath, new List<LanguageEntity>());
-            WriteXmlCollection(locationStorePath, new List<LocationEntity>());
+            WriteXmlCollection(languageStorePath, new List<LanguageDataObject>());
+            WriteXmlCollection(locationStorePath, new List<LocationDataObject>());
             string[] arguments =
             [
                 "--lang", languageStorePath,

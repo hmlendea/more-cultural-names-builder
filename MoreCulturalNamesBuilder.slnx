@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MoreCulturalNamesBuilder/MoreCulturalNamesBuilder.csproj" />
+  <Project Path="MoreCulturalNamesBuilder.UnitTests/MoreCulturalNamesBuilder.UnitTests.csproj" />
+</Solution>

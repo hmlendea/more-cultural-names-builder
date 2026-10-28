@@ -1,10 +1,10 @@
 using Moq;
 
+using MoreCulturalNamesBuilder.Service;
+
 using NuciText.Conversion;
 
 using NUnit.Framework;
-
-using MoreCulturalNamesBuilder.Service;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service
 {

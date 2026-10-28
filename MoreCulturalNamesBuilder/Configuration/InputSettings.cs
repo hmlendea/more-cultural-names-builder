@@ -8,6 +8,6 @@ namespace MoreCulturalNamesBuilder.Configuration
 
         public string LocationStorePath { get; set; } = args.Get<string>("loc");
 
-        public string LandedTitlesFilePath { get; set; } = (string)args["landed-titles"];
+        public string? LandedTitlesFilePath { get; set; } = args["landed-titles"] as string;
     }
 }

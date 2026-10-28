@@ -7,53 +7,66 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-using NuciDAL.Repositories;
-using NuciExtensions;
-
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
+
 using NuciDAL.IO;
+using NuciDAL.Repositories;
+
+using NuciExtensions;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
-    public class CK2ModBuilder : ModBuilder
+    public partial class CK2ModBuilder : ModBuilder
     {
-        static readonly Regex TabRegex = new("\\t", RegexOptions.Multiline | RegexOptions.Compiled);
-        static readonly Regex AroundEqualsRegex = new("\\s*=\\s*", RegexOptions.Multiline | RegexOptions.Compiled);
-        static readonly Regex CommentRegex = new("\\s*#[^\\n]*", RegexOptions.Multiline | RegexOptions.Compiled);
-        static readonly Regex EmptyLineRegex = new("^\\s*\\n", RegexOptions.Multiline | RegexOptions.Compiled);
-        static readonly Regex TrailingWhitespaceRegex = new("\\s+$", RegexOptions.Multiline | RegexOptions.Compiled);
-        static readonly Regex EmptyBlockRegex = new(
-            "(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}",
-            RegexOptions.Multiline | RegexOptions.Compiled);
+        [GeneratedRegex("\\t", RegexOptions.Multiline)]
+        private static partial Regex TabRegex { get; }
+
+        [GeneratedRegex("\\s*=\\s*", RegexOptions.Multiline)]
+        private static partial Regex AroundEqualsRegex { get; }
+
+        [GeneratedRegex("\\s*#[^\\n]*", RegexOptions.Multiline)]
+        private static partial Regex CommentRegex { get; }
+
+        [GeneratedRegex("^\\s*\\n", RegexOptions.Multiline)]
+        private static partial Regex EmptyLineRegex { get; }
+
+        [GeneratedRegex("\\s+$", RegexOptions.Multiline)]
+        private static partial Regex TrailingWhitespaceRegex { get; }
+
+        [GeneratedRegex("(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}", RegexOptions.Multiline)]
+        private static partial Regex EmptyBlockRegex { get; }
+
+        [GeneratedRegex("^\\s*([ekdcb]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$")]
+        private static partial Regex TitleIdRegex { get; }
 
         protected virtual string LocalisationDirectoryName => "localisation";
 
-        protected virtual List<string> ForbiddenTokensForPreviousLine
+        protected virtual IEnumerable<string> ForbiddenTokensForPreviousLine
             => ["allow", "dejure_liege_title", "gain_effect", "limit", "trigger"];
 
-        protected virtual List<string> ForbiddenTokensForNextLine
+        protected virtual IEnumerable<string> ForbiddenTokensForNextLine
             => ["any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change"];
 
-        readonly ILocalisationFetcher localisationFetcher;
-        readonly INameNormaliser nameNormaliser;
-        readonly ConcurrentDictionary<string, string> windows1252NameCache;
+        private readonly ILocalisationFetcher localisationFetcher;
+        protected readonly INameNormaliser NameNormaliser;
+        private readonly ConcurrentDictionary<string, string> windows1252NameCache;
 
-        protected IDictionary<string, IEnumerable<Localisation>> localisations;
+        protected IDictionary<string, IEnumerable<Localisation>> localisations = null!;
         protected IDictionary<string, IEnumerable<Localisation>> localisationsOrderedByLanguageGameId;
-        IDictionary<string, GameId> locationGameIdsById;
+        private IDictionary<string, GameId> locationGameIdsById = null!;
 
         public CK2ModBuilder(
             ILocalisationFetcher localisationFetcher,
             INameNormaliser nameNormaliser,
-            IFileRepository<LanguageEntity> languageRepository,
-            IFileRepository<LocationEntity> locationRepository,
+            IFileRepository<LanguageDataObject> languageRepository,
+            IFileRepository<LocationDataObject> locationRepository,
             Settings settings)
             : base(languageRepository, locationRepository, settings)
         {
             this.localisationFetcher = localisationFetcher;
-            this.nameNormaliser = nameNormaliser;
+            NameNormaliser = nameNormaliser;
             windows1252NameCache = [];
 
             EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
@@ -72,14 +85,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
             });
 
-            localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
+            localisations = concurrentLocalisations.ToDictionary(entry => entry.Key, entry => entry.Value);
             localisationsOrderedByLanguageGameId = localisations
                 .ToDictionary(
                     localisationsByGameId => localisationsByGameId.Key,
                     localisationsByGameId =>
-                        (IEnumerable<Localisation>)localisationsByGameId.Value
-                            .OrderBy(localisation => localisation.LanguageGameId)
-                            .ToArray());
+                        (IEnumerable<Localisation>)[.. localisationsByGameId.Value.OrderBy(localisation => localisation.LanguageGameId)]);
 
             locationGameIdsById = locationGameIds
                 .GroupBy(gameId => gameId.Id)
@@ -127,7 +138,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 Environment.NewLine +
                 $"path = \"mod/{Settings.Mod.Id}\"";
 
-        protected virtual string GetTitleLocalisationsContent(string line, string gameId)
+        protected virtual string? GetTitleLocalisationsContent(string line, string gameId)
         {
             IEnumerable<Localisation> titleLocalisations = localisationsOrderedByLanguageGameId.TryGetValue(gameId);
 
@@ -162,7 +173,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected virtual string ReadLandedTitlesFile()
             => File.ReadAllText(
-                Settings.Input.LandedTitlesFilePath,
+                Settings.Input.LandedTitlesFilePath!,
                 Encoding.GetEncoding("windows-1252"));
 
         protected virtual void WriteLandedTitlesFile(string filePath, string content)
@@ -171,7 +182,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         protected virtual string DoCleanLandedTitlesFile(string content)
             => Regex.Replace( // Break inline cultural name into multiple lines
                 content,
-                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + string.Join('|', languageGameIds.Select(x => x.Id)) + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
+                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + string.Join('|', languageGameIds.Select(gameId => gameId.Id)) + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
                 "$1$2 = {\n$1\t$3\n$1}",
                 RegexOptions.Multiline);
 
@@ -199,15 +210,15 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Windows1252File.WriteAllText(filePath, content);
         }
 
-        void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
+        private void CreateLandedTitlesFile(string landedTitlesDirectoryPath)
         {
             string landedTitlesFileContent = BuildLandedTitlesFile();
-            string landedTitlesFilePath = Path.Combine(landedTitlesDirectoryPath, Settings.Output.LandedTitlesFileName);
+            string landedTitlesFilePath = Path.Combine(landedTitlesDirectoryPath, Settings.Output.LandedTitlesFileName!);
 
             WriteLandedTitlesFile(landedTitlesFilePath, landedTitlesFileContent);
         }
 
-        string BuildLandedTitlesFile()
+        private string BuildLandedTitlesFile()
         {
             string landedTitlesFile = ReadLandedTitlesFile();
             landedTitlesFile = CleanLandedTitlesFile(landedTitlesFile);
@@ -221,10 +232,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Regex forbiddenTokensForNextLineRegEx = new(
                 "^.*" + string.Join('|', ForbiddenTokensForNextLine) + ".*$",
                 RegexOptions.Compiled);
-            Regex titleIdRegEx = new(
-                "^\\s*([ekdcb]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$",
-                RegexOptions.Compiled);
-
             string previousLine = string.Empty;
 
             for (int lineIndex = 0; lineIndex < landedTitlesFileLines.Length; lineIndex += 1)
@@ -245,7 +252,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     continue;
                 }
 
-                Match titleIdMatch = titleIdRegEx.Match(line);
+                Match titleIdMatch = TitleIdRegex.Match(line);
 
                 if (!titleIdMatch.Success)
                 {
@@ -259,7 +266,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     continue;
                 }
 
-                string titleLocalisationsContent = GetTitleLocalisationsContent(line, titleId);
+                string? titleLocalisationsContent = GetTitleLocalisationsContent(line, titleId);
 
                 if (!string.IsNullOrWhiteSpace(titleLocalisationsContent))
                 {
@@ -274,7 +281,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected virtual string CleanLandedTitlesFile(string content)
         {
-            string culturesPattern = string.Join('|', languageGameIds.Select(x => x.Id));
+            string culturesPattern = string.Join('|', languageGameIds.Select(gameId => gameId.Id));
 
             string newContent = content.Replace("\r", ""); // Remove carriage returns
             newContent = TabRegex.Replace(newContent, "    "); // Replace tabs
@@ -300,7 +307,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             return DoCleanLandedTitlesFile(newContent);
         }
 
-        string GenerateLocalisationFileContent()
+        private string GenerateLocalisationFileContent()
         {
             List<string> lines = [];
             object lineCollectionLock = new();
@@ -354,7 +361,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             return string.Join(Environment.NewLine, lines);
         }
 
-        string GenerateLocationLocalisationLine(string localisationKey, string localisationValue)
+        private string GenerateLocationLocalisationLine(string localisationKey, string localisationValue)
         {
             string normalisedName = ToWindows1252(localisationValue);
             string localisationDefinition =
@@ -364,19 +371,19 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             return localisationDefinition;
         }
 
-        string ToWindows1252(string text)
+        private string ToWindows1252(string text)
         {
             if (text is null)
             {
-                return null;
+                return null!;
             }
 
-            if (windows1252NameCache.TryGetValue(text, out string cachedNormalisedText))
+            if (windows1252NameCache.TryGetValue(text, out string? cachedNormalisedText))
             {
                 return cachedNormalisedText;
             }
 
-            string normalisedText = nameNormaliser.ToWindows1252(text);
+            string normalisedText = NameNormaliser.ToWindows1252(text);
             windows1252NameCache.TryAdd(text, normalisedText);
 
             return normalisedText;

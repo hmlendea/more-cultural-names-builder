@@ -1,42 +1,43 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using NuciDAL.Repositories;
-using NuciExtensions;
 
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
+
+using NuciDAL.Repositories;
+
+using NuciExtensions;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public sealed class CK3ModBuilder(
         ILocalisationFetcher localisationFetcher,
         INameNormaliser nameNormaliser,
-        IFileRepository<LanguageEntity> languageRepository,
-        IFileRepository<LocationEntity> locationRepository,
+        IFileRepository<LanguageDataObject> languageRepository,
+        IFileRepository<LocationDataObject> locationRepository,
         Settings settings) : CK2ModBuilder(localisationFetcher, nameNormaliser, languageRepository, locationRepository, settings)
     {
-        protected override string LocalisationDirectoryName => "localization";
-        protected override List<string> ForbiddenTokensForPreviousLine => ["allow", "limit", "trigger"];
-        protected override List<string> ForbiddenTokensForNextLine => ["has_holder"];
+        private readonly object localisationOrderingLock = new();
 
-        readonly INameNormaliser nameNormaliser = nameNormaliser;
-        IDictionary<string, IEnumerable<Localisation>> localisationsOrderedByLanguageId;
+        private IDictionary<string, IEnumerable<Localisation>>? localisationsOrderedByLanguageId;
+
+        protected override string LocalisationDirectoryName => "localization";
+
+        protected override IEnumerable<string> ForbiddenTokensForPreviousLine => ["allow", "limit", "trigger"];
+
+        protected override IEnumerable<string> ForbiddenTokensForNextLine => ["has_holder"];
 
         protected override string GenerateMainDescriptorContent()
             => GenerateDescriptorContent() + Environment.NewLine +
                 $"path=\"mod/{Settings.Mod.Id}\"";
 
         protected override string GenerateDescriptorContent()
-            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+            => $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
                 $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +
@@ -48,18 +49,18 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"}}";
 
         protected override string ReadLandedTitlesFile()
-            => File.ReadAllText(Settings.Input.LandedTitlesFilePath);
+            => File.ReadAllText(Settings.Input.LandedTitlesFilePath!);
 
         protected override void WriteLandedTitlesFile(string filePath, string content)
             => File.WriteAllText(filePath, CK3CulturalNameBlockMerger.Merge(content));
 
         protected override string CleanLandedTitlesFile(string content) => content;
 
-        protected override string GetTitleLocalisationsContent(string line, string gameId)
+        protected override string? GetTitleLocalisationsContent(string line, string gameId)
         {
             EnsureLocalisationsOrderedByLanguageId();
 
-            IEnumerable<Localisation> titleLocalisations = localisationsOrderedByLanguageId.TryGetValue(gameId);
+            IEnumerable<Localisation> titleLocalisations = localisationsOrderedByLanguageId!.TryGetValue(gameId);
 
             if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
             {
@@ -74,7 +75,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             {
                 string lineToAdd =
                     $"{indentation2}name_list_{localisation.LanguageGameId} = {GetDynamicLocalisationKey(localisation)}" +
-                    $" # {nameNormaliser.ToCK3Charset(localisation.Name)}";
+                    $" # {NameNormaliser.ToCK3Charset(localisation.Name)}";
 
                 if (Settings.Output.AreVerboseCommentsEnabled)
                 {
@@ -83,7 +84,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
                 if (!string.IsNullOrWhiteSpace(localisation.Comment))
                 {
-                    lineToAdd += $" # {nameNormaliser.ToCK3Charset(localisation.Comment)}";
+                    lineToAdd += $" # {NameNormaliser.ToCK3Charset(localisation.Comment)}";
                 }
 
                 lines.Add(lineToAdd);
@@ -137,7 +138,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        string GenerateDefaultNamesLocalisationFileContent()
+        private string GenerateDefaultNamesLocalisationFileContent()
         {
             List<string> lines = [];
             object lineCollectionLock = new();
@@ -149,19 +150,19 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 () => new List<string>(),
                 (location, _, localLines) =>
                 {
-                    foreach (GameId gameId in location.GameIds.Where(x => x.Game.Equals(Settings.Mod.Game)))
+                    foreach (GameId gameId in location.GameIds.Where(gameId => string.Equals(gameId.Game, Settings.Mod.Game)))
                     {
                         if (string.IsNullOrWhiteSpace(gameId.DefaultNameLanguageId))
                         {
                             continue;
                         }
 
-                        if (!localisationsByGameIdAndLanguage.TryGetValue(gameId.Id, out Dictionary<string, Localisation> localisationsByLanguage))
+                        if (!localisationsByGameIdAndLanguage.TryGetValue(gameId.Id, out Dictionary<string, Localisation>? localisationsByLanguage))
                         {
                             continue;
                         }
 
-                        if (!localisationsByLanguage.TryGetValue(gameId.DefaultNameLanguageId, out Localisation defaultLocalisation))
+                        if (!localisationsByLanguage.TryGetValue(gameId.DefaultNameLanguageId, out Localisation? defaultLocalisation))
                         {
                             continue;
                         }
@@ -202,15 +203,15 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 lines);
         }
 
-        Dictionary<string, Dictionary<string, Localisation>> BuildLocalisationsByGameIdAndLanguage()
+        private Dictionary<string, Dictionary<string, Localisation>> BuildLocalisationsByGameIdAndLanguage()
         {
             Dictionary<string, Dictionary<string, Localisation>> indexedLocalisations = [];
 
-            foreach ((string gameId, IEnumerable<Localisation> localisationsForGameId) in localisations)
+            foreach (KeyValuePair<string, IEnumerable<Localisation>> localisationEntry in localisations)
             {
                 Dictionary<string, Localisation> indexedLocalisationsForGameId = [];
 
-                foreach (Localisation localisation in localisationsForGameId)
+                foreach (Localisation localisation in localisationEntry.Value)
                 {
                     if (!indexedLocalisationsForGameId.ContainsKey(localisation.LanguageId))
                     {
@@ -218,22 +219,21 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     }
                 }
 
-                indexedLocalisations[gameId] = indexedLocalisationsForGameId;
+                indexedLocalisations[localisationEntry.Key] = indexedLocalisationsForGameId;
             }
 
             return indexedLocalisations;
         }
 
-        string GenerateDynamicNamesLocalisationFileContent()
+        private string GenerateDynamicNamesLocalisationFileContent()
         {
             List<string> lines = [];
             object lineCollectionLock = new();
 
-            List<Localisation> uniqueLocalisations = localisations
-                .SelectMany(x => x.Value)
-                .GroupBy(x => $"{x.LanguageGameId}_{nameNormaliser.ToCK3Charset(x.Name)}")
-                .Select(x => x.OrderBy(localisation => localisation.Id).First())
-                .ToList();
+            List<Localisation> uniqueLocalisations = [.. localisations
+                .SelectMany(localisationEntry => localisationEntry.Value)
+                .GroupBy(localisation => $"{localisation.LanguageGameId}_{NameNormaliser.ToCK3Charset(localisation.Name)}")
+                .Select(group => group.OrderBy(localisation => localisation.Id).First())];
 
             Parallel.ForEach(
                 uniqueLocalisations,
@@ -270,42 +270,33 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 lines);
         }
 
-        string GetDynamicLocalisationKey(Localisation localisation)
+        private string GetDynamicLocalisationKey(Localisation localisation)
         {
             Localisation canonicalLocalisation = localisations
                 .SelectMany(localisationEntry => localisationEntry.Value)
                 .Where(candidate =>
                     candidate.LanguageGameId.Equals(localisation.LanguageGameId) &&
-                    nameNormaliser.ToCK3Charset(candidate.Name)
-                        .Equals(nameNormaliser.ToCK3Charset(localisation.Name)))
+                    NameNormaliser.ToCK3Charset(candidate.Name)
+                        .Equals(NameNormaliser.ToCK3Charset(localisation.Name)))
                 .OrderBy(candidate => candidate.Id)
                 .First();
 
             return $"cn_{canonicalLocalisation.Id}_{canonicalLocalisation.LanguageGameId}";
         }
 
-        void EnsureLocalisationsOrderedByLanguageId()
+        private void EnsureLocalisationsOrderedByLanguageId()
         {
-            if (localisationsOrderedByLanguageId is not null)
+            lock (localisationOrderingLock)
             {
-                return;
+                localisationsOrderedByLanguageId ??= localisations
+                    .ToDictionary(
+                        localisationEntry => localisationEntry.Key,
+                        localisationEntry =>
+                            (IEnumerable<Localisation>)[.. localisationEntry.Value.OrderBy(localisation => localisation.LanguageId)]);
             }
-
-            IDictionary<string, IEnumerable<Localisation>> orderedLocalisationsByLanguageId = localisations
-                .ToDictionary(
-                    localisationsByGameId => localisationsByGameId.Key,
-                    localisationsByGameId =>
-                        (IEnumerable<Localisation>)localisationsByGameId.Value
-                            .OrderBy(localisation => localisation.LanguageId)
-                            .ToArray());
-
-            Interlocked.CompareExchange(
-                ref localisationsOrderedByLanguageId,
-                orderedLocalisationsByLanguageId,
-                null);
         }
 
-        void CreateLocalisationFile(string localisationDirectoryPath, string fileLabel, string language, string content)
+        private void CreateLocalisationFile(string localisationDirectoryPath, string fileLabel, string language, string content)
         {
             string languageDirectoryPath = Path.Combine(localisationDirectoryPath, language);
             string fileContent = $"l_{language}:{Environment.NewLine}{content}";
@@ -316,11 +307,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
         }
 
-        string GenerateLocationLocalisationLine(string key, string value, Localisation localisation)
+        private string GenerateLocationLocalisationLine(string key, string value, Localisation localisation)
         {
             string line =
                 $" {key}:0 " +
-                $"\"{nameNormaliser.ToCK3Charset(value)}\"";
+                $"\"{NameNormaliser.ToCK3Charset(value)}\"";
 
             if (Settings.Output.AreVerboseCommentsEnabled)
             {

@@ -1,13 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 using Moq;
-
-using NuciDAL.Repositories;
-
-using NUnit.Framework;
 
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
@@ -16,6 +11,10 @@ using MoreCulturalNamesBuilder.Service.ModBuilders;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.Configuration;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NuciDAL.Repositories;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 {
@@ -27,8 +26,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 
         private Mock<ILocalisationFetcher> localisationFetcher = null!;
         private Mock<INameNormaliser> nameNormaliser = null!;
-        private Mock<IFileRepository<LanguageEntity>> languageRepository = null!;
-        private Mock<IFileRepository<LocationEntity>> locationRepository = null!;
+        private Mock<IFileRepository<LanguageDataObject>> languageRepository = null!;
+        private Mock<IFileRepository<LocationDataObject>> locationRepository = null!;
         private TemporaryDirectory temporaryDirectory = null!;
         private CK2ModBuilder modBuilder = null!;
         private string landedTitlesFilePath = null!;
@@ -186,8 +185,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         }
 
         private void ConfigureRepositories(
-            IEnumerable<LanguageEntity> languages,
-            IEnumerable<LocationEntity> locations)
+            IEnumerable<LanguageDataObject> languages,
+            IEnumerable<LocationDataObject> locations)
         {
             languageRepository.Setup(repository => repository.GetAll()).Returns(languages);
             locationRepository.Setup(repository => repository.GetAll()).Returns(locations);
@@ -199,7 +198,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 .Setup(fetcher => fetcher.GetGameLocationLocalisations(It.IsAny<string>(), Game))
                 .Returns((string locationGameId, string game) =>
                 {
-                    if (localisations.TryGetValue(locationGameId, out IEnumerable<Localisation> values))
+                    if (localisations.TryGetValue(locationGameId, out IEnumerable<Localisation>? values))
                     {
                         return values;
                     }
@@ -207,7 +206,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                     return [];
                 });
 
-        private Settings BuildSettings(bool areVerboseCommentsEnabled, string dependency)
+        private Settings BuildSettings(bool areVerboseCommentsEnabled, string? dependency)
             => SettingsTestFactory.Create(
                 Game,
                 temporaryDirectory.DirectoryPath,
@@ -224,7 +223,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 locationRepository.Object,
                 settings);
 
-        private static LanguageEntity BuildLanguage(string languageId, string languageGameId)
+        private static LanguageDataObject BuildLanguage(string languageId, string languageGameId)
             => new()
             {
                 Id = languageId,
@@ -237,7 +236,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 FallbackLanguages = []
             };
 
-        private static LocationEntity BuildLocation(
+        private static LocationDataObject BuildLocation(
             string locationId,
             string locationGameId,
             string defaultNameLanguageId)
@@ -263,8 +262,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             string languageId,
             string languageGameId,
             string name,
-            string adjective,
-            string comment)
+            string? adjective,
+            string? comment)
             => new()
             {
                 Id = gameId,

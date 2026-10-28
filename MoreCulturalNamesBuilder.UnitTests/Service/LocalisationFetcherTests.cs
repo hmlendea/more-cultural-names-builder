@@ -4,13 +4,13 @@ using System.Linq;
 
 using Moq;
 
-using NuciDAL.Repositories;
-
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service;
 using MoreCulturalNamesBuilder.Service.Models;
+
+using NuciDAL.Repositories;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service
 {
@@ -21,8 +21,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         private static string LocationGameId => "c_cluj";
         private static string LocationId => "Cluj-Napoca";
 
-        private Mock<IFileRepository<LanguageEntity>> languageRepository = null!;
-        private Mock<IFileRepository<LocationEntity>> locationRepository = null!;
+        private Mock<IFileRepository<LanguageDataObject>> languageRepository = null!;
+        private Mock<IFileRepository<LocationDataObject>> locationRepository = null!;
         private LocalisationFetcher localisationFetcher = null!;
 
         [SetUp]
@@ -85,7 +85,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenAnEmptyLocation_WhenGettingLocalisations_ThenNoLocalisationsAreReturned()
         {
-            LocationEntity emptyLocation = BuildLocation(LocationId, LocationGameId, [], []);
+            LocationDataObject emptyLocation = BuildLocation(LocationId, LocationGameId, [], []);
             localisationFetcher = CreateFetcher([BuildRomanianLanguage()], [emptyLocation]);
 
             IEnumerable<Localisation> localisations = localisationFetcher
@@ -97,8 +97,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenALocationFallback_WhenGettingLocalisations_ThenTheFallbackLocationNameIsReturned()
         {
-            LocationEntity location = BuildLocation(LocationId, LocationGameId, [], ["Oradea"]);
-            LocationEntity fallbackLocation = BuildLocation(
+            LocationDataObject location = BuildLocation(LocationId, LocationGameId, [], ["Oradea"]);
+            LocationDataObject fallbackLocation = BuildLocation(
                 "Oradea",
                 "c_oradea",
                 [new("Romanian", "Oradea")],
@@ -121,8 +121,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenALanguageFallback_WhenGettingLocalisations_ThenTheFallbackLanguageNameIsReturned()
         {
-            LanguageEntity language = BuildLanguage("Romanian", "romanian", ["English"]);
-            LocationEntity location = BuildLocation(
+            LanguageDataObject language = BuildLanguage("Romanian", "romanian", ["English"]);
+            LocationDataObject location = BuildLocation(
                 LocationId,
                 LocationGameId,
                 [new("English", "Cluj-Napoca")],
@@ -139,13 +139,13 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenBothFallbackTypes_WhenGettingLocalisations_ThenTheCurrentLocationLanguageFallbackHasPrecedence()
         {
-            LanguageEntity language = BuildLanguage("Romanian", "romanian", ["English"]);
-            LocationEntity location = BuildLocation(
+            LanguageDataObject language = BuildLanguage("Romanian", "romanian", ["English"]);
+            LocationDataObject location = BuildLocation(
                 LocationId,
                 LocationGameId,
                 [new("English", "Cluj-Napoca")],
                 ["Oradea"]);
-            LocationEntity fallbackLocation = BuildLocation(
+            LocationDataObject fallbackLocation = BuildLocation(
                 "Oradea",
                 "c_oradea",
                 [new("Romanian", "Oradea")],
@@ -166,7 +166,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenNamesWithoutAMatchingLanguage_WhenGettingLocalisations_ThenNoLocalisationsAreReturned()
         {
-            LocationEntity location = BuildLocation(
+            LocationDataObject location = BuildLocation(
                 LocationId,
                 LocationGameId,
                 [new("English", "Cluj-Napoca")],
@@ -182,7 +182,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenMultipleLanguagesWithOneTranslation_WhenGettingLocalisations_ThenOnlyTheTranslationIsReturned()
         {
-            LanguageEntity english = BuildLanguage("English", "english", []);
+            LanguageDataObject english = BuildLanguage("English", "english", []);
             localisationFetcher = CreateFetcher(
                 [BuildRomanianLanguage(), english],
                 [BuildClujLocation()]);
@@ -196,7 +196,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenNoLanguagesForTheGame_WhenGettingLocalisations_ThenNoLocalisationsAreReturned()
         {
-            LanguageEntity language = BuildRomanianLanguage();
+            LanguageDataObject language = BuildRomanianLanguage();
             language.GameIds[0].Game = "CK2";
             localisationFetcher = CreateFetcher([language], [BuildClujLocation()]);
 
@@ -227,7 +227,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenALanguageWithoutACode_WhenCreatingTheFetcher_ThenTheLanguageIsLoaded()
         {
-            LanguageEntity language = BuildRomanianLanguage();
+            LanguageDataObject language = BuildRomanianLanguage();
             language.Code = null;
 
             Assert.That(
@@ -238,7 +238,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenAMissingFallbackLocation_WhenGettingLocalisations_ThenAKeyNotFoundExceptionIsThrown()
         {
-            LocationEntity location = BuildLocation(LocationId, LocationGameId, [], ["Oradea"]);
+            LocationDataObject location = BuildLocation(LocationId, LocationGameId, [], ["Oradea"]);
             localisationFetcher = CreateFetcher([BuildRomanianLanguage()], [location]);
 
             Assert.That(
@@ -265,7 +265,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         [Test]
         public void GivenANullLocationSequence_WhenCreatingTheFetcher_ThenAnArgumentNullExceptionIsThrown()
         {
-            locationRepository.Setup(repository => repository.GetAll()).Returns((IEnumerable<LocationEntity>)null);
+            locationRepository.Setup(repository => repository.GetAll()).Returns((IEnumerable<LocationDataObject>)null!);
             languageRepository.Setup(repository => repository.GetAll()).Returns([BuildRomanianLanguage()]);
 
             Assert.That(
@@ -277,7 +277,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         public void GivenANullLanguageSequence_WhenCreatingTheFetcher_ThenAnArgumentNullExceptionIsThrown()
         {
             locationRepository.Setup(repository => repository.GetAll()).Returns([BuildClujLocation()]);
-            languageRepository.Setup(repository => repository.GetAll()).Returns((IEnumerable<LanguageEntity>)null);
+            languageRepository.Setup(repository => repository.GetAll()).Returns((IEnumerable<LanguageDataObject>)null!);
 
             Assert.That(
                 () => new LocalisationFetcher(languageRepository.Object, locationRepository.Object),
@@ -285,8 +285,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
         }
 
         private LocalisationFetcher CreateFetcher(
-            IEnumerable<LanguageEntity> languages,
-            IEnumerable<LocationEntity> locations)
+            IEnumerable<LanguageDataObject> languages,
+            IEnumerable<LocationDataObject> locations)
         {
             languageRepository.Setup(repository => repository.GetAll()).Returns(languages);
             locationRepository.Setup(repository => repository.GetAll()).Returns(locations);
@@ -294,10 +294,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
             return new(languageRepository.Object, locationRepository.Object);
         }
 
-        private static LanguageEntity BuildRomanianLanguage()
+        private static LanguageDataObject BuildRomanianLanguage()
             => BuildLanguage("Romanian", "romanian", []);
 
-        private static LanguageEntity BuildLanguage(
+        private static LanguageDataObject BuildLanguage(
             string languageId,
             string languageGameId,
             IEnumerable<string> fallbackLanguages)
@@ -319,10 +319,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
                         DefaultNameLanguageId = "Romanian"
                     }
                 ],
-                FallbackLanguages = fallbackLanguages.ToList()
+                FallbackLanguages = [.. fallbackLanguages]
             };
 
-        private static LocationEntity BuildClujLocation()
+        private static LocationDataObject BuildClujLocation()
             => BuildLocation(
                 LocationId,
                 LocationGameId,
@@ -335,18 +335,18 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
                 ],
                 []);
 
-        private static LocationEntity BuildLocation(
+        private static LocationDataObject BuildLocation(
             string locationId,
             string locationGameId,
-            IEnumerable<NameEntity> names,
+            IEnumerable<NameDataObject> names,
             IEnumerable<string> fallbackLocations)
             => new()
             {
                 Id = locationId,
                 GeoNamesId = "681290",
                 GameIds = [new(Game, locationGameId) { Type = "county" }],
-                FallbackLocations = fallbackLocations.ToList(),
-                Names = names.ToList()
+                FallbackLocations = [.. fallbackLocations],
+                Names = [.. names]
             };
     }
 }

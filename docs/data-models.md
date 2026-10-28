@@ -147,7 +147,7 @@ public class LanguageCodeEntity
 
 ## Service Models
 
-**Location:** `MoreCulturalNamesBuilder/Service/Models/`
+**Location:** [Models](../MoreCulturalNamesBuilder/Service/Models/)
 
 ### Language
 
@@ -231,7 +231,7 @@ public sealed class Localisation
 
 ## Mapping Extensions
 
-**Location:** `MoreCulturalNamesBuilder/Service/Mapping/`
+**Location:** [Mapping](../MoreCulturalNamesBuilder/Service/Mapping/)
 
 Each entity-model pair has a static mapping class with extension methods:
 
@@ -548,7 +548,7 @@ Dictionary<string, GameId> locationGameIdsById;
 
 ## Testing
 
-**Location:** `MoreCulturalNamesBuilder.UnitTests/Service/Mapping/`
+**Location:** [Mapping Tests](../MoreCulturalNamesBuilder.UnitTests/Service/Mapping/)
 
 ### Test Coverage
 - Round-trip mapping (Entity → Model → Entity)

@@ -12,25 +12,22 @@ namespace MoreCulturalNamesBuilder.Service
 {
     public sealed class LocalisationFetcher : ILocalisationFetcher
     {
-        readonly IFileRepository<LanguageEntity> languageRepository;
-        readonly IFileRepository<LocationEntity> locationRepository;
+        private readonly IFileRepository<LanguageDataObject> languageRepository;
+        private readonly IFileRepository<LocationDataObject> locationRepository;
+        private readonly Dictionary<GameLocationKey, Location> locationGameIdIndex;
+        private readonly Dictionary<TypedGameLocationKey, Location> locationGameIdWithTypeIndex;
+        private readonly Dictionary<string, Dictionary<string, string>> languageGameIdsByGame;
+        private readonly Dictionary<string, Dictionary<string, Name>> locationNamesByLanguage;
+        private readonly Dictionary<string, string[]> locationIdsToCheckByLocationId;
+        private readonly Dictionary<string, string[]> languageIdsToCheckByLanguageId;
+        private readonly ConcurrentDictionary<LocalisationKey, CachedLocalisation> resolvedLocalisationCache;
 
-        static Dictionary<string, string> EmptyLanguageGameIds => [];
-
-        Dictionary<string, Location> locations;
-        Dictionary<string, Language> languages;
-
-        readonly Dictionary<(string Game, string Id), Location> locationGameIdIndex;
-        readonly Dictionary<(string Game, string Id, string Type), Location> locationGameIdWithTypeIndex;
-        readonly Dictionary<string, Dictionary<string, string>> languageGameIdsByGame;
-        readonly Dictionary<string, Dictionary<string, Name>> locationNamesByLanguage;
-        readonly Dictionary<string, string[]> locationIdsToCheckByLocationId;
-        readonly Dictionary<string, string[]> languageIdsToCheckByLanguageId;
-        readonly ConcurrentDictionary<(string LocationId, string LanguageId), CachedLocalisation> resolvedLocalisationCache;
+        private Dictionary<string, Location> locations = null!;
+        private Dictionary<string, Language> languages = null!;
 
         public LocalisationFetcher(
-            IFileRepository<LanguageEntity> languageRepository,
-            IFileRepository<LocationEntity> locationRepository)
+            IFileRepository<LanguageDataObject> languageRepository,
+            IFileRepository<LocationDataObject> locationRepository)
         {
             this.languageRepository = languageRepository;
             this.locationRepository = locationRepository;
@@ -46,7 +43,7 @@ namespace MoreCulturalNamesBuilder.Service
             LoadData();
         }
 
-        void LoadData()
+        private void LoadData()
         {
             locations = locationRepository
                 .GetAll()
@@ -73,8 +70,8 @@ namespace MoreCulturalNamesBuilder.Service
 
                 foreach (GameId gameId in location.GameIds)
                 {
-                    locationGameIdIndex[(gameId.Game, gameId.Id)] = location;
-                    locationGameIdWithTypeIndex[(gameId.Game, gameId.Id, gameId.Type)] = location;
+                    locationGameIdIndex[new(gameId.Game, gameId.Id)] = location;
+                    locationGameIdWithTypeIndex[new(gameId.Game, gameId.Id, gameId.Type)] = location;
                 }
             }
 
@@ -84,7 +81,7 @@ namespace MoreCulturalNamesBuilder.Service
 
                 foreach (GameId gameId in language.GameIds)
                 {
-                    if (!languageGameIdsByGame.TryGetValue(gameId.Game, out Dictionary<string, string> gameLanguageIds))
+                    if (!languageGameIdsByGame.TryGetValue(gameId.Game, out Dictionary<string, string>? gameLanguageIds))
                     {
                         gameLanguageIds = [];
                         languageGameIdsByGame[gameId.Game] = gameLanguageIds;
@@ -102,19 +99,19 @@ namespace MoreCulturalNamesBuilder.Service
 
         public IEnumerable<Localisation> GetGameLocationLocalisations(
             string locationGameId,
-            string locationGameIdType,
+            string? locationGameIdType,
             string game)
         {
             List<Localisation> localisations = [];
-            Location location;
+            Location? location;
 
             if (string.IsNullOrWhiteSpace(locationGameIdType))
             {
-                locationGameIdIndex.TryGetValue((game, locationGameId), out location);
+                locationGameIdIndex.TryGetValue(new(game, locationGameId), out location);
             }
             else
             {
-                locationGameIdWithTypeIndex.TryGetValue((game, locationGameId, locationGameIdType), out location);
+                locationGameIdWithTypeIndex.TryGetValue(new(game, locationGameId, locationGameIdType), out location);
             }
 
             if (location is null)
@@ -122,9 +119,9 @@ namespace MoreCulturalNamesBuilder.Service
                 return localisations;
             }
 
-            foreach (var languageGameId in GetLanguageGameIds(game))
+            foreach (KeyValuePair<string, string> languageGameId in GetLanguageGameIds(game))
             {
-                Localisation localisation = GetLocationLocalisation(location, languageGameId.Value);
+                Localisation? localisation = GetLocationLocalisation(location, languageGameId.Value);
 
                 if (localisation is null)
                 {
@@ -135,21 +132,21 @@ namespace MoreCulturalNamesBuilder.Service
                 localisation.LanguageGameId = languageGameId.Key;
 
                 localisations.Add(localisation);
-            };
+            }
 
             return localisations;
         }
 
-        Localisation GetLocationLocalisation(Location location, string languageId)
+        private Localisation? GetLocationLocalisation(Location location, string languageId)
         {
             if (location.IsEmpty())
             {
                 return null;
             }
 
-            (string LocationId, string LanguageId) localisationCacheKey = (location.Id, languageId);
+            LocalisationKey localisationCacheKey = new(location.Id, languageId);
 
-            if (resolvedLocalisationCache.TryGetValue(localisationCacheKey, out CachedLocalisation cachedLocalisation))
+            if (resolvedLocalisationCache.TryGetValue(localisationCacheKey, out CachedLocalisation? cachedLocalisation))
             {
                 return cachedLocalisation.ToServiceModel();
             }
@@ -163,7 +160,7 @@ namespace MoreCulturalNamesBuilder.Service
 
                 foreach (string languageIdToCheck in languageIdsToCheck)
                 {
-                    if (!namesByLanguage.TryGetValue(languageIdToCheck, out Name name))
+                    if (!namesByLanguage.TryGetValue(languageIdToCheck, out Name? name))
                     {
                         continue;
                     }
@@ -198,17 +195,17 @@ namespace MoreCulturalNamesBuilder.Service
             return null;
         }
 
-        Dictionary<string, string> GetLanguageGameIds(string game)
+        private IEnumerable<KeyValuePair<string, string>> GetLanguageGameIds(string game)
         {
-            if (languageGameIdsByGame.TryGetValue(game, out Dictionary<string, string> languageGameIds))
+            if (languageGameIdsByGame.TryGetValue(game, out Dictionary<string, string>? languageGameIds))
             {
                 return languageGameIds;
             }
 
-            return EmptyLanguageGameIds;
+            return [];
         }
 
-        static Dictionary<string, Name> BuildNameIndex(Location location)
+        private static Dictionary<string, Name> BuildNameIndex(Location location)
         {
             Dictionary<string, Name> namesByLanguage = [];
 
@@ -223,7 +220,7 @@ namespace MoreCulturalNamesBuilder.Service
             return namesByLanguage;
         }
 
-        static string[] BuildLocationIdsToCheck(Location location)
+        private static string[] BuildLocationIdsToCheck(Location location)
         {
             List<string> locationIdsToCheck = [location.Id];
             locationIdsToCheck.AddRange(location.FallbackLocations);
@@ -231,7 +228,7 @@ namespace MoreCulturalNamesBuilder.Service
             return [.. locationIdsToCheck];
         }
 
-        static string[] BuildLanguageIdsToCheck(Language language)
+        private static string[] BuildLanguageIdsToCheck(Language language)
         {
             List<string> languageIdsToCheck = [language.Id];
             languageIdsToCheck.AddRange(language.FallbackLanguages);
@@ -239,52 +236,5 @@ namespace MoreCulturalNamesBuilder.Service
             return [.. languageIdsToCheck];
         }
 
-        sealed class CachedLocalisation
-        {
-            internal bool HasValue { get; }
-
-            internal string LocationId { get; }
-
-            internal string LanguageId { get; }
-
-            internal string Name { get; }
-
-            internal string Adjective { get; }
-
-            internal string Comment { get; }
-
-            internal CachedLocalisation(
-                bool hasValue,
-                string locationId,
-                string languageId,
-                string name,
-                string adjective,
-                string comment)
-            {
-                HasValue = hasValue;
-                LocationId = locationId;
-                LanguageId = languageId;
-                Name = name;
-                Adjective = adjective;
-                Comment = comment;
-            }
-
-            internal Localisation ToServiceModel()
-            {
-                if (!HasValue)
-                {
-                    return null;
-                }
-
-                return new()
-                {
-                    Id = LocationId,
-                    LanguageId = LanguageId,
-                    Name = Name,
-                    Adjective = Adjective,
-                    Comment = Comment
-                };
-            }
-        }
     }
 }

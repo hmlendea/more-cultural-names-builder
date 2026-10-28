@@ -6,40 +6,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using NuciDAL.Repositories;
-
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
+
+using NuciDAL.Repositories;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public sealed class HOI4ModBuilder(
         ILocalisationFetcher localisationFetcher,
         INameNormaliser nameNormaliser,
-        IFileRepository<LanguageEntity> languageRepository,
-        IFileRepository<LocationEntity> locationRepository,
+        IFileRepository<LanguageDataObject> languageRepository,
+        IFileRepository<LocationDataObject> locationRepository,
         Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
-        IEnumerable<GameId> stateGameIds;
-        IEnumerable<GameId> cityGameIds;
-        IDictionary<string, IDictionary<string, Localisation>> stateLocalisations;
-        IDictionary<string, IDictionary<string, Localisation>> cityLocalisations;
-
-        readonly ILocalisationFetcher localisationFetcher = localisationFetcher;
-        readonly INameNormaliser nameNormaliser = nameNormaliser;
+        private IEnumerable<GameId> stateGameIds = null!;
+        private IEnumerable<GameId> cityGameIds = null!;
+        private IDictionary<string, IDictionary<string, Localisation>> stateLocalisations = null!;
+        private IDictionary<string, IDictionary<string, Localisation>> cityLocalisations = null!;
 
         protected override void LoadData()
         {
             stateGameIds = locations.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Settings.Mod.Game && x.Type.Equals("State"))
-                .OrderBy(x => int.Parse(x.Id));
+                .SelectMany(location => location.GameIds)
+                .Where(gameId => string.Equals(gameId.Game, Settings.Mod.Game) && string.Equals(gameId.Type, "State"))
+                .OrderBy(gameId => int.Parse(gameId.Id));
 
             cityGameIds = locations.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Settings.Mod.Game && x.Type.Equals("City"))
-                .OrderBy(x => int.Parse(x.Id));
+                .SelectMany(location => location.GameIds)
+                .Where(gameId => string.Equals(gameId.Game, Settings.Mod.Game) && string.Equals(gameId.Type, "City"))
+                .OrderBy(gameId => int.Parse(gameId.Id));
 
             stateLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
             cityLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
@@ -48,7 +45,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
                     .GetGameLocationLocalisations(stateGameId.Id, "State", Settings.Mod.Game)
-                    .ToDictionary(x => x.LanguageGameId, x => x);
+                    .ToDictionary(localisation => localisation.LanguageGameId, localisation => localisation);
 
                 stateLocalisations.Add(stateGameId.Id, localisations);
             });
@@ -57,7 +54,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             {
                 IDictionary<string, Localisation> localisations = localisationFetcher
                     .GetGameLocationLocalisations(cityGameId.Id, "City", Settings.Mod.Game)
-                    .ToDictionary(x => x.LanguageGameId, x => x);
+                    .ToDictionary(localisation => localisation.LanguageGameId, localisation => localisation);
 
                 cityLocalisations.Add(cityGameId.Id, localisations);
             });
@@ -75,7 +72,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             CreateDescriptorFiles();
         }
 
-        void CreateLocalisationFiles(string localisationDirectoryPath)
+        private void CreateLocalisationFiles(string localisationDirectoryPath)
         {
             string content = GenerateCityLocalisationFileContent();
 
@@ -91,7 +88,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             });
         }
 
-        void CreateDescriptorFiles()
+        private void CreateDescriptorFiles()
         {
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateInnerDescriptorContent();
@@ -103,12 +100,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        string GenerateCityLocalisationFileContent()
+        private string GenerateCityLocalisationFileContent()
         {
             List<string> lines = [];
             object lineCollectionLock = new();
 
-            // States
+            // States.
             Parallel.ForEach(
                 stateLocalisations,
                 () => new List<string>(),
@@ -131,7 +128,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     }
                 });
 
-            // Cities
+            // Cities.
             Parallel.ForEach(
                 cityLocalisations,
                 () => new List<string>(),
@@ -161,13 +158,13 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 lines);
         }
 
-        string GenerateMainDescriptorContent()
+        private string GenerateMainDescriptorContent()
             => GenerateInnerDescriptorContent() +
                 Environment.NewLine +
                 $"path=\"mod/{Settings.Mod.Id}\"";
 
-        string GenerateInnerDescriptorContent()
-            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+        private string GenerateInnerDescriptorContent()
+            => $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
                 $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +

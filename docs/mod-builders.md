@@ -26,7 +26,7 @@ ModBuilder (abstract base)
 
 ## IModBuilder Interface
 
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/IModBuilder.cs`
+**Location:** [IModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/IModBuilder.cs)
 
 ```csharp
 public interface IModBuilder
@@ -39,7 +39,7 @@ Single method contract - all build logic encapsulated in `Build()`.
 
 ## ModBuilder Base Class
 
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilder.cs`
+**Location:** [ModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilder.cs)
 
 ### Constructor
 
@@ -130,7 +130,7 @@ static void StartTimedOperation(string message, Action operation)
 
 ## CK2ModBuilder
 
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/CK2ModBuilder.cs`
+**Location:** [CK2ModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/CK2ModBuilder.cs)
 
 ### Inheritance
 - Directly inherits from `ModBuilder`
@@ -301,7 +301,7 @@ string ToWindows1252(string text)
 
 ## CK3ModBuilder
 
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/CK3ModBuilder.cs`
+**Location:** [CK3ModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/CK3ModBuilder.cs)
 
 ### Inheritance
 - Inherits from `CK2ModBuilder`
@@ -356,7 +356,7 @@ tags={
 
 ### Cultural Name Block Merging
 
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/CK3CulturalNameBlockMerger.cs`
+**Location:** [CK3CulturalNameBlockMerger.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/CK3CulturalNameBlockMerger.cs)
 
 Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key.
 
@@ -386,7 +386,7 @@ string GetDynamicLocalisationKey(Localisation localisation)
 
 ## HOI4ModBuilder
 
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/HOI4ModBuilder.cs`
+**Location:** [HOI4ModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/HOI4ModBuilder.cs)
 
 ### Inheritance
 - Directly inherits from `ModBuilder` (not CK2ModBuilder)
@@ -522,7 +522,7 @@ path="mod/more-cultural-names"
 
 ## ImperatorRomeModBuilder
 
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/ImperatorRomeModBuilder.cs`
+**Location:** [ImperatorRomeModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/ImperatorRomeModBuilder.cs)
 
 ### Inheritance
 - Directly inherits from `ModBuilder`
@@ -653,7 +653,7 @@ path="mod/more-cultural-names"
 
 ## ModBuilderFactory
 
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilderFactory.cs`
+**Location:** [ModBuilderFactory.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilderFactory.cs)
 
 ### Selection Logic
 
@@ -699,7 +699,7 @@ public IModBuilder GetModBuilder(Settings settings)
 
 ## Testing Coverage
 
-**Location:** `MoreCulturalNamesBuilder.UnitTests/Service/ModBuilders/`
+**Location:** [Mod Builder Tests](../MoreCulturalNamesBuilder.UnitTests/Service/ModBuilders/)
 
 ### Current Coverage
 - Factory selection logic

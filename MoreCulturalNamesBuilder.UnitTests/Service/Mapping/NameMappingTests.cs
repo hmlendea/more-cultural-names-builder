@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
 {
@@ -17,7 +17,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
         {
             Name serviceModel = BuildName("Romanian", "Cluj-Napoca");
 
-            NameEntity dataObject = InternalMappingInvoker.Invoke<NameEntity>(
+            NameDataObject dataObject = InternalMappingInvoker.Invoke<NameDataObject>(
                 "NameMapping",
                 "ToDataObject",
                 serviceModel);
@@ -42,7 +42,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 Comment = null
             };
 
-            NameEntity dataObject = InternalMappingInvoker.Invoke<NameEntity>(
+            NameDataObject dataObject = InternalMappingInvoker.Invoke<NameDataObject>(
                 "NameMapping",
                 "ToDataObject",
                 serviceModel);
@@ -63,12 +63,12 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 BuildName("Romanian", "Cluj-Napoca")
             ];
 
-            IEnumerable<NameEntity> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<NameEntity>>(
+            IEnumerable<NameDataObject> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<NameDataObject>>(
                 "NameMapping",
                 "ToDataObjects",
                 serviceModels);
 
-            Assert.That(dataObjects.Select(dataObject => dataObject.Value), Is.EqualTo(new[] { "Newport", "Cluj-Napoca" }));
+            Assert.That(dataObjects.Select(dataObject => dataObject.Value), Is.EqualTo(["Newport", "Cluj-Napoca"]));
         }
 
         private static Name BuildName(string languageId, string value)

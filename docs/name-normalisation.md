@@ -159,7 +159,7 @@ string ToWindows1252(string text)
 
 ## Testing
 
-**Location:** `MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserTests.cs`, `NameNormaliserEdgeCaseTests.cs`
+**Location:** [NameNormaliserTests.cs](../MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserTests.cs), [NameNormaliserEdgeCaseTests.cs](../MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserEdgeCaseTests.cs)
 
 ### Coverage
 - Each game charset method

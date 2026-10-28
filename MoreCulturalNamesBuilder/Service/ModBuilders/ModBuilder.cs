@@ -13,23 +13,23 @@ using MoreCulturalNamesBuilder.Service.Models;
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public abstract class ModBuilder(
-        IFileRepository<LanguageEntity> languageRepository,
-        IFileRepository<LocationEntity> locationRepository,
+        IFileRepository<LanguageDataObject> languageRepository,
+        IFileRepository<LocationDataObject> locationRepository,
         Settings settings) : IModBuilder
     {
-        protected string OutputDirectoryPath => Path.Combine(Settings.Output.ModOutputDirectory, Settings.Mod.Game);
-
-        protected readonly IFileRepository<LanguageEntity> languageRepository = languageRepository;
-        protected readonly IFileRepository<LocationEntity> locationRepository = locationRepository;
+        protected readonly IFileRepository<LanguageDataObject> languageRepository = languageRepository;
+        protected readonly IFileRepository<LocationDataObject> locationRepository = locationRepository;
 
         protected readonly Settings Settings = settings;
 
-        protected IDictionary<string, Language> languages;
-        protected IDictionary<string, Location> locations;
+        protected IDictionary<string, Language> languages = null!;
+        protected IDictionary<string, Location> locations = null!;
 
-        protected IEnumerable<GameId> languageGameIds;
-        protected IEnumerable<GameId> locationGameIds;
-        protected IEnumerable<GameId> titleGameIds;
+        protected IEnumerable<GameId> languageGameIds = null!;
+        protected IEnumerable<GameId> locationGameIds = null!;
+        protected IEnumerable<GameId> titleGameIds = null!;
+
+        protected string OutputDirectoryPath => Path.Combine(Settings.Output.ModOutputDirectory, Settings.Mod.Game);
 
         public void Build()
         {
@@ -43,34 +43,34 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected abstract void LoadData();
 
-        void LoadAllData()
+        private void LoadAllData()
         {
             locations = locationRepository
                 .GetAll()
                 .ToServiceModels()
-                .ToDictionary(key => key.Id, val => val);
+                .ToDictionary(location => location.Id, location => location);
 
             languages = languageRepository
                 .GetAll()
                 .ToServiceModels()
-                .ToDictionary(key => key.Id, val => val);
+                .ToDictionary(language => language.Id, language => language);
 
             locationGameIds = locations.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Settings.Mod.Game)
-                .OrderBy(x => x.Id)
+                .SelectMany(location => location.GameIds)
+                .Where(gameId => string.Equals(gameId.Game, Settings.Mod.Game))
+                .OrderBy(gameId => gameId.Id)
                 .ToList();
 
             languageGameIds = languages.Values
-                .SelectMany(x => x.GameIds)
-                .Where(x => x.Game == Settings.Mod.Game)
-                .OrderBy(x => x.Id)
+                .SelectMany(language => language.GameIds)
+                .Where(gameId => string.Equals(gameId.Game, Settings.Mod.Game))
+                .OrderBy(gameId => gameId.Id)
                 .ToList();
 
             LoadData();
         }
 
-        static void StartTimedOperation(string message, Action operation)
+        private static void StartTimedOperation(string message, Action operation)
         {
             Console.Write($"   > {message}...");
 
