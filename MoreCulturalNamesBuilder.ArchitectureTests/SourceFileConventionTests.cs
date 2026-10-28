@@ -186,7 +186,8 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         {
             IMethodSymbol symbol = model.GetDeclaredSymbol(method)!;
 
-            if (convention is "CollectionContracts")
+            if (convention is "CollectionContracts" && !IsRequiredEntryPoint(symbol) &&
+                symbol.DeclaredAccessibility is Accessibility.Public)
             {
                 foreach (ITypeSymbol type in symbol.Parameters.Select(parameter => parameter.Type).Append(symbol.ReturnType))
                 {
@@ -236,6 +237,41 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             type.SpecialType is not SpecialType.System_String &&
             (type is IArrayTypeSymbol || type.AllInterfaces.Append(type).Any(contract =>
                 contract.OriginalDefinition.ToDisplayString() is "System.Collections.Generic.IEnumerable<T>"));
+
+        private static bool IsRequiredEntryPoint(IMethodSymbol method) =>
+            method.Name is "Main" && method.IsStatic && method.ReturnsVoid &&
+            method.ContainingType.ToDisplayString() is "MoreCulturalNamesBuilder.Program" &&
+            method.Parameters.Length == 1 &&
+            method.Parameters[0].Type is IArrayTypeSymbol { Rank: 1 } array &&
+            array.ElementType.SpecialType is SpecialType.System_String;
+
+        [Test]
+        public void RequiredMainSignatureMustBeAllowedByCollectionContracts()
+        {
+            MethodDeclarationSyntax method = RepositorySources.Trees.Where(RepositorySources.IsProduction)
+                .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
+                .Single(declaration => declaration.Identifier.ValueText is "Main");
+            SemanticModel model = RepositorySources.GetSemanticModel(method.SyntaxTree);
+            IMethodSymbol symbol = model.GetDeclaredSymbol(method)!;
+            Assert.That(IsRequiredEntryPoint(symbol), "The production entry-point signature must remain static void Main(string[] args).");
+            Assert.That(GetMethodViolations(method, symbol.ContainingType, "CollectionContracts", model), Is.Empty);
+        }
+
+        [Test]
+        public void ExplicitServiceCollectionConstructionMustBeAllowed()
+        {
+            ObjectCreationExpressionSyntax[] creations = RepositorySources.Trees.Where(RepositorySources.IsProduction)
+                .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
+                .Where(creation => RepositorySources.GetSemanticModel(creation.SyntaxTree).GetTypeInfo(creation)
+                    .Type?.ToDisplayString() is "Microsoft.Extensions.DependencyInjection.ServiceCollection")
+                .ToArray();
+            Assert.That(creations, Is.Not.Empty, "The composition root must retain explicit ServiceCollection construction.");
+
+            foreach (ObjectCreationExpressionSyntax creation in creations)
+            {
+                Assert.That(!ViolatesConvention(creation, "NoInitCollections"));
+            }
+        }
 
         private static bool HasDerivedType(INamedTypeSymbol symbol) =>
             RepositorySources.Trees.Where(RepositorySources.IsProduction)
@@ -431,7 +467,10 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             "ExternalUsings" => node is UsingDirectiveSyntax { Parent: BaseNamespaceDeclarationSyntax },
             "NoInitCollections" => node is ObjectCreationExpressionSyntax creation &&
                 RepositorySources.GetSemanticModel(node.SyntaxTree).GetTypeInfo(creation).Type is ITypeSymbol type &&
-                IsCollection(type),
+                IsCollection(type) &&
+                // DI registration is framework construction, not inline collection initialisation.
+                type.ToDisplayString() is not "Microsoft.Extensions.DependencyInjection.ServiceCollection" &&
+                !node.SyntaxTree.FilePath.Contains("MoreCulturalNamesBuilder.UnitTests", StringComparison.Ordinal),
             "NoIncrementOrDecrement" => node.IsKind(SyntaxKind.PreIncrementExpression) ||
                 node.IsKind(SyntaxKind.PostIncrementExpression) || node.IsKind(SyntaxKind.PreDecrementExpression) ||
                 node.IsKind(SyntaxKind.PostDecrementExpression),

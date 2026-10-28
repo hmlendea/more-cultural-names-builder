@@ -20,9 +20,6 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
     [TestFixture]
     public sealed class CK3ModBuilderTests
     {
-        private static string Game => "CK3";
-        private static string ModId => "more-cultural-names";
-
         private Mock<ILocalisationFetcher> localisationFetcher = null!;
         private Mock<INameNormaliser> nameNormaliser = null!;
         private Mock<IFileRepository<LanguageDataObject>> languageRepository = null!;
@@ -30,6 +27,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         private TemporaryDirectory temporaryDirectory = null!;
         private CK3ModBuilder modBuilder = null!;
         private string landedTitlesFilePath = null!;
+
+        private static string Game => "CK3";
+
+        private static string ModId => "more-cultural-names";
 
         [SetUp]
         public void SetUp()

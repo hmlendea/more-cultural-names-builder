@@ -60,8 +60,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             CreateDescriptorFiles();
         }
 
-        private void CreateDataFiles(string provinceNamesDirectoryPath)
-        {
+        private void CreateDataFiles(string provinceNamesDirectoryPath) =>
             Parallel.ForEach(languageGameIds, languageGameId =>
             {
                 string path = Path.Combine(provinceNamesDirectoryPath, $"{languageGameId.Id.ToLower()}.txt");
@@ -98,7 +97,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
                 File.WriteAllText(path, contentBuilder.ToString());
             });
-        }
 
         private void CreateLocalisationFiles(string localisationDirectoryPath)
         {
@@ -137,7 +135,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             Parallel.ForEach(
                 localisations,
-                () => new List<string>(),
+                List<string> () => [],
                 (provinceLocalisationsEntry, _, localLines) =>
                 {
                     string provinceId = provinceLocalisationsEntry.Key;

@@ -62,7 +62,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
             IEnumerable<GameIdDataObject> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<GameIdDataObject>>(
                 "GameIdMapping",
                 "ToDataObjects",
-                new List<GameId>());
+                (GameId[])[]);
 
             Assert.That(dataObjects, Is.Empty);
         }

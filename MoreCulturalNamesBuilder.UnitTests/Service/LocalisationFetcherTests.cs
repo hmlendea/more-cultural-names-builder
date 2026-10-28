@@ -17,13 +17,15 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
     [TestFixture]
     public sealed class LocalisationFetcherTests
     {
-        private static string Game => "Crusader Kings III";
-        private static string LocationGameId => "c_cluj";
-        private static string LocationId => "Cluj-Napoca";
-
         private Mock<IFileRepository<LanguageDataObject>> languageRepository = null!;
         private Mock<IFileRepository<LocationDataObject>> locationRepository = null!;
         private LocalisationFetcher localisationFetcher = null!;
+
+        private static string Game => "Crusader Kings III";
+
+        private static string LocationGameId => "c_cluj";
+
+        private static string LocationId => "Cluj-Napoca";
 
         [SetUp]
         public void SetUp()

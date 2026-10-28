@@ -5,14 +5,6 @@ namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
     [XmlType("GameId")]
     public sealed class GameIdDataObject
     {
-        public GameIdDataObject() { }
-
-        public GameIdDataObject(string game, string gameLocationId)
-        {
-            Game = game;
-            Id = gameLocationId;
-        }
-
         [XmlAttribute("game")]
         public string Game { get; set; } = null!;
 
@@ -27,5 +19,15 @@ namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
 
         [XmlText]
         public string Id { get; set; } = null!;
+
+        public GameIdDataObject()
+        {
+        }
+
+        public GameIdDataObject(string game, string gameLocationId)
+        {
+            Game = game;
+            Id = gameLocationId;
+        }
     }
 }

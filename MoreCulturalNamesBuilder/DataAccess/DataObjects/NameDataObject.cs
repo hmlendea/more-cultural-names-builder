@@ -5,14 +5,6 @@ namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
     [XmlType("Name")]
     public sealed class NameDataObject
     {
-        public NameDataObject() { }
-
-        public NameDataObject(string language, string value)
-        {
-            LanguageId = language;
-            Value = value;
-        }
-
         [XmlAttribute("language")]
         public string LanguageId { get; set; } = null!;
 
@@ -24,5 +16,15 @@ namespace MoreCulturalNamesBuilder.DataAccess.DataObjects
 
         [XmlAttribute("comment")]
         public string? Comment { get; set; }
+
+        public NameDataObject()
+        {
+        }
+
+        public NameDataObject(string language, string value)
+        {
+            LanguageId = language;
+            Value = value;
+        }
     }
 }

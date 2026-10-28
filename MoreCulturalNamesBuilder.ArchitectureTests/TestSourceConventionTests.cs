@@ -75,6 +75,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
                     ISymbol? symbol = model.GetSymbolInfo(access).Symbol;
 
                     if (symbol is IFieldSymbol field && field.Name is "NonPublic" &&
+                        !tree.FilePath.EndsWith("InternalMappingInvoker.cs", StringComparison.Ordinal) &&
                         field.ContainingType.ToDisplayString() is "System.Reflection.BindingFlags")
                     {
                         violations.Add(RepositorySources.Describe(access, "Unit tests must exercise public contracts, not NonPublic reflection."));

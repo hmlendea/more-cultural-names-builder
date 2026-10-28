@@ -20,6 +20,14 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public partial class CK2ModBuilder : ModBuilder
     {
+        private readonly ILocalisationFetcher localisationFetcher;
+        protected readonly INameNormaliser NameNormaliser;
+        private readonly ConcurrentDictionary<string, string> windows1252NameCache;
+
+        protected IDictionary<string, IEnumerable<Localisation>> localisations = null!;
+        protected Dictionary<string, IEnumerable<Localisation>> localisationsOrderedByLanguageGameId;
+        private IDictionary<string, GameId> locationGameIdsById = null!;
+
         [GeneratedRegex("\\t", RegexOptions.Multiline)]
         private static partial Regex TabRegex { get; }
 
@@ -49,14 +57,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         protected virtual IEnumerable<string> ForbiddenTokensForNextLine
             => ["any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change"];
 
-        private readonly ILocalisationFetcher localisationFetcher;
-        protected readonly INameNormaliser NameNormaliser;
-        private readonly ConcurrentDictionary<string, string> windows1252NameCache;
-
-        protected IDictionary<string, IEnumerable<Localisation>> localisations = null!;
-        protected IDictionary<string, IEnumerable<Localisation>> localisationsOrderedByLanguageGameId;
-        private IDictionary<string, GameId> locationGameIdsById = null!;
-
         public CK2ModBuilder(
             ILocalisationFetcher localisationFetcher,
             INameNormaliser nameNormaliser,
@@ -72,7 +72,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             EncodingProvider encodingProvider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(encodingProvider);
 
-            localisationsOrderedByLanguageGameId = new Dictionary<string, IEnumerable<Localisation>>();
+            localisationsOrderedByLanguageGameId = [];
         }
 
         protected override void LoadData()
@@ -314,7 +314,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             Parallel.ForEach(
                 localisations,
-                () => new List<string>(),
+                List<string> () => [],
                 (localisationEntry, _, localLines) =>
                 {
                     string locationGameId = localisationEntry.Key;

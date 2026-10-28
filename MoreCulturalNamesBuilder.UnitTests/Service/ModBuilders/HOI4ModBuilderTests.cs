@@ -21,15 +21,16 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
     [TestFixture]
     public sealed class HOI4ModBuilderTests
     {
-        private static string Game => "HOI4";
-        private static string ModId => "more-cultural-names";
-
         private Mock<ILocalisationFetcher> localisationFetcher = null!;
         private Mock<INameNormaliser> nameNormaliser = null!;
         private Mock<IFileRepository<LanguageDataObject>> languageRepository = null!;
         private Mock<IFileRepository<LocationDataObject>> locationRepository = null!;
         private TemporaryDirectory temporaryDirectory = null!;
         private HOI4ModBuilder modBuilder = null!;
+
+        private static string Game => "HOI4";
+
+        private static string ModId => "more-cultural-names";
 
         [SetUp]
         public void SetUp()

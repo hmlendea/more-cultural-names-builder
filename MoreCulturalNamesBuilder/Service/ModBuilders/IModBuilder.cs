@@ -2,6 +2,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public interface IModBuilder
     {
-        void Build();
+        public void Build();
     }
 }

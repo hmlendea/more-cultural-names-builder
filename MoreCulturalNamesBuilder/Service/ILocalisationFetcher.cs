@@ -6,11 +6,11 @@ namespace MoreCulturalNamesBuilder.Service
 {
     public interface ILocalisationFetcher
     {
-        IEnumerable<Localisation> GetGameLocationLocalisations(
+        public IEnumerable<Localisation> GetGameLocationLocalisations(
             string locationGameId,
             string game);
 
-        IEnumerable<Localisation> GetGameLocationLocalisations(
+        public IEnumerable<Localisation> GetGameLocationLocalisations(
             string locationGameId,
             string? locationGameIdType,
             string game);

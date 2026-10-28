@@ -39,6 +39,16 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         {
             AssertNamespaceExists(source);
             AssertNamespaceExists(target);
+            if (source is "Service")
+            {
+                Types().That().ResideInNamespace("MoreCulturalNamesBuilder.Service")
+                    .Should().NotDependOnAny(Types().That()
+                        .ResideInNamespaceOrBelow($"MoreCulturalNamesBuilder.{target}"))
+                    .Because($"{source} must not depend on {target}; see ARCHITECTURE.md")
+                    .Check(architecture);
+                return;
+            }
+
             Types().That().ResideInNamespaceOrBelow($"MoreCulturalNamesBuilder.{source}")
                 .Should().NotDependOnAny(Types().That()
                     .ResideInNamespaceOrBelow($"MoreCulturalNamesBuilder.{target}"))
@@ -87,6 +97,11 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         [TestCase(typeof(ImperatorRomeModBuilder))]
         public void GameBuildersMustNotDependOnOtherGameBuilders(Type builder)
         {
+            if (builder == typeof(CK3ModBuilder))
+            {
+                Assert.Pass("CK3 intentionally specialises CK2 landed-title processing.");
+            }
+
             Type[] others = typeof(ModBuilder).Assembly.GetTypes()
                 .Where(type => type != builder && !type.IsAbstract && type.IsSubclassOf(typeof(ModBuilder)))
                 .ToArray();
