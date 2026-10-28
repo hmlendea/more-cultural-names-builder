@@ -180,7 +180,9 @@ When doing so, please:
 - Maintain your branch synchronised with `master`
 - Revise the documentation when functionality changes
 - Properly test all modifications, including edge cases and error conditions
-- Add tests for additional or modified functionality
+- Include tests for additional or modified functionality
+
+See the [contributing guidelines](CONTRIBUTING.md) for details on how to report issues, suggest enhancements, and submit changes.
 
 ## 🔒 Privacy
 
