@@ -5,17 +5,26 @@ using System.Text.RegularExpressions;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
-    internal static class CK3CulturalNameBlockMerger
+    internal static partial class CK3CulturalNameBlockMerger
     {
+        [GeneratedRegex("^\\s*[ekdcb]_.*=\\s*\\{.*$")]
+        private static partial Regex TitleRegex { get; }
+
+        [GeneratedRegex("^\\s*cultural_names\\s*=\\s*\\{.*$")]
+        private static partial Regex CulturalNamesRegex { get; }
+
+        [GeneratedRegex("^\\s*(name_list_\\S+)\\s*=.*$")]
+        private static partial Regex NameListRegex { get; }
+
         internal static string Merge(string content)
         {
-            List<string> lines = content.Split('\n').ToList();
+            List<string> lines = [.. content.Split('\n')];
             Dictionary<int, List<string>> replacementBlocks = [];
             HashSet<int> omittedLines = [];
 
             for (int lineIndex = 0; lineIndex < lines.Count; lineIndex += 1)
             {
-                if (!Regex.IsMatch(lines[lineIndex], "^\\s*[ekdcb]_.*=\\s*\\{.*$", RegexOptions.Compiled))
+                if (!TitleRegex.IsMatch(lines[lineIndex]))
                 {
                     continue;
                 }
@@ -82,7 +91,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             for (int lineIndex = firstLineIndex; lineIndex < lastLineIndex; lineIndex += 1)
             {
-                if (!Regex.IsMatch(lines[lineIndex], "^\\s*cultural_names\\s*=\\s*\\{.*$", RegexOptions.Compiled))
+                if (!CulturalNamesRegex.IsMatch(lines[lineIndex]))
                 {
                     continue;
                 }
@@ -111,10 +120,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     lineIndex < culturalNameBlock.EndLineIndex;
                     lineIndex += 1)
                 {
-                    Match nameListMatch = Regex.Match(
-                        lines[lineIndex],
-                        "^\\s*(name_list_\\S+)\\s*=.*$",
-                        RegexOptions.Compiled);
+                    Match nameListMatch = NameListRegex.Match(lines[lineIndex]);
 
                     if (!nameListMatch.Success || nameListKeys.Add(nameListMatch.Groups[1].Value))
                     {

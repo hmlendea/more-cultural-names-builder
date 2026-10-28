@@ -36,7 +36,7 @@ public interface IFileRepository<T> where T : EntityBase
 All entities inherit from `NuciDAL.DataObjects.EntityBase` (provides `Id` property).
 
 ### LanguageEntity
-**Location:** `MoreCulturalNamesBuilder/DataAccess/DataObjects/LanguageEntity.cs`
+**Location:** [LanguageDataObject.cs](../MoreCulturalNamesBuilder/DataAccess/DataObjects/LanguageDataObject.cs)
 
 ```csharp
 [XmlType("Language")]
@@ -63,7 +63,7 @@ public class LanguageEntity : EntityBase
 ```
 
 ### LocationEntity
-**Location:** `MoreCulturalNamesBuilder/DataAccess/DataObjects/LocationEntity.cs`
+**Location:** [LocationDataObject.cs](../MoreCulturalNamesBuilder/DataAccess/DataObjects/LocationDataObject.cs)
 
 ```csharp
 public class LocationEntity : EntityBase
@@ -96,7 +96,7 @@ public class LocationEntity : EntityBase
 ```
 
 ### NameEntity
-**Location:** `MoreCulturalNamesBuilder/DataAccess/DataObjects/NameEntity.cs`
+**Location:** [NameDataObject.cs](../MoreCulturalNamesBuilder/DataAccess/DataObjects/NameDataObject.cs)
 
 ```csharp
 [XmlType("Name")]
@@ -117,7 +117,7 @@ public class NameEntity
 ```
 
 ### LanguageCodeEntity
-**Location:** `MoreCulturalNamesBuilder/DataAccess/DataObjects/LanguageCodeEntity.cs`
+**Location:** [LanguageCodeDataObject.cs](../MoreCulturalNamesBuilder/DataAccess/DataObjects/LanguageCodeDataObject.cs)
 
 ```csharp
 [XmlType("LanguageCode")]
@@ -133,7 +133,7 @@ public class LanguageCodeEntity
 ```
 
 ### GameIdEntity
-**Location:** `MoreCulturalNamesBuilder/DataAccess/DataObjects/GameIdEntity.cs`
+**Location:** [GameIdDataObject.cs](../MoreCulturalNamesBuilder/DataAccess/DataObjects/GameIdDataObject.cs)
 
 ```csharp
 [XmlType("GameId")]
@@ -187,7 +187,7 @@ Consumed by LocalisationFetcher, ModBuilders
 
 ## Mapping to Service Models
 
-**Location:** `MoreCulturalNamesBuilder/Service/Mapping/`
+**Location:** [Mapping](../MoreCulturalNamesBuilder/Service/Mapping/)
 
 Each entity has a corresponding mapping extension:
 
@@ -219,7 +219,7 @@ static class LanguageMapping
 ## Data Loading in Builders
 
 ### Base ModBuilder.LoadAllData()
-**Location:** `MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilder.cs`
+**Location:** [ModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilder.cs)
 
 ```csharp
 void LoadAllData()
@@ -377,7 +377,7 @@ All repository exceptions bubble up to `Program.Main` → unhandled → non-zero
 
 ## Testing
 
-**Location:** `MoreCulturalNamesBuilder.UnitTests/Service/Mapping/`
+**Location:** [Mapping Tests](../MoreCulturalNamesBuilder.UnitTests/Service/Mapping/)
 
 ### Current Coverage
 - Mapping extension method correctness (entity ↔ model round-trip)
@@ -393,7 +393,7 @@ All repository exceptions bubble up to `Program.Main` → unhandled → non-zero
 
 To add new entity types:
 1. Create entity class in `DataAccess/DataObjects/` with XML attributes
-2. Add mapping extension in `Service/Mapping/`
+2. Add a mapping extension in [Mapping](../MoreCulturalNamesBuilder/Service/Mapping/).
 3. Register repository in `Program.cs` DI container
 4. Update `LocalisationFetcher` if new data needed for localisation
 5. Update builders if new data needed for output generation

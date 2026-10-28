@@ -6,9 +6,9 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.Mapping
 {
-    static class GameIdMapping
+    internal static class GameIdMappingExtensions
     {
-        internal static GameId ToServiceModel(this GameIdEntity dataObject) => new()
+        internal static GameId ToServiceModel(this GameIdDataObject dataObject) => new()
         {
             Game = dataObject.Game,
             Type = dataObject.Type,
@@ -17,7 +17,7 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
             Id = dataObject.Id
         };
 
-        internal static GameIdEntity ToDataObject(this GameId serviceModel) => new()
+        internal static GameIdDataObject ToDataObject(this GameId serviceModel) => new()
         {
             Game = serviceModel.Game,
             Type = serviceModel.Type,
@@ -26,10 +26,10 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
             Id = serviceModel.Id
         };
 
-        internal static IEnumerable<GameId> ToServiceModels(this IEnumerable<GameIdEntity> dataObjects)
+        internal static IEnumerable<GameId> ToServiceModels(this IEnumerable<GameIdDataObject> dataObjects)
             => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
-        internal static IEnumerable<GameIdEntity> ToDataObjects(this IEnumerable<GameId> serviceModels)
+        internal static IEnumerable<GameIdDataObject> ToDataObjects(this IEnumerable<GameId> serviceModels)
             => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

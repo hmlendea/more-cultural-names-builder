@@ -1,5 +1,6 @@
-using NuciCLI.Arguments;
 using System;
+
+using NuciCLI.Arguments;
 
 namespace MoreCulturalNamesBuilder.Configuration
 {
@@ -7,20 +8,20 @@ namespace MoreCulturalNamesBuilder.Configuration
     {
         public string ModOutputDirectory { get; set; } = ResolveOutputDirectory(args);
 
-        public bool AreVerboseCommentsEnabled { get; set; } = args.Get<string>("verbose") == "true";
+        public bool AreVerboseCommentsEnabled { get; set; } = string.Equals(args.Get<string>("verbose"), "true");
 
-        public string LandedTitlesFileName { get; set; } = (string)args["landed-titles-name"];
+        public string? LandedTitlesFileName { get; set; } = args["landed-titles-name"] as string;
 
         private static string ResolveOutputDirectory(ArgumentsCollection args)
         {
-            string outputDirectory = (string)args["output"];
+            string? outputDirectory = args["output"] as string;
 
             if (!string.IsNullOrWhiteSpace(outputDirectory))
             {
                 return outputDirectory;
             }
 
-            string outputDirectoryAlias = (string)args["out"];
+            string? outputDirectoryAlias = args["out"] as string;
 
             if (!string.IsNullOrWhiteSpace(outputDirectoryAlias))
             {

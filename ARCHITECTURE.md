@@ -109,7 +109,7 @@ The principal runtime sequence is:
 - Support legacy alias arguments (`--output`/`--out`, `--version`/`--ver`) for backward compatibility with existing mod build scripts.
 
 **Boundary rules:**
-- Configuration is instantiated once at application startup; it must be immutable after construction.
+- Configuration is instantiated once at application startup and exposes mutable auto-properties; callers must not modify it during a build.
 - No I/O operations occur during Settings instantiation (parsing only).
 - Invalid arguments cause an exception; error recovery is the caller's responsibility.
 
@@ -119,7 +119,7 @@ The principal runtime sequence is:
 - `MoreCulturalNamesBuilder/DataAccess/DataObjects/`
 
 **Responsibilities:**
-- Define domain entity classes (`LanguageEntity`, `LocationEntity`, `NameEntity`, `LanguageCodeEntity`, `GameIdEntity`).
+- Define XML data objects: [LanguageDataObject](MoreCulturalNamesBuilder/DataAccess/DataObjects/LanguageDataObject.cs), [LocationDataObject](MoreCulturalNamesBuilder/DataAccess/DataObjects/LocationDataObject.cs), [NameDataObject](MoreCulturalNamesBuilder/DataAccess/DataObjects/NameDataObject.cs), [LanguageCodeDataObject](MoreCulturalNamesBuilder/DataAccess/DataObjects/LanguageCodeDataObject.cs), and [GameIdDataObject](MoreCulturalNamesBuilder/DataAccess/DataObjects/GameIdDataObject.cs).
 - Serve as data transfer objects between XML repositories and service layer.
 - Maintain no business logic; entities are passive data containers.
 
@@ -130,8 +130,8 @@ The principal runtime sequence is:
 ### Service Layer
 
 **Paths:**
-- `MoreCulturalNamesBuilder/Service/`
-- `MoreCulturalNamesBuilder/Service/Mapping/`
+- [Service](MoreCulturalNamesBuilder/Service/)
+- [Mapping](MoreCulturalNamesBuilder/Service/Mapping/)
 
 **Responsibilities:**
 - `LocalisationFetcher`: Retrieves localisation data for a given location and language, normalising keys for consistency.
@@ -145,7 +145,7 @@ The principal runtime sequence is:
 ### Mod Builders
 
 **Paths:**
-- `MoreCulturalNamesBuilder/Service/ModBuilders/`
+- [Mod Builders](MoreCulturalNamesBuilder/Service/ModBuilders/)
 
 **Responsibilities:**
 - `IModBuilder`: Interface defining the `Build()` contract.
@@ -164,7 +164,7 @@ The application processes two principal data flows:
 
 1. **Localisation Data Flow:**
    - **Source:** Language and Location XML files (external, user-provided).
-   - **Load:** Parsed into `LanguageEntity` and `LocationEntity` collections via `NuciDAL` XML repositories.
+    - **Load:** Parsed into language and location data object collections via `NuciDAL` XML repositories.
    - **Transform:** `LocalisationFetcher` maps entities to application models and retrieves localised place names.
    - **Persist:** Game-specific builders write localisation strings to game mod format files (e.g., `00_cultural_names.txt`).
 
@@ -175,7 +175,7 @@ The application processes two principal data flows:
 
 | Data or Store | Owner | Representation and Storage | Lifecycle or Consistency |
 |---|---|---|---|
-| `LanguageEntity`, `LocationEntity` collections | `IFileRepository<T>` (NuciDAL) | Loaded entirely into memory during startup; discarded on exit. | No mutations after repository load; guaranteed consistency by immutability. |
+| Language and location data object collections | `IFileRepository<T>` (NuciDAL) | Loaded entirely into memory during startup; discarded on exit. | Mutable XML data containers; callers must not mutate them during a build. |
 | `Language`, `Location`, `Localisation` models | Service layer | Derived from entities; intermediate representation for builder consumption. | Created on-demand during build phase; no persistent caching. |
 | Generated mod files | `ModBuilder` | Game-specific format (e.g., CK3 localisation files, HOI4 custom format). | Written once to `OutputSettings.OutputPath`; no subsequent updates within a single build. |
 
@@ -256,7 +256,7 @@ dotnet test
 
 - **No Directory Creation:** The application does not create intermediate directories; output directory must exist and be writable before execution.
 - **Single Invocation Per Process:** Each process handles exactly one build; no daemon or persistent server mode.
-- **Immutable Configuration:** Once parsed, settings cannot be modified; every build uses the same parsed configuration.
+- **Configuration Ownership:** Settings expose mutable auto-properties; every build uses the same parsed configuration and assumes callers do not modify it concurrently.
 - **In-Memory Data Loading:** All localisation data is loaded into memory during startup; no streaming or pagination of large datasets.
 - **No Transaction Support:** Failed builds do not roll back partial output files; idempotency is caller responsibility.
 - **Game Alias Requirement:** The `--game` argument requires an exact string match (CK2, CK3, HOI4, IR); no fuzzy matching or abbreviations.
@@ -268,12 +268,11 @@ dotnet test
 |---|---|
 | Configuration parsing and argument validation | `MoreCulturalNamesBuilder/Configuration/` |
 | Domain entity definitions | `MoreCulturalNamesBuilder/DataAccess/DataObjects/` |
-| Data transformation services and mapping | `MoreCulturalNamesBuilder/Service/` |
-| Game-specific mod builders | `MoreCulturalNamesBuilder/Service/ModBuilders/` |
+| Data transformation services and mapping | [Service](MoreCulturalNamesBuilder/Service/) |
+| Game-specific mod builders | [Mod Builders](MoreCulturalNamesBuilder/Service/ModBuilders/) |
 | Unit test suite | `MoreCulturalNamesBuilder.UnitTests/` |
 | Dependency injection setup and entry point | `MoreCulturalNamesBuilder/Program.cs` |
 
 ## 📚 Related Documentation
 
 - [README.md](./README.md) – Usage, installation, and capabilities overview.
-- [ROADMAP.md](./ROADMAP.md) – Planned features and evolution.

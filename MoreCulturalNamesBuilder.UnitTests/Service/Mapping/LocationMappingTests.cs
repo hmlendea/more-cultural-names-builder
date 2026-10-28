@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
 {
@@ -17,7 +17,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
         {
             Location serviceModel = BuildLocation("Cluj-Napoca", "c_cluj");
 
-            LocationEntity dataObject = InternalMappingInvoker.Invoke<LocationEntity>(
+            LocationDataObject dataObject = InternalMappingInvoker.Invoke<LocationDataObject>(
                 "LocationMapping",
                 "ToDataObject",
                 serviceModel);
@@ -27,7 +27,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 Assert.That(dataObject.Id, Is.EqualTo("Cluj-Napoca"));
                 Assert.That(dataObject.GeoNamesId, Is.EqualTo("681290"));
                 Assert.That(dataObject.GameIds.Single().Id, Is.EqualTo("c_cluj"));
-                Assert.That(dataObject.FallbackLocations, Is.EqualTo(new[] { "Oradea", "Dezmir" }));
+                Assert.That(dataObject.FallbackLocations, Is.EqualTo(["Oradea", "Dezmir"]));
                 Assert.That(dataObject.Names.Single().Value, Is.EqualTo("Cluj-Napoca"));
             });
         }
@@ -44,7 +44,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 Names = []
             };
 
-            LocationEntity dataObject = InternalMappingInvoker.Invoke<LocationEntity>(
+            LocationDataObject dataObject = InternalMappingInvoker.Invoke<LocationDataObject>(
                 "LocationMapping",
                 "ToDataObject",
                 serviceModel);
@@ -66,12 +66,12 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 BuildLocation("Cluj-Napoca", "c_cluj")
             ];
 
-            IEnumerable<LocationEntity> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<LocationEntity>>(
+            IEnumerable<LocationDataObject> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<LocationDataObject>>(
                 "LocationMapping",
                 "ToDataObjects",
                 serviceModels);
 
-            Assert.That(dataObjects.Select(dataObject => dataObject.Id), Is.EqualTo(new[] { "Oradea", "Cluj-Napoca" }));
+            Assert.That(dataObjects.Select(dataObject => dataObject.Id), Is.EqualTo(["Oradea", "Cluj-Napoca"]));
         }
 
         private static Location BuildLocation(string locationId, string locationGameId)

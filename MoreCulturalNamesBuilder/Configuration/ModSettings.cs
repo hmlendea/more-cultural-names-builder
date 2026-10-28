@@ -6,28 +6,28 @@ namespace MoreCulturalNamesBuilder.Configuration
 {
     public sealed class ModSettings(ArgumentsCollection args)
     {
-        public string Id { get; } = args.Get<string>("id");
+        public string Id { get; set; } = args.Get<string>("id");
 
-        public string Name { get; } = args.Get<string>("name");
+        public string Name { get; set; } = args.Get<string>("name");
 
         public string Version { get; set; } = ResolveVersion(args);
 
-        public string Dependency { get; set; } = ResolveDependency(args);
+        public string? Dependency { get; set; } = ResolveDependency(args);
 
-        public string Game { get; } = args.Get<string>("game");
+        public string Game { get; set; } = args.Get<string>("game");
 
-        public string GameVersion { get; } = args.Get<string>("game-version");
+        public string GameVersion { get; set; } = args.Get<string>("game-version");
 
         private static string ResolveVersion(ArgumentsCollection args)
         {
-            string version = (string)args["version"];
+            string? version = args["version"] as string;
 
             if (!string.IsNullOrWhiteSpace(version))
             {
                 return version;
             }
 
-            string versionAlias = (string)args["ver"];
+            string? versionAlias = args["ver"] as string;
 
             if (!string.IsNullOrWhiteSpace(versionAlias))
             {
@@ -37,16 +37,16 @@ namespace MoreCulturalNamesBuilder.Configuration
             throw new ArgumentException("Missing required argument: --version (alias: --ver).");
         }
 
-        private static string ResolveDependency(ArgumentsCollection args)
+        private static string? ResolveDependency(ArgumentsCollection args)
         {
-            string dependency = (string)args["dependency"];
+            string? dependency = args["dependency"] as string;
 
             if (!string.IsNullOrWhiteSpace(dependency))
             {
                 return dependency;
             }
 
-            string dependencyAlias = (string)args["dep"];
+            string? dependencyAlias = args["dep"] as string;
 
             if (!string.IsNullOrWhiteSpace(dependencyAlias))
             {

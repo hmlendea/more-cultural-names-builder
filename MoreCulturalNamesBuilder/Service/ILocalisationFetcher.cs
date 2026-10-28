@@ -8,11 +8,11 @@ namespace MoreCulturalNamesBuilder.Service
     {
         IEnumerable<Localisation> GetGameLocationLocalisations(
             string locationGameId,
-            string gameId);
+            string game);
 
         IEnumerable<Localisation> GetGameLocationLocalisations(
             string locationGameId,
-            string locationGameIdType,
-            string gameId);
+            string? locationGameIdType,
+            string game);
     }
 }

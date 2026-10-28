@@ -6,9 +6,9 @@ using MoreCulturalNamesBuilder.Service.Models;
 
 namespace MoreCulturalNamesBuilder.Service.Mapping
 {
-    static class LanguageMapping
+    internal static class LanguageMappingExtensions
     {
-        internal static Language ToServiceModel(this LanguageEntity dataObject) => new()
+        internal static Language ToServiceModel(this LanguageDataObject dataObject) => new()
         {
             Id = dataObject.Id,
             Code = dataObject.Code?.ToServiceModel(),
@@ -16,18 +16,18 @@ namespace MoreCulturalNamesBuilder.Service.Mapping
             FallbackLanguages = dataObject.FallbackLanguages.ToList()
         };
 
-        internal static LanguageEntity ToDataObject(this Language serviceModel) => new()
+        internal static LanguageDataObject ToDataObject(this Language serviceModel) => new()
         {
             Id = serviceModel.Id,
             Code = serviceModel.Code?.ToDataObject(),
-            GameIds = serviceModel.GameIds.ToDataObjects().ToList(),
-            FallbackLanguages = serviceModel.FallbackLanguages.ToList()
+            GameIds = [.. serviceModel.GameIds.ToDataObjects()],
+            FallbackLanguages = [.. serviceModel.FallbackLanguages]
         };
 
-        internal static IEnumerable<Language> ToServiceModels(this IEnumerable<LanguageEntity> dataObjects)
+        internal static IEnumerable<Language> ToServiceModels(this IEnumerable<LanguageDataObject> dataObjects)
             => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
-        internal static IEnumerable<LanguageEntity> ToDataObjects(this IEnumerable<Language> serviceModels)
+        internal static IEnumerable<LanguageDataObject> ToDataObjects(this IEnumerable<Language> serviceModels)
             => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
 {
@@ -17,7 +17,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
         {
             Language serviceModel = BuildLanguage("Romanian", new() { ISO_639_1 = "ro" });
 
-            LanguageEntity dataObject = InternalMappingInvoker.Invoke<LanguageEntity>(
+            LanguageDataObject dataObject = InternalMappingInvoker.Invoke<LanguageDataObject>(
                 "LanguageMapping",
                 "ToDataObject",
                 serviceModel);
@@ -25,9 +25,9 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
             Assert.Multiple(() =>
             {
                 Assert.That(dataObject.Id, Is.EqualTo("Romanian"));
-                Assert.That(dataObject.Code.ISO_639_1, Is.EqualTo("ro"));
+                Assert.That(dataObject.Code!.ISO_639_1, Is.EqualTo("ro"));
                 Assert.That(dataObject.GameIds.Single().Id, Is.EqualTo("romanian"));
-                Assert.That(dataObject.FallbackLanguages, Is.EqualTo(new[] { "English", "French" }));
+                Assert.That(dataObject.FallbackLanguages, Is.EqualTo(["English", "French"]));
             });
         }
 
@@ -36,7 +36,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
         {
             Language serviceModel = BuildLanguage("Romanian", null);
 
-            LanguageEntity dataObject = InternalMappingInvoker.Invoke<LanguageEntity>(
+            LanguageDataObject dataObject = InternalMappingInvoker.Invoke<LanguageDataObject>(
                 "LanguageMapping",
                 "ToDataObject",
                 serviceModel);
@@ -53,15 +53,15 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 BuildLanguage("Romanian", new() { ISO_639_1 = "ro" })
             ];
 
-            IEnumerable<LanguageEntity> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<LanguageEntity>>(
+            IEnumerable<LanguageDataObject> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<LanguageDataObject>>(
                 "LanguageMapping",
                 "ToDataObjects",
                 serviceModels);
 
-            Assert.That(dataObjects.Select(dataObject => dataObject.Id), Is.EqualTo(new[] { "English", "Romanian" }));
+            Assert.That(dataObjects.Select(dataObject => dataObject.Id), Is.EqualTo(["English", "Romanian"]));
         }
 
-        private static Language BuildLanguage(string languageId, LanguageCode code)
+        private static Language BuildLanguage(string languageId, LanguageCode? code)
             => new()
             {
                 Id = languageId,

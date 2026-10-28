@@ -1,12 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 using Moq;
-
-using NuciDAL.Repositories;
-
-using NUnit.Framework;
 
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
@@ -15,6 +10,10 @@ using MoreCulturalNamesBuilder.Service.ModBuilders;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.Configuration;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NuciDAL.Repositories;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 {
@@ -26,8 +25,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 
         private Mock<ILocalisationFetcher> localisationFetcher = null!;
         private Mock<INameNormaliser> nameNormaliser = null!;
-        private Mock<IFileRepository<LanguageEntity>> languageRepository = null!;
-        private Mock<IFileRepository<LocationEntity>> locationRepository = null!;
+        private Mock<IFileRepository<LanguageDataObject>> languageRepository = null!;
+        private Mock<IFileRepository<LocationDataObject>> locationRepository = null!;
         private TemporaryDirectory temporaryDirectory = null!;
         private CK3ModBuilder modBuilder = null!;
         private string landedTitlesFilePath = null!;
@@ -47,24 +46,24 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 .Setup(normaliser => normaliser.ToCK3Charset(It.IsAny<string>()))
                 .Returns((string value) => value);
 
-            LanguageEntity romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
             romanian.GameIds.Add(new("CK2", "romanian"));
-            LanguageEntity english = ModBuilderTestDataFactory.CreateLanguage(Game, "English", "english");
+            LanguageDataObject english = ModBuilderTestDataFactory.CreateLanguage(Game, "English", "english");
 
-            LocationEntity cluj = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject cluj = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 "c_cluj",
                 "county",
                 "Romanian");
             cluj.GameIds.Add(new("CK2", "c_cluj"));
-            LocationEntity oradea = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject oradea = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Oradea",
                 "c_oradea",
                 "county",
                 " ");
-            LocationEntity dezmir = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject dezmir = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Dezmir",
                 "c_dezmir",
@@ -211,8 +210,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         [Test]
         public void GivenNonVerboseLocalisationsWithoutComments_WhenBuilding_ThenNoCommentsAreGenerated()
         {
-            LanguageEntity romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
-            LocationEntity cluj = ModBuilderTestDataFactory.CreateLocation(
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LocationDataObject cluj = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 "c_cluj",
@@ -261,8 +260,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         }
 
         private void ConfigureRepositories(
-            IEnumerable<LanguageEntity> languages,
-            IEnumerable<LocationEntity> locations)
+            IEnumerable<LanguageDataObject> languages,
+            IEnumerable<LocationDataObject> locations)
         {
             languageRepository.Setup(repository => repository.GetAll()).Returns(languages);
             locationRepository.Setup(repository => repository.GetAll()).Returns(locations);

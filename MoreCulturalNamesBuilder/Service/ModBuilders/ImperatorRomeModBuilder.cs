@@ -6,26 +6,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using NuciDAL.Repositories;
-
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
+
+using NuciDAL.Repositories;
 
 namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public sealed class ImperatorRomeModBuilder(
         ILocalisationFetcher localisationFetcher,
         INameNormaliser nameNormaliser,
-        IFileRepository<LanguageEntity> languageRepository,
-        IFileRepository<LocationEntity> locationRepository,
+        IFileRepository<LanguageDataObject> languageRepository,
+        IFileRepository<LocationDataObject> locationRepository,
         Settings settings) : ModBuilder(languageRepository, locationRepository, settings)
     {
-        IDictionary<string, IDictionary<string, Localisation>> localisations;
-        IDictionary<string, GameId> locationGameIdsById;
-
-        readonly ILocalisationFetcher localisationFetcher = localisationFetcher;
-        readonly INameNormaliser nameNormaliser = nameNormaliser;
+        private IDictionary<string, IDictionary<string, Localisation>> localisations = null!;
+        private IDictionary<string, GameId> locationGameIdsById = null!;
 
         protected override void LoadData()
         {
@@ -35,12 +32,12 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             {
                 IDictionary<string, Localisation> locationLocalisations = localisationFetcher
                     .GetGameLocationLocalisations(locationGameId.Id, Settings.Mod.Game)
-                    .ToDictionary(x => x.LanguageGameId, x => x);
+                    .ToDictionary(localisation => localisation.LanguageGameId, localisation => localisation);
 
                 concurrentLocalisations.TryAdd(locationGameId.Id, locationLocalisations);
             });
 
-            localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
+            localisations = concurrentLocalisations.ToDictionary(entry => entry.Key, entry => entry.Value);
             locationGameIdsById = locationGameIds
                 .GroupBy(gameId => gameId.Id)
                 .ToDictionary(group => group.Key, group => group.First());
@@ -63,7 +60,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             CreateDescriptorFiles();
         }
 
-        void CreateDataFiles(string provinceNamesDirectoryPath)
+        private void CreateDataFiles(string provinceNamesDirectoryPath)
         {
             Parallel.ForEach(languageGameIds, languageGameId =>
             {
@@ -103,7 +100,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             });
         }
 
-        void CreateLocalisationFiles(string localisationDirectoryPath)
+        private void CreateLocalisationFiles(string localisationDirectoryPath)
         {
             string content = GenerateLocalisationFileContent();
 
@@ -112,7 +109,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 fileLanguage => CreateLocalisationFile(localisationDirectoryPath, fileLanguage, content));
         }
 
-        void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
+        private void CreateLocalisationFile(string localisationDirectoryPath, string language, string content)
         {
             string fileContent = $"l_{language}:{Environment.NewLine}{content}";
             string fileName = $"{Settings.Mod.Id}_provincenames_l_{language}.yml";
@@ -121,7 +118,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(filePath, fileContent, Encoding.UTF8);
         }
 
-        void CreateDescriptorFiles()
+        private void CreateDescriptorFiles()
         {
             string mainDescriptorContent = GenerateMainDescriptorContent();
             string innerDescriptorContent = GenerateInnerDescriptorContent();
@@ -133,7 +130,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             File.WriteAllText(innerDescriptorFilePath, innerDescriptorContent);
         }
 
-        string GenerateLocalisationFileContent()
+        private string GenerateLocalisationFileContent()
         {
             List<string> lines = [];
             object lineCollectionLock = new();
@@ -147,7 +144,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     IDictionary<string, Localisation> provinceLocalisations = provinceLocalisationsEntry.Value;
                     GameId gameId = locationGameIdsById[provinceId];
 
-                    Localisation defaultLocalisation = provinceLocalisations.Values
+                    Localisation? defaultLocalisation = provinceLocalisations.Values
                         .FirstOrDefault(localisation => localisation.LanguageId.Equals(gameId.DefaultNameLanguageId));
 
                     if (defaultLocalisation is not null)
@@ -183,7 +180,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 lines);
         }
 
-        string GenerateLocationLocalisationLine(Localisation localisation, string localisationKey)
+        private string GenerateLocationLocalisationLine(Localisation localisation, string localisationKey)
         {
             string provinceLocalisationDefinition =
                 $" {localisationKey}:0 " +
@@ -202,13 +199,13 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             return provinceLocalisationDefinition;
         }
 
-        string GenerateMainDescriptorContent()
+        private string GenerateMainDescriptorContent()
             => GenerateInnerDescriptorContent() +
                 Environment.NewLine +
                 $"path=\"mod/{Settings.Mod.Id}\"";
 
-        string GenerateInnerDescriptorContent()
-            =>  $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
+        private string GenerateInnerDescriptorContent()
+            => $"# Version {Settings.Mod.Version} ({DateTime.Now})" + Environment.NewLine +
                 $"name=\"{Settings.Mod.Name}\"" + Environment.NewLine +
                 $"version=\"{Settings.Mod.Version}\"" + Environment.NewLine +
                 $"supported_version=\"{Settings.Mod.GameVersion}\"" + Environment.NewLine +

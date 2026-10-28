@@ -2,15 +2,15 @@ using System;
 
 using Moq;
 
-using NuciDAL.Repositories;
-
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service;
 using MoreCulturalNamesBuilder.Service.ModBuilders;
 using MoreCulturalNamesBuilder.UnitTests.Configuration;
+
+using NuciDAL.Repositories;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 {
@@ -24,8 +24,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         {
             Mock<ILocalisationFetcher> localisationFetcher = new();
             Mock<INameNormaliser> nameNormaliser = new();
-            Mock<IFileRepository<LanguageEntity>> languageRepository = new();
-            Mock<IFileRepository<LocationEntity>> locationRepository = new();
+            Mock<IFileRepository<LanguageDataObject>> languageRepository = new();
+            Mock<IFileRepository<LocationDataObject>> locationRepository = new();
 
             modBuilderFactory = new(
                 localisationFetcher.Object,

@@ -8,7 +8,7 @@ The service layer provides stateless, reusable data transformation services cons
 
 ## LocalisationFetcher
 
-**Location:** `MoreCulturalNamesBuilder/Service/LocalisationFetcher.cs`
+**Location:** [LocalisationFetcher.cs](../MoreCulturalNamesBuilder/Service/LocalisationFetcher.cs)
 **Interface:** `ILocalisationFetcher`
 
 ### Purpose
@@ -152,7 +152,7 @@ struct CachedLocalisation
 
 ## NameNormaliser
 
-**Location:** `MoreCulturalNamesBuilder/Service/NameNormaliser.cs`
+**Location:** [NameNormaliser.cs](../MoreCulturalNamesBuilder/Service/NameNormaliser.cs)
 **Interface:** `INameNormaliser`
 
 ### Purpose
@@ -284,7 +284,7 @@ private static string ReplaceUsingMap(string input, Dictionary<char, string> map
 
 ## Mapping Extensions
 
-**Location:** `MoreCulturalNamesBuilder/Service/Mapping/`
+**Location:** [Mapping](../MoreCulturalNamesBuilder/Service/Mapping/)
 
 ### Overview
 
@@ -342,10 +342,10 @@ languages = languageRepository
 ## Testing
 
 **Locations:**
-- `MoreCulturalNamesBuilder.UnitTests/Service/LocalisationFetcherTests.cs`
-- `MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserTests.cs`
-- `MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserEdgeCaseTests.cs`
-- `MoreCulturalNamesBuilder.UnitTests/Service/Mapping/`
+- [LocalisationFetcherTests.cs](../MoreCulturalNamesBuilder.UnitTests/Service/LocalisationFetcherTests.cs)
+- [NameNormaliserTests.cs](../MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserTests.cs)
+- [NameNormaliserEdgeCaseTests.cs](../MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserEdgeCaseTests.cs)
+- [Mapping Tests](../MoreCulturalNamesBuilder.UnitTests/Service/Mapping/)
 
 ### Coverage Areas
 - Localisation resolution with fallback chains

@@ -158,16 +158,18 @@ The solution comprises two projects:
 
 | Directory | Purpose |
 |-----------|---------|
-| `MoreCulturalNamesBuilder/Configuration/` | Settings and argument parsing |
-| `MoreCulturalNamesBuilder/DataAccess/DataObjects/` | Domain entity definitions |
-| `MoreCulturalNamesBuilder/Service/` | Business logic and transformations |
-| `MoreCulturalNamesBuilder/Service/Mapping/` | Data mapping between entities and models |
-| `MoreCulturalNamesBuilder/Service/ModBuilders/` | Game-specific mod file generation |
-| `MoreCulturalNamesBuilder/Service/Models/` | Application domain models |
+| [Configuration](MoreCulturalNamesBuilder/Configuration/) | Settings and argument parsing |
+| [Data Objects](MoreCulturalNamesBuilder/DataAccess/DataObjects/) | XML data object definitions |
+| [Service](MoreCulturalNamesBuilder/Service/) | Business logic and transformations |
+| [Mapping](MoreCulturalNamesBuilder/Service/Mapping/) | Data mapping between data objects and models |
+| [Mod Builders](MoreCulturalNamesBuilder/Service/ModBuilders/) | Game-specific mod file generation |
+| [Models](MoreCulturalNamesBuilder/Service/Models/) | Application domain models |
 
 ## 🏗️ Architecture
 
-See the [ARCHITECTURE.md](./ARCHITECTURE.md) for the system context, principal components, runtime flows, ownership boundaries, dependencies, constraints, and extension points.
+More Cultural Names Builder uses a console pipeline with XML data objects, localisation services, and game-specific mod builders.
+
+See the [architecture documentation](./ARCHITECTURE.md) for the system context, principal components, runtime flows, ownership boundaries, dependencies, constraints, and extension points.
 
 ## 🤝 Contributing
 

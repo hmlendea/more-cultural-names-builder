@@ -2,57 +2,19 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+
 using NuciText.Conversion;
 
 namespace MoreCulturalNamesBuilder.Service
 {
-    public sealed class NameNormaliser(INuciTextConverter textConverter) : INameNormaliser
+    public sealed partial class NameNormaliser(INuciTextConverter textConverter) : INameNormaliser
     {
-        static readonly Regex StartsWithPhiRegex = new("\\bɸ", RegexOptions.Compiled);
-        static readonly Regex TaMarbutaRegex = new("[a]*[ẗ]", RegexOptions.Compiled);
-        static readonly Regex UpperGWithOptionalHRegex = new("[Ġ]([^h])", RegexOptions.Compiled);
-        static readonly Regex LowerGWithOptionalHRegex = new("[ġ]([^h])", RegexOptions.Compiled);
-        static readonly Regex UpperGWithHRegex = new("[Ġ](h)", RegexOptions.Compiled);
-        static readonly Regex LowerGWithHRegex = new("[ġ](h)", RegexOptions.Compiled);
-        static readonly Regex CurlyApostropheRegex = new("[‘’]", RegexOptions.Compiled);
-        static readonly Regex FloatingDiacriticsRegex = new("[̧̣̤̦̓́̀̆̂̌̈̋̄̍̃͘᠌̬]", RegexOptions.Compiled);
-        static readonly Regex OtherFloatingDiacriticsRegex = new("(ॎ|઼|‌ॎ)", RegexOptions.Compiled);
-        static readonly Regex AttachedDiacriticsRegex = new("[・̲̥̮̱̇̐͡]", RegexOptions.Compiled);
-        static readonly Regex ReversedGlottalStopRegex = new("[ʔ]", RegexOptions.Compiled);
-        static readonly Regex AcuteApostropheLikeRegex = new("[ʾʻʼʽʹ′]", RegexOptions.Compiled);
-        static readonly Regex BacktickApostropheLikeRegex = new("[ʿ]", RegexOptions.Compiled);
-        static readonly Regex StraightApostropheLikeRegex = new("[ꞌʿˀʲь]", RegexOptions.Compiled);
-        static readonly Regex QuoteLikeRegex = new("[ʺ″]", RegexOptions.Compiled);
-        static readonly Regex ZeroWidthJoinersRegex = new("[‌‍]", RegexOptions.Compiled);
-        static readonly Regex DashLikeRegex = new("[–—]", RegexOptions.Compiled);
-        static readonly Regex ColonLikeRegex = new("[꞉]", RegexOptions.Compiled);
-        static readonly Regex DirectionalityMarksRegex = new("[‎·]", RegexOptions.Compiled);
-        static readonly Regex OtherInvisibleMarksRegex = new("[＝̷̯̰̊̒]", RegexOptions.Compiled);
-        static readonly Regex ZeroWidthSpaceRegex = new("[​]", RegexOptions.Compiled);
-        static readonly Regex InvisibleCharactersRegex = new("([‎‎])", RegexOptions.Compiled);
-        static readonly Regex UpperAAlternativesRegex = new("(𝖠|A‍)", RegexOptions.Compiled);
-        static readonly Regex UpperABeforeCanadianSyllabicsRegex = new("( ᐋ)", RegexOptions.Compiled);
-        static readonly Regex UpperBAlternativesRegex = new("(B‍|B‌|پ)", RegexOptions.Compiled);
-        static readonly Regex UpperMAlternativesRegex = new("(M̄|M̐)", RegexOptions.Compiled);
-        static readonly Regex UpperPAlternativesRegex = new("(P‍|П)", RegexOptions.Compiled);
-        static readonly Regex UpperRAlternativesRegex = new("(R‍|R‌)", RegexOptions.Compiled);
-        static readonly Regex UpperSAlternativesRegex = new("(S‍|S‌)", RegexOptions.Compiled);
-        static readonly Regex LowerAAlternativesRegex = new("(𝖺|a‍)", RegexOptions.Compiled);
-        static readonly Regex LowerACanadianSyllabicsRegex = new("([^ ])ᐋ", RegexOptions.Compiled);
-        static readonly Regex LowerBAlternativesRegex = new("(b‍|b‌)", RegexOptions.Compiled);
-        static readonly Regex LowerDAlternativesRegex = new("(𝖽|d‍‌)", RegexOptions.Compiled);
-        static readonly Regex LowerGAlternativesRegex = new("(g‍|g‌)", RegexOptions.Compiled);
-        static readonly Regex LowerMAlternativesRegex = new("(m̄|m̐|m̃)", RegexOptions.Compiled);
-        static readonly Regex LowerPAlternativesRegex = new("(p‍|п)", RegexOptions.Compiled);
-        static readonly Regex LowerRAlternativesRegex = new("(r‍|r‌)", RegexOptions.Compiled);
-        static readonly Regex LowerSAlternativesRegex = new("(s‍|s‌)", RegexOptions.Compiled);
+        private readonly ConcurrentDictionary<string, string> ck3cache = new();
+        private readonly ConcurrentDictionary<string, string> hoi4citiesCache = new();
+        private readonly ConcurrentDictionary<string, string> hoi4statesCache = new();
+        private readonly ConcurrentDictionary<string, string> irCache = new();
 
-        readonly ConcurrentDictionary<string, string> ck3cache = new();
-        readonly ConcurrentDictionary<string, string> hoi4citiesCache = new();
-        readonly ConcurrentDictionary<string, string> hoi4statesCache = new();
-        readonly ConcurrentDictionary<string, string> irCache = new();
-
-        readonly Dictionary<char, string> CommonCharacterMappings = new()
+        private static readonly Dictionary<char, string> commonCharacterMappings = new()
         {
             { 'А', "A" },
             { 'Α', "A" },
@@ -222,7 +184,7 @@ namespace MoreCulturalNamesBuilder.Service
             { 'ổ', "ô" },
         };
 
-        readonly Dictionary<char, string> CK3CharacterMappings = new()
+        private static readonly Dictionary<char, string> ck3CharacterMappings = new()
         {
             { 'Ǣ', "Æ" },
             { 'Ạ', "A" }, { 'Ə', "A" },
@@ -318,7 +280,7 @@ namespace MoreCulturalNamesBuilder.Service
             { 'ẓ', "z" }, { 'ʐ', "z" },
         };
 
-        readonly Dictionary<char, string> Hoi4CityCharacterMappings = new()
+        private static readonly Dictionary<char, string> hoi4CityCharacterMappings = new()
         {
             { 'Ǣ', "Æ" },
             { 'Ạ', "A" }, { 'Ə', "A" },
@@ -423,7 +385,7 @@ namespace MoreCulturalNamesBuilder.Service
             { 'ẓ', "z" }, { 'ʐ', "z" },
         };
 
-        readonly Dictionary<char, string> Hoi4StateCharacterMappings = new()
+        private static readonly Dictionary<char, string> hoi4StateCharacterMappings = new()
         {
             { 'Ă', "Ã" }, { 'Ā', "Ã" },
             { 'Č', "Ch" },
@@ -484,7 +446,7 @@ namespace MoreCulturalNamesBuilder.Service
             { 'ż', "ž" },
         };
 
-        readonly Dictionary<char, string> ImperatorRomeCharacterMappings = new()
+        private static readonly Dictionary<char, string> imperatorRomeCharacterMappings = new()
         {
             { 'Ǣ', "Æ" },
             { 'Ạ', "A" }, { 'Ə', "A" },
@@ -586,6 +548,120 @@ namespace MoreCulturalNamesBuilder.Service
             { 'ž', "zh" }
         };
 
+        [GeneratedRegex("\\bɸ")]
+        private static partial Regex StartsWithPhiRegex { get; }
+
+        [GeneratedRegex("[a]*[ẗ]")]
+        private static partial Regex TaMarbutaRegex { get; }
+
+        [GeneratedRegex("[Ġ]([^h])")]
+        private static partial Regex UpperGWithOptionalHRegex { get; }
+
+        [GeneratedRegex("[ġ]([^h])")]
+        private static partial Regex LowerGWithOptionalHRegex { get; }
+
+        [GeneratedRegex("[Ġ](h)")]
+        private static partial Regex UpperGWithHRegex { get; }
+
+        [GeneratedRegex("[ġ](h)")]
+        private static partial Regex LowerGWithHRegex { get; }
+
+        [GeneratedRegex("[‘’]")]
+        private static partial Regex CurlyApostropheRegex { get; }
+
+        [GeneratedRegex("[̧̣̤̦̓́̀̆̂̌̈̋̄̍̃͘᠌̬]")]
+        private static partial Regex FloatingDiacriticsRegex { get; }
+
+        [GeneratedRegex("(ॎ|઼|‌ॎ)")]
+        private static partial Regex OtherFloatingDiacriticsRegex { get; }
+
+        [GeneratedRegex("[・̲̥̮̱̇̐͡]")]
+        private static partial Regex AttachedDiacriticsRegex { get; }
+
+        [GeneratedRegex("[ʔ]")]
+        private static partial Regex ReversedGlottalStopRegex { get; }
+
+        [GeneratedRegex("[ʾʻʼʽʹ′]")]
+        private static partial Regex AcuteApostropheLikeRegex { get; }
+
+        [GeneratedRegex("[ʿ]")]
+        private static partial Regex BacktickApostropheLikeRegex { get; }
+
+        [GeneratedRegex("[ꞌʿˀʲь]")]
+        private static partial Regex StraightApostropheLikeRegex { get; }
+
+        [GeneratedRegex("[ʺ″]")]
+        private static partial Regex QuoteLikeRegex { get; }
+
+        [GeneratedRegex("[‌‍]")]
+        private static partial Regex ZeroWidthJoinersRegex { get; }
+
+        [GeneratedRegex("[–—]")]
+        private static partial Regex DashLikeRegex { get; }
+
+        [GeneratedRegex("[꞉]")]
+        private static partial Regex ColonLikeRegex { get; }
+
+        [GeneratedRegex("[‎·]")]
+        private static partial Regex DirectionalityMarksRegex { get; }
+
+        [GeneratedRegex("[＝̷̯̰̊̒]")]
+        private static partial Regex OtherInvisibleMarksRegex { get; }
+
+        [GeneratedRegex("[​]")]
+        private static partial Regex ZeroWidthSpaceRegex { get; }
+
+        [GeneratedRegex("([\u009d\u009b‎\u009b\u009d‎])")]
+        private static partial Regex InvisibleCharactersRegex { get; }
+
+        [GeneratedRegex("(𝖠|A‍)")]
+        private static partial Regex UpperAAlternativesRegex { get; }
+
+        [GeneratedRegex("( ᐋ)")]
+        private static partial Regex UpperABeforeCanadianSyllabicsRegex { get; }
+
+        [GeneratedRegex("(B‍|B‌|پ)")]
+        private static partial Regex UpperBAlternativesRegex { get; }
+
+        [GeneratedRegex("(M̄|M̐)")]
+        private static partial Regex UpperMAlternativesRegex { get; }
+
+        [GeneratedRegex("(P‍|П)")]
+        private static partial Regex UpperPAlternativesRegex { get; }
+
+        [GeneratedRegex("(R‍|R‌)")]
+        private static partial Regex UpperRAlternativesRegex { get; }
+
+        [GeneratedRegex("(S‍|S‌)")]
+        private static partial Regex UpperSAlternativesRegex { get; }
+
+        [GeneratedRegex("(𝖺|a‍)")]
+        private static partial Regex LowerAAlternativesRegex { get; }
+
+        [GeneratedRegex("([^ ])ᐋ")]
+        private static partial Regex LowerACanadianSyllabicsRegex { get; }
+
+        [GeneratedRegex("(b‍|b‌)")]
+        private static partial Regex LowerBAlternativesRegex { get; }
+
+        [GeneratedRegex("(𝖽|d‍‌)")]
+        private static partial Regex LowerDAlternativesRegex { get; }
+
+        [GeneratedRegex("(g‍|g‌)")]
+        private static partial Regex LowerGAlternativesRegex { get; }
+
+        [GeneratedRegex("(m̄|m̐|m̃)")]
+        private static partial Regex LowerMAlternativesRegex { get; }
+
+        [GeneratedRegex("(p‍|п)")]
+        private static partial Regex LowerPAlternativesRegex { get; }
+
+        [GeneratedRegex("(r‍|r‌)")]
+        private static partial Regex LowerRAlternativesRegex { get; }
+
+        [GeneratedRegex("(s‍|s‌)")]
+        private static partial Regex LowerSAlternativesRegex { get; }
+
         public string ToCK3Charset(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -593,13 +669,13 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (ck3cache.TryGetValue(name, out string value))
+            if (ck3cache.TryGetValue(name, out string? value))
             {
                 return value;
             }
 
             string processedName = ApplyCommonReplacements(name);
-            processedName = ReplaceUsingMap(processedName, CK3CharacterMappings);
+            processedName = ReplaceUsingMap(processedName, ck3CharacterMappings);
 
             // Crusader Kings III
             processedName = processedName.Replace("J̌", "Ĵ");
@@ -619,7 +695,7 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (hoi4citiesCache.TryGetValue(name, out string value))
+            if (hoi4citiesCache.TryGetValue(name, out string? value))
             {
                 return value;
             }
@@ -630,7 +706,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = processedName.Replace("āẗ", "āh");
             processedName = TaMarbutaRegex.Replace(processedName, "ah");
 
-            processedName = ReplaceUsingMap(processedName, Hoi4CityCharacterMappings);
+            processedName = ReplaceUsingMap(processedName, hoi4CityCharacterMappings);
 
             processedName = CurlyApostropheRegex.Replace(processedName, "´");
 
@@ -646,7 +722,7 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (hoi4statesCache.TryGetValue(name, out string value))
+            if (hoi4statesCache.TryGetValue(name, out string? value))
             {
                 return value;
             }
@@ -660,7 +736,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = UpperGWithOptionalHRegex.Replace(processedName, "Gh$1");
             processedName = LowerGWithOptionalHRegex.Replace(processedName, "gh$1");
 
-            processedName = ReplaceUsingMap(processedName, Hoi4StateCharacterMappings);
+            processedName = ReplaceUsingMap(processedName, hoi4StateCharacterMappings);
             processedName = ToHOI4CityCharset(processedName);
 
             hoi4statesCache.TryAdd(name, processedName);
@@ -675,15 +751,15 @@ namespace MoreCulturalNamesBuilder.Service
                 return string.Empty;
             }
 
-            if (irCache.TryGetValue(name, out string value))
+            if (irCache.TryGetValue(name, out string? value))
             {
                 return value;
             }
 
             string processedName = name;
 
-            processedName = Regex.Replace(processedName, "iīẗ", "iyyah");
-            processedName = Regex.Replace(processedName, "īẗ", "iyah");
+            processedName = processedName.Replace("iīẗ", "iyyah");
+            processedName = processedName.Replace("īẗ", "iyah");
 
             processedName = ApplyCommonReplacements(processedName);
 
@@ -697,7 +773,7 @@ namespace MoreCulturalNamesBuilder.Service
             processedName = LowerGWithOptionalHRegex.Replace(processedName, "gh$1");
             processedName = LowerGWithHRegex.Replace(processedName, "gh");
 
-            processedName = ReplaceUsingMap(processedName, ImperatorRomeCharacterMappings);
+            processedName = ReplaceUsingMap(processedName, imperatorRomeCharacterMappings);
 
             irCache.TryAdd(name, processedName);
 
@@ -707,13 +783,13 @@ namespace MoreCulturalNamesBuilder.Service
         public string ToWindows1252(string name)
             => textConverter.ToWindows1252(name);
 
-        private string ApplyCommonReplacements(string name)
+        private static string ApplyCommonReplacements(string name)
         {
             string processedName = name;
 
             processedName = StartsWithPhiRegex.Replace(processedName, "P");
 
-            processedName = ReplaceUsingMap(processedName, CommonCharacterMappings);
+            processedName = ReplaceUsingMap(processedName, commonCharacterMappings);
 
             processedName = processedName
                 .Replace("D‍", "D")
@@ -868,7 +944,7 @@ namespace MoreCulturalNamesBuilder.Service
         {
             if (input is null)
             {
-                return null;
+                return null!;
             }
 
             int firstReplaceableCharacterIndex = -1;
@@ -887,23 +963,23 @@ namespace MoreCulturalNamesBuilder.Service
                 return input;
             }
 
-            StringBuilder sb = new(input.Length);
-            sb.Append(input, 0, firstReplaceableCharacterIndex);
+            StringBuilder contentBuilder = new(input.Length);
+            contentBuilder.Append(input, 0, firstReplaceableCharacterIndex);
 
             for (int characterIndex = firstReplaceableCharacterIndex; characterIndex < input.Length; characterIndex += 1)
             {
                 char currentCharacter = input[characterIndex];
 
-                if (map.TryGetValue(currentCharacter, out string replacement))
+                if (map.TryGetValue(currentCharacter, out string? replacement))
                 {
-                    sb.Append(replacement);
+                    contentBuilder.Append(replacement);
                     continue;
                 }
 
-                sb.Append(currentCharacter);
+                contentBuilder.Append(currentCharacter);
             }
 
-            return sb.ToString();
+            return contentBuilder.ToString();
         }
     }
 }

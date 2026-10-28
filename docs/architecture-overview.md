@@ -139,7 +139,7 @@ flowchart TD
 - Entities are read-only; mutations occur only in mapping and service layers
 
 ### Service Layer
-**Path:** `MoreCulturalNamesBuilder/Service/` and `MoreCulturalNamesBuilder/Service/Mapping/`
+**Path:** [Service](../MoreCulturalNamesBuilder/Service/) and [Mapping](../MoreCulturalNamesBuilder/Service/Mapping/)
 
 **Responsibilities:**
 - `LocalisationFetcher`: Retrieves localisation data for location/language, normalising keys for consistency
@@ -151,7 +151,7 @@ flowchart TD
 - Services depend only on data entities and interfaces; no builder references
 
 ### Builder Layer
-**Path:** `MoreCulturalNamesBuilder/Service/ModBuilders/`
+**Path:** [Mod Builders](../MoreCulturalNamesBuilder/Service/ModBuilders/)
 
 **Responsibilities:**
 - `IModBuilder`: Interface defining `Build()` contract
@@ -237,8 +237,8 @@ Persist: Normalised names included in generated mod files
 |------|------|
 | Configuration parsing/validation | `MoreCulturalNamesBuilder/Configuration/` |
 | Domain entity definitions | `MoreCulturalNamesBuilder/DataAccess/DataObjects/` |
-| Data transformation services/mapping | `MoreCulturalNamesBuilder/Service/` |
-| Game-specific mod builders | `MoreCulturalNamesBuilder/Service/ModBuilders/` |
+| Data transformation services/mapping | [Service](../MoreCulturalNamesBuilder/Service/) |
+| Game-specific mod builders | [Mod Builders](../MoreCulturalNamesBuilder/Service/ModBuilders/) |
 | Unit test suite | `MoreCulturalNamesBuilder.UnitTests/` |
 | DI setup and entry point | `MoreCulturalNamesBuilder/Program.cs` |
 

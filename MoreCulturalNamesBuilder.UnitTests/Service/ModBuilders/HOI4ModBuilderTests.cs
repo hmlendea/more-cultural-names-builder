@@ -4,10 +4,6 @@ using System.IO;
 
 using Moq;
 
-using NuciDAL.Repositories;
-
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.Configuration;
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service;
@@ -15,6 +11,10 @@ using MoreCulturalNamesBuilder.Service.ModBuilders;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.Configuration;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NuciDAL.Repositories;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 {
@@ -26,8 +26,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
 
         private Mock<ILocalisationFetcher> localisationFetcher = null!;
         private Mock<INameNormaliser> nameNormaliser = null!;
-        private Mock<IFileRepository<LanguageEntity>> languageRepository = null!;
-        private Mock<IFileRepository<LocationEntity>> locationRepository = null!;
+        private Mock<IFileRepository<LanguageDataObject>> languageRepository = null!;
+        private Mock<IFileRepository<LocationDataObject>> locationRepository = null!;
         private TemporaryDirectory temporaryDirectory = null!;
         private HOI4ModBuilder modBuilder = null!;
 
@@ -47,39 +47,39 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 .Setup(normaliser => normaliser.ToHOI4CityCharset(It.IsAny<string>()))
                 .Returns((string value) => $"City {value}");
 
-            LanguageEntity language = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LanguageDataObject language = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
             language.GameIds.Add(new("CK3", "romanian"));
-            LocationEntity firstState = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject firstState = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Romania",
                 "42",
                 "State",
                 "Romanian");
-            LocationEntity secondState = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject secondState = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Scotland",
                 "4",
                 "State",
                 "English");
-            LocationEntity firstCity = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject firstCity = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 "613",
                 "City",
                 "Romanian");
-            LocationEntity secondCity = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject secondCity = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Newport",
                 "8",
                 "City",
                 "English");
-            LocationEntity otherType = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject otherType = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Oradea",
                 "16",
                 "Province",
                 "Romanian");
-            LocationEntity otherGame = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject otherGame = ModBuilderTestDataFactory.CreateLocation(
                 "CK3",
                 "Dezmir",
                 "32",
@@ -159,7 +159,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             string locationGameId,
             Type expectedExceptionType)
         {
-            LocationEntity location = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject location = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 locationGameId,
@@ -177,7 +177,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         [Test]
         public void GivenDuplicateLanguageLocalisations_WhenBuilding_ThenAnAggregateExceptionIsThrown()
         {
-            LocationEntity location = ModBuilderTestDataFactory.CreateLocation(
+            LocationDataObject location = ModBuilderTestDataFactory.CreateLocation(
                 Game,
                 "Cluj-Napoca",
                 "613",
@@ -201,8 +201,8 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         }
 
         private void ConfigureRepositories(
-            IEnumerable<LanguageEntity> languages,
-            IEnumerable<LocationEntity> locations)
+            IEnumerable<LanguageDataObject> languages,
+            IEnumerable<LocationDataObject> locations)
         {
             languageRepository.Setup(repository => repository.GetAll()).Returns(languages);
             locationRepository.Setup(repository => repository.GetAll()).Returns(locations);

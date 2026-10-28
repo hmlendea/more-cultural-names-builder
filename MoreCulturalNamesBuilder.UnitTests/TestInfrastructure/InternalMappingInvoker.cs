@@ -15,7 +15,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.TestInfrastructure
             object input)
         {
             Type mappingType = typeof(LocalisationFetcher).Assembly.GetType(
-                $"{MappingNamespace}.{mappingTypeName}",
+                $"{MappingNamespace}.{mappingTypeName}Extensions",
                 true)!;
             MethodInfo method = mappingType.GetMethod(
                 methodName,

@@ -10,14 +10,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     public sealed class ModBuilderFactory(
         ILocalisationFetcher localisationFetcher,
         INameNormaliser nameNormaliser,
-        IFileRepository<LanguageEntity> languageRepository,
-        IFileRepository<LocationEntity> locationRepository) : IModBuilderFactory
+        IFileRepository<LanguageDataObject> languageRepository,
+        IFileRepository<LocationDataObject> locationRepository) : IModBuilderFactory
     {
-        readonly ILocalisationFetcher localisationFetcher = localisationFetcher;
-        readonly INameNormaliser nameNormaliser = nameNormaliser;
-        readonly IFileRepository<LanguageEntity> languageRepository = languageRepository;
-        readonly IFileRepository<LocationEntity> locationRepository = locationRepository;
-
         public IModBuilder GetModBuilder(Settings settings)
         {
             string normalisedGame = settings.Mod.Game.ToUpperInvariant().Trim();

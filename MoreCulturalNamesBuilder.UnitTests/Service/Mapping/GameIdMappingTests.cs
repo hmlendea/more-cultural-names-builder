@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.DataAccess.DataObjects;
 using MoreCulturalNamesBuilder.Service.Models;
 using MoreCulturalNamesBuilder.UnitTests.TestInfrastructure;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
 {
@@ -24,7 +24,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 Id = "c_cluj"
             };
 
-            GameIdEntity dataObject = InternalMappingInvoker.Invoke<GameIdEntity>(
+            GameIdDataObject dataObject = InternalMappingInvoker.Invoke<GameIdDataObject>(
                 "GameIdMapping",
                 "ToDataObject",
                 serviceModel);
@@ -48,18 +48,18 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 new() { Game = "CK3", Id = "c_cluj" }
             ];
 
-            IEnumerable<GameIdEntity> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<GameIdEntity>>(
+            IEnumerable<GameIdDataObject> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<GameIdDataObject>>(
                 "GameIdMapping",
                 "ToDataObjects",
                 serviceModels);
 
-            Assert.That(dataObjects.Select(dataObject => dataObject.Id), Is.EqualTo(new[] { "c_oradea", "c_cluj" }));
+            Assert.That(dataObjects.Select(dataObject => dataObject.Id), Is.EqualTo(["c_oradea", "c_cluj"]));
         }
 
         [Test]
         public void GivenAnEmptyServiceModelSequence_WhenMappingToDataObjects_ThenAnEmptySequenceIsReturned()
         {
-            IEnumerable<GameIdEntity> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<GameIdEntity>>(
+            IEnumerable<GameIdDataObject> dataObjects = InternalMappingInvoker.Invoke<IEnumerable<GameIdDataObject>>(
                 "GameIdMapping",
                 "ToDataObjects",
                 new List<GameId>());

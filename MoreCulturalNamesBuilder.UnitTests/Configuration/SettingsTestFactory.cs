@@ -12,10 +12,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
         internal static Settings Create(
             string game,
             string outputDirectoryPath,
-            string landedTitlesFilePath,
-            string landedTitlesFileName,
+            string? landedTitlesFilePath,
+            string? landedTitlesFileName,
             bool areVerboseCommentsEnabled,
-            string dependency)
+            string? dependency)
         {
             List<string> arguments =
             [
@@ -45,7 +45,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
                 arguments.AddRange(["--dependency", dependency]);
             }
 
-            return new(arguments.ToArray());
+            return new([.. arguments]);
         }
     }
 }

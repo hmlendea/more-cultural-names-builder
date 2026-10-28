@@ -1,8 +1,8 @@
 using System;
 
-using NUnit.Framework;
-
 using MoreCulturalNamesBuilder.Configuration;
+
+using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.UnitTests.Configuration
 {
@@ -132,7 +132,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
                 "--output", "./output"
             ];
 
-            ArgumentException exception = Assert.Throws<ArgumentException>(() => new Settings(arguments));
+            ArgumentException exception = Assert.Throws<ArgumentException>(() => new Settings(arguments))!;
 
             Assert.That(exception.Message, Does.Contain("--version"));
         }
@@ -151,7 +151,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
                 "--game-version", "3.3.*"
             ];
 
-            ArgumentException exception = Assert.Throws<ArgumentException>(() => new Settings(arguments));
+            ArgumentException exception = Assert.Throws<ArgumentException>(() => new Settings(arguments))!;
 
             Assert.That(exception.Message, Does.Contain("--output"));
         }
