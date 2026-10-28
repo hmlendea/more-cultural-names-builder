@@ -33,9 +33,20 @@ MoreCulturalNamesBuilder.UnitTests/
 
 ## Test Framework
 
-- **Framework:** xUnit (inferred from project structure)
+- **Framework:** NUnit 4
 - **Test Runner:** `dotnet test`
-- **Mocking:** Manual test doubles (no mocking framework detected)
+- **Mocking:** Moq
+
+## Architecture Fitness Tests
+
+The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/MoreCulturalNamesBuilder.ArchitectureTests.csproj) is included in the solution and runs with `dotnet test`.
+
+- ArchUnit.NET checks the explicitly inventoried production assembly, documented dependency directions, independent game builders, shared builder inheritance, and production assembly isolation.
+- Roslyn checks handwritten production and test sources for file/type correspondence, namespaces, syntax conventions, interface contracts, model declarations, mappings, collection contracts, and NUnit conventions.
+- Separate project tests inspect declared XML and evaluated MSBuild metadata for Debug and Release, production references, solution inventory, and analyser enforcement.
+- Source checks require a repository checkout, exclude generated files and build outputs, and fail when expected sources or selectors are missing.
+- Existing violations remain failures, including builder dependencies on configuration and CK3 dependencies on CK2; production code is not changed or exempted to make the suite green.
+- These structural checks do not prove runtime behaviour, security, game compatibility, or exhaustive compliance with contextual and review-only instructions.
 
 ## Coverage by Component
 

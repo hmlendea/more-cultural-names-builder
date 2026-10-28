@@ -147,7 +147,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             Parallel.ForEach(
                 locations.Values,
-                () => new List<string>(),
+                List<string> () => [],
                 (location, _, localLines) =>
                 {
                     foreach (GameId gameId in location.GameIds.Where(gameId => string.Equals(gameId.Game, Settings.Mod.Game)))
@@ -237,7 +237,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             Parallel.ForEach(
                 uniqueLocalisations,
-                () => new List<string>(),
+                List<string> () => [],
                 (localisation, _, localLines) =>
                 {
                     localLines.Add(GenerateLocationLocalisationLine(

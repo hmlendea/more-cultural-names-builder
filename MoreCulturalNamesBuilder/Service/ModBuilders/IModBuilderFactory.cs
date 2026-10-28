@@ -4,6 +4,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     public interface IModBuilderFactory
     {
-        IModBuilder GetModBuilder(Settings settings);
+        public IModBuilder GetModBuilder(Settings settings);
     }
 }

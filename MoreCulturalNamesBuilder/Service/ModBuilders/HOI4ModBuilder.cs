@@ -38,8 +38,10 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 .Where(gameId => string.Equals(gameId.Game, Settings.Mod.Game) && string.Equals(gameId.Type, "City"))
                 .OrderBy(gameId => int.Parse(gameId.Id));
 
-            stateLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
-            cityLocalisations = new ConcurrentDictionary<string, IDictionary<string, Localisation>>();
+            ConcurrentDictionary<string, IDictionary<string, Localisation>> concurrentStateLocalisations = [];
+            ConcurrentDictionary<string, IDictionary<string, Localisation>> concurrentCityLocalisations = [];
+            stateLocalisations = concurrentStateLocalisations;
+            cityLocalisations = concurrentCityLocalisations;
 
             Parallel.ForEach(stateGameIds, stateGameId =>
             {
@@ -108,7 +110,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             // States.
             Parallel.ForEach(
                 stateLocalisations,
-                () => new List<string>(),
+                List<string> () => [],
                 (stateLocalisationEntry, _, localLines) =>
                 {
                     foreach (Localisation localisation in stateLocalisationEntry.Value.Values)
@@ -131,7 +133,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             // Cities.
             Parallel.ForEach(
                 cityLocalisations,
-                () => new List<string>(),
+                List<string> () => [],
                 (cityLocalisationEntry, _, localLines) =>
                 {
                     foreach (Localisation localisation in cityLocalisationEntry.Value.Values)

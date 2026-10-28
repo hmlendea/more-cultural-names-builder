@@ -19,9 +19,9 @@ namespace MoreCulturalNamesBuilder.UnitTests
     [NonParallelizable]
     public sealed class ProgramTests
     {
-        private static string ModId => "more-cultural-names";
-
         private TemporaryDirectory temporaryDirectory = null!;
+
+        private static string ModId => "more-cultural-names";
 
         [SetUp]
         public void SetUp() => temporaryDirectory = new(nameof(ProgramTests));
@@ -42,8 +42,8 @@ namespace MoreCulturalNamesBuilder.UnitTests
         {
             string languageStorePath = Path.Combine(temporaryDirectory.DirectoryPath, "languages.xml");
             string locationStorePath = Path.Combine(temporaryDirectory.DirectoryPath, "locations.xml");
-            WriteXmlCollection(languageStorePath, new List<LanguageDataObject>());
-            WriteXmlCollection(locationStorePath, new List<LocationDataObject>());
+            WriteXmlCollection<LanguageDataObject>(languageStorePath, []);
+            WriteXmlCollection<LocationDataObject>(locationStorePath, []);
             string[] arguments =
             [
                 "--lang", languageStorePath,

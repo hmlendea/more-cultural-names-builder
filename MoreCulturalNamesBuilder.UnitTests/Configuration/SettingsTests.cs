@@ -75,7 +75,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
         }
 
         [Test]
-        public void WhenUsingCanonicalArguments_ThenSettingsAreParsed()
+        public void GivenCanonicalArguments_WhenParsingSettings_ThenSettingsAreParsed()
         {
             string[] arguments =
             [
@@ -96,7 +96,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
         }
 
         [Test]
-        public void WhenUsingAliasArguments_ThenSettingsAreParsed()
+        public void GivenAliasArguments_WhenParsingSettings_ThenSettingsAreParsed()
         {
             string[] arguments =
             [
@@ -119,7 +119,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
         }
 
         [Test]
-        public void WhenVersionArgumentsAreMissing_ThenThrows()
+        public void GivenMissingVersionArguments_WhenParsingSettings_ThenAnExceptionIsThrown()
         {
             string[] arguments =
             [
@@ -132,13 +132,13 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
                 "--output", "./output"
             ];
 
-            ArgumentException exception = Assert.Throws<ArgumentException>(() => new Settings(arguments))!;
-
-            Assert.That(exception.Message, Does.Contain("--version"));
+            Assert.That(
+                () => new Settings(arguments),
+                Throws.TypeOf<ArgumentException>().With.Message.Contains("--version"));
         }
 
         [Test]
-        public void WhenOutputArgumentsAreMissing_ThenThrows()
+        public void GivenMissingOutputArguments_WhenParsingSettings_ThenAnExceptionIsThrown()
         {
             string[] arguments =
             [
@@ -151,9 +151,9 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
                 "--game-version", "3.3.*"
             ];
 
-            ArgumentException exception = Assert.Throws<ArgumentException>(() => new Settings(arguments))!;
-
-            Assert.That(exception.Message, Does.Contain("--output"));
+            Assert.That(
+                () => new Settings(arguments),
+                Throws.TypeOf<ArgumentException>().With.Message.Contains("--output"));
         }
     }
 }
