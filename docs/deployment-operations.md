@@ -230,6 +230,27 @@ jobs:
             bin/Release/net10.0/win-x64/publish/MoreCulturalNamesBuilder.exe
 ```
 
+### Security Scanning
+
+The repository includes a dedicated security scanning workflow (`.github/workflows/security.yml`) that runs:
+
+- **On every push** to `master` branch
+- **On every pull request** targeting `master` branch
+- **Weekly schedule** (Sundays at 00:00 UTC)
+
+The security scan performs:
+
+1. **Dependency Vulnerability Check** - Uses `dotnet list package --vulnerable --include-transitive` to detect known vulnerabilities in NuGet packages
+2. **CodeQL Static Analysis** - GitHub's CodeQL engine analyses C# code for security issues including:
+   - SQL injection vulnerabilities
+   - Path traversal vulnerabilities
+   - Cross-site scripting (XSS) patterns
+   - Insecure deserialization
+   - Hardcoded secrets
+   - And other common security anti-patterns
+
+Results are published to the GitHub Security tab and can be viewed in the Actions workflow runs. Failed security scans will block merges when branch protection rules are configured.
+
 ## Troubleshooting
 
 ### Common Issues

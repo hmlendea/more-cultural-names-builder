@@ -24,8 +24,8 @@ A CLI tool that generates game mods which localise place names into different la
   - [Projects and Packages](#projects-and-packages)
   - [Directories](#directories)
 - [Architecture](#architecture)
-- [Contributing](#contributing)
 - [Security](#security)
+- [Contributing](#contributing)
 - [Privacy](#privacy)
 - [Project Engagement](#project-engagement)
 - [License](#license)
@@ -189,6 +189,16 @@ See the [contributing guidelines](CONTRIBUTING.md) for details on how to report 
 ## 📜 Code of Conduct
 
 See the [Code of Conduct](CODE_OF_CONDUCT.md) for the standards of conduct expected in all project spaces.
+
+## 🔒 Security
+
+This project uses automated security scanning via GitHub Actions:
+
+- **Security Scan Workflow** (`.github/workflows/security.yml`) runs on every push, pull request, and weekly schedule
+- **Vulnerable Package Detection** via `dotnet list package --vulnerable --include-transitive`
+- **CodeQL Static Analysis** for C# code security issues
+
+See [SECURITY.md](./SECURITY.md) for the full security policy, supported versions, and vulnerability reporting procedures.
 
 ## 🔒 Privacy
 

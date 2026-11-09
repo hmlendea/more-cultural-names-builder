@@ -100,6 +100,12 @@ This project follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## 🔒 Security
 
+This project uses automated security scanning via GitHub Actions:
+
+- **Security Scan Workflow** (`.github/workflows/security.yml`) runs on every push, pull request, and weekly schedule
+- **Vulnerable Package Detection** via `dotnet list package --vulnerable --include-transitive`
+- **CodeQL Static Analysis** for C# code security issues
+
 Report security vulnerabilities per the [Security Policy](SECURITY.md).
 
 ## 📄 License

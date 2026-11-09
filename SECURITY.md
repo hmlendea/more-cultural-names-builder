@@ -4,12 +4,23 @@ This document describes the security policy for the More Cultural Names Mod Buil
 
 ## 📑 Table of Contents
 
-- Supported Versions
-- Reporting a Vulnerability
-- Scope
-- Disclosure Policy
-- Safe Harbour
-- Recognition
+- [Automated Security Scanning](#automated-security-scanning)
+- [Supported Versions](#supported-versions)
+- [Reporting a Vulnerability](#reporting-a-vulnerability)
+- [Scope](#scope)
+- [Disclosure Policy](#disclosure-policy)
+- [Safe Harbour](#safe-harbour)
+- [Recognition](#recognition)
+
+## 🤖 Automated Security Scanning
+
+This project uses automated security scanning via GitHub Actions:
+
+- **Security Scan Workflow** (`.github/workflows/security.yml`) runs on every push to `master`, pull request targeting `master`, and weekly schedule (Sundays at 00:00 UTC)
+- **Vulnerable Package Detection** via `dotnet list package --vulnerable --include-transitive`
+- **CodeQL Static Analysis** for C# code security issues
+
+Results are published to the GitHub Security tab and can be viewed in the Actions workflow runs.
 
 ## 🛡️ Supported Versions
 
