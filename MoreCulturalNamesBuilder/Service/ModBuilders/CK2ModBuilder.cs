@@ -144,9 +144,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected virtual string? GetTitleLocalisationsContent(string line, string gameId)
         {
-            IEnumerable<Localisation> titleLocalisations = localisationsOrderedByLanguageGameId.TryGetValue(gameId);
+            IEnumerable<Localisation>? titleLocalisations = localisationsOrderedByLanguageGameId.TryGetValue(gameId);
 
-            if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
+            if (titleLocalisations is null || EnumerableExt.IsNullOrEmpty(titleLocalisations))
             {
                 return null;
             }

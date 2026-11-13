@@ -65,9 +65,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         {
             EnsureLocalisationsOrderedByLanguageId();
 
-            IEnumerable<Localisation> titleLocalisations = localisationsOrderedByLanguageId!.TryGetValue(gameId);
+            IEnumerable<Localisation>? titleLocalisations = localisationsOrderedByLanguageId!.TryGetValue(gameId);
 
-            if (EnumerableExt.IsNullOrEmpty(titleLocalisations))
+            if (titleLocalisations is null || EnumerableExt.IsNullOrEmpty(titleLocalisations))
             {
                 return null;
             }

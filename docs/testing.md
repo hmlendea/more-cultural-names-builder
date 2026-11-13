@@ -33,7 +33,7 @@ MoreCulturalNamesBuilder.UnitTests/
 
 ## Test Framework
 
-- **Framework:** NUnit 4
+- **Framework:** NUnit 5
 - **Test Runner:** `dotnet test`
 - **Mocking:** Moq
 
