@@ -96,18 +96,15 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 
 | Test File | Coverage |
 |-----------|----------|
-| `CK2ModBuilderTests.cs` | Factory selection, basic instantiation |
-| `CK3ModBuilderTests.cs` | Factory selection, basic instantiation, name-normalisation call bound |
-| `HOI4ModBuilderTests.cs` | Factory selection, basic instantiation |
-| `ImperatorRomeModBuilderTests.cs` | Factory selection, basic instantiation |
+| `CK2ModBuilderTests.cs` | Descriptor, landed-titles patching, CSV localisation, optional-file suppression |
+| `CK3ModBuilderTests.cs` | Descriptor pair, block merging, default and dynamic localisation files, name-normalisation call bound |
+| `HOI4ModBuilderTests.cs` | State/city localisation, descriptors, empty-input handling, identifier and duplicate failures |
+| `ImperatorRomeModBuilderTests.cs` | Province name data, localisation, descriptors, empty-input handling, identifier and duplicate failures |
 
 **Major Gaps:**
-- No end-to-end tests generating actual mod files
-- No output format validation
-- No game compatibility verification
+- No game compatibility verification (generated mods are not loaded in the target games)
 - No integration tests with real XML data
-- No descriptor content validation
-- No localisation file content validation
+- No performance benchmarks
 
 ## Test Infrastructure
 

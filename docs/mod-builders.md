@@ -718,12 +718,13 @@ public IModBuilder GetModBuilder(Settings settings)
 
 ### Current Coverage
 - Factory selection logic
-- Basic builder instantiation
+- Builder instantiation
+- End-to-end builds against temporary directories, asserting descriptor, landed-titles, data file, and localisation content
+- Error propagation for malformed identifiers and duplicate localisations
+- Bounded name-normalisation invocation counts (CK3)
 
 ### Major Gaps
-- No end-to-end tests generating actual mod files
-- No output format validation
-- No game compatibility verification
+- No game compatibility verification (generated mods are not loaded in the games)
 - No integration tests with real XML data
 
 ## Extension Points
