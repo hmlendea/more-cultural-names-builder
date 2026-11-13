@@ -521,12 +521,14 @@ Requested: (Location L, Language Lang, Game G)
 // Localisations indexed by location game ID
 Dictionary<string, IEnumerable<Localisation>> localisations;
 
-// Ordered by language game ID for deterministic output
+// Ordered by language game ID for deterministic output (CK2 only)
 Dictionary<string, IEnumerable<Localisation>> localisationsOrderedByLanguageGameId;
 
 // Location game IDs for title localisation injection
 Dictionary<string, GameId> locationGameIdsById;
 ```
+
+In `CK3ModBuilder`, `localisationsOrderedByLanguageGameId` stays empty because CK3 builds a canonical index keyed by language game ID and normalised name instead.
 
 ### HOI4 Builder
 ```csharp

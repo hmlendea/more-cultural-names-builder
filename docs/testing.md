@@ -97,7 +97,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | Test File | Coverage |
 |-----------|----------|
 | `CK2ModBuilderTests.cs` | Factory selection, basic instantiation |
-| `CK3ModBuilderTests.cs` | Factory selection, basic instantiation |
+| `CK3ModBuilderTests.cs` | Factory selection, basic instantiation, name-normalisation call bound |
 | `HOI4ModBuilderTests.cs` | Factory selection, basic instantiation |
 | `ImperatorRomeModBuilderTests.cs` | Factory selection, basic instantiation |
 

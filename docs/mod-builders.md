@@ -175,19 +175,25 @@ protected override void LoadData()
     });
 
     localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
-    localisationsOrderedByLanguageGameId = localisations
+
+    InitializeOrderedLocalisations();
+
+    locationGameIdsById = locationGameIds
+        .GroupBy(gameId => gameId.Id)
+        .ToDictionary(group => group.Key, group => group.First());
+}
+
+protected virtual void InitializeOrderedLocalisations()
+    => localisationsOrderedByLanguageGameId = localisations
         .ToDictionary(
             localisationsByGameId => localisationsByGameId.Key,
             localisationsByGameId =>
                 (IEnumerable<Localisation>)localisationsByGameId.Value
                     .OrderBy(localisation => localisation.LanguageGameId)
                     .ToArray());
-
-    locationGameIdsById = locationGameIds
-        .GroupBy(gameId => gameId.Id)
-        .ToDictionary(group => group.Key, group => group.First());
-}
 ```
+
+`InitializeOrderedLocalisations()` is overridable so builders that never read the CK2 lookup table can skip building it. `CK3ModBuilder` overrides it with an empty dictionary, avoiding a full ordered copy of every localisation.
 
 ### GenerateFiles()
 
@@ -358,7 +364,7 @@ tags={
 
 **Location:** [CK3CulturalNameBlockMerger.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/CK3CulturalNameBlockMerger.cs)
 
-Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key.
+Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key. Block boundaries are found with a single-pass brace counter, and the content is returned unchanged when no title required merging.
 
 ### Localisation Files
 
@@ -381,8 +387,10 @@ l_english:
 
 ```csharp
 string GetDynamicLocalisationKey(Localisation localisation)
-    => $"{localisation.GameId}_{localisation.LanguageGameId}";
+    => $"cn_{canonicalLocalisation.Id}_{canonicalLocalisation.LanguageGameId}";
 ```
+
+The canonical localisation is the entry with the lowest `Id` among all localisations sharing the same `LanguageGameId` and the same `ToCK3Charset(Name)`. `EnsureCanonicalLocalisations()` builds that lookup once, as a `LanguageGameId → normalised name → Localisation` index, and is reused by both the landed-titles injection and the dynamic localisation file generation.
 
 ## HOI4ModBuilder
 
@@ -544,6 +552,7 @@ public ImperatorRomeModBuilder(
 |-------|------|---------|
 | `localisations` | `Dictionary<string, Dictionary<string, Localisation>>` | Province localisations by province ID |
 | `locationGameIdsById` | `Dictionary<string, GameId>` | Location game IDs keyed by ID |
+| `provinceIdsByNumericOrder` | `Lazy<IEnumerable<string>>` | Province IDs sorted numerically once, on first use |
 
 ### LoadData()
 
@@ -564,8 +573,14 @@ protected override void LoadData()
     locationGameIdsById = locationGameIds
         .GroupBy(gameId => gameId.Id)
         .ToDictionary(group => group.Key, group => group.First());
+    provinceIdsByNumericOrder = new(() =>
+        [.. localisations
+            .Keys
+            .OrderBy(provinceId => int.Parse(provinceId))]);
 }
 ```
+
+The numeric ordering is computed lazily and only once, then reused by every culture's province-names file. Laziness keeps malformed identifiers surfacing as an `AggregateException` from the parallel generation loop.
 
 ### GenerateFiles()
 

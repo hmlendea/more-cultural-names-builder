@@ -266,19 +266,16 @@ protected override void LoadData()
     });
 
     localisations = concurrentLocalisations.ToDictionary(x => x.Key, x => x.Value);
-    localisationsOrderedByLanguageGameId = localisations
-        .ToDictionary(
-            localisationsByGameId => localisationsByGameId.Key,
-            localisationsByGameId =>
-                (IEnumerable<Localisation>)localisationsByGameId.Value
-                    .OrderBy(localisation => localisation.LanguageGameId)
-                    .ToArray());
+
+    InitializeOrderedLocalisations();
 
     locationGameIdsById = locationGameIds
         .GroupBy(gameId => gameId.Id)
         .ToDictionary(group => group.Key, group => group.First());
 }
 ```
+
+`InitializeOrderedLocalisations()` populates `localisationsOrderedByLanguageGameId` for CK2. `CK3ModBuilder` overrides it with an empty dictionary because CK3 resolves title names through its own canonical index instead.
 
 #### HOI4 (HOI4ModBuilder.LoadData)
 ```csharp
