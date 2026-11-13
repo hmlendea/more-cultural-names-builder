@@ -50,6 +50,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 $"    \"Translation\"" + Environment.NewLine +
                 $"}}";
 
+        protected override void InitializeOrderedLocalisations()
+            => localisationsOrderedByLanguageGameId = [];
+
         protected override string ReadLandedTitlesFile()
             => File.ReadAllText(Settings.Input.LandedTitlesFilePath!);
 
