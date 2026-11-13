@@ -150,7 +150,7 @@ The principal runtime sequence is:
 **Responsibilities:**
 - `IModBuilder`: Interface defining the `Build()` contract.
 - `ModBuilder`: Base class providing common file generation logic for all games (shared localisation file format).
-- Game-specific builders (`CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`): Extend `ModBuilder` and implement game-specific file output (e.g., `00_cultural_names.txt` for CK series, custom formats for HOI4 and IR).
+- Game-specific builders (`CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`): Extend `ModBuilder` and implement game-specific file output (patched `landed_titles` files in the CK series, localisation files per language, province-name data files for IR).
 - `IModBuilderFactory`: Selects the appropriate builder at runtime.
 
 **Boundary rules:**
@@ -166,7 +166,7 @@ The application processes two principal data flows:
    - **Source:** Language and Location XML files (external, user-provided).
     - **Load:** Parsed into language and location data object collections via `NuciDAL` XML repositories.
    - **Transform:** `LocalisationFetcher` maps entities to application models and retrieves localised place names.
-   - **Persist:** Game-specific builders write localisation strings to game mod format files (e.g., `00_cultural_names.txt`).
+   - **Persist:** Game-specific builders write localisation strings to game mod format files (e.g., the patched `landed_titles` file and per-language localisation files).
 
 2. **Name Normalisation Flow:**
    - **Source:** Location names from XML.
@@ -244,13 +244,13 @@ dotnet test
 ```
 
 **Test Boundaries:**
-- Unit tests cover the configuration and service layers; builder layer integration tests are absent, making CK2/CK3/HOI4/IR-specific output formats unvalidated.
+- Unit tests cover the configuration and service layers, and build every game builder end to end against temporary directories; game compatibility (loading the generated mods in the games) is not verified.
 - Data access layer is not mocked; tests use actual XML deserialization.
 
 **Material Coverage Gaps:**
-- No end-to-end tests that generate actual mod files and verify output format.
-- No tests for `ModBuilder` base class or game-specific implementations.
-- No validation of generated mod file syntax or game compatibility.
+- No game compatibility validation: generated mod file syntax is asserted only against the builder's own expectations, never against the games.
+- No integration tests against the real language and location data sets.
+- No performance benchmarks or regression guards on build duration.
 
 ## ⚠️ Design Constraints
 

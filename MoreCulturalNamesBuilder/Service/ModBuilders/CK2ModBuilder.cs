@@ -86,16 +86,20 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             });
 
             localisations = concurrentLocalisations.ToDictionary(entry => entry.Key, entry => entry.Value);
-            localisationsOrderedByLanguageGameId = localisations
-                .ToDictionary(
-                    localisationsByGameId => localisationsByGameId.Key,
-                    localisationsByGameId =>
-                        (IEnumerable<Localisation>)[.. localisationsByGameId.Value.OrderBy(localisation => localisation.LanguageGameId)]);
+
+            InitializeOrderedLocalisations();
 
             locationGameIdsById = locationGameIds
                 .GroupBy(gameId => gameId.Id)
                 .ToDictionary(group => group.Key, group => group.First());
         }
+
+        protected virtual void InitializeOrderedLocalisations()
+            => localisationsOrderedByLanguageGameId = localisations
+                .ToDictionary(
+                    localisationsByGameId => localisationsByGameId.Key,
+                    localisationsByGameId =>
+                        (IEnumerable<Localisation>)[.. localisationsByGameId.Value.OrderBy(localisation => localisation.LanguageGameId)]);
 
         protected override void GenerateFiles()
         {

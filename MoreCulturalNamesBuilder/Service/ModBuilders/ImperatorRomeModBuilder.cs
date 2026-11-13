@@ -23,6 +23,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
     {
         private IDictionary<string, IDictionary<string, Localisation>> localisations = null!;
         private IDictionary<string, GameId> locationGameIdsById = null!;
+        private Lazy<IEnumerable<string>> provinceIdsByNumericOrder = null!;
 
         protected override void LoadData()
         {
@@ -41,6 +42,10 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             locationGameIdsById = locationGameIds
                 .GroupBy(gameId => gameId.Id)
                 .ToDictionary(group => group.Key, group => group.First());
+            provinceIdsByNumericOrder = new(() =>
+                [.. localisations
+                    .Keys
+                    .OrderBy(provinceId => int.Parse(provinceId))]);
         }
 
         protected override void GenerateFiles()
@@ -68,7 +73,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 contentBuilder.Append($"{languageGameId.Id} = {{");
                 contentBuilder.Append(Environment.NewLine);
 
-                foreach (string provinceId in localisations.Keys.OrderBy(provinceId => int.Parse(provinceId)))
+                foreach (string provinceId in provinceIdsByNumericOrder.Value)
                 {
                     if (!localisations[provinceId].ContainsKey(languageGameId.Id))
                     {

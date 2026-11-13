@@ -43,6 +43,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 lineIndex = titleEndLineIndex;
             }
 
+            if (replacementBlocks.Count == 0)
+            {
+                return content;
+            }
+
             List<string> mergedContentLines = [];
 
             for (int lineIndex = 0; lineIndex < lines.Count; lineIndex += 1)
@@ -52,9 +57,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     continue;
                 }
 
-                if (replacementBlocks.ContainsKey(lineIndex))
+                if (replacementBlocks.TryGetValue(lineIndex, out List<string>? replacementBlock))
                 {
-                    mergedContentLines.Add(string.Join(Environment.NewLine, replacementBlocks[lineIndex]));
+                    mergedContentLines.Add(string.Join(Environment.NewLine, replacementBlock));
                     continue;
                 }
 
@@ -70,8 +75,19 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             for (int lineIndex = blockStartLineIndex; lineIndex < lines.Count; lineIndex += 1)
             {
-                blockDepth += lines[lineIndex].Count(character => character.Equals('{'));
-                blockDepth -= lines[lineIndex].Count(character => character.Equals('}'));
+                string line = lines[lineIndex];
+
+                for (int characterIndex = 0; characterIndex < line.Length; characterIndex += 1)
+                {
+                    if (line[characterIndex] == '{')
+                    {
+                        blockDepth += 1;
+                    }
+                    else if (line[characterIndex] == '}')
+                    {
+                        blockDepth -= 1;
+                    }
+                }
 
                 if (blockDepth == 0)
                 {

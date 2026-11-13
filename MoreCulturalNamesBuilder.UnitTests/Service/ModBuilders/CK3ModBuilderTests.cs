@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 using Moq;
 
@@ -257,6 +258,87 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 Assert.That(defaultLocalisations, Does.Contain(" c_cluj:0 \"Cluj-Napoca\""));
                 Assert.That(defaultLocalisations, Does.Not.Contain("#"));
                 Assert.That(defaultLocalisations, Does.Not.Contain("c_cluj_adj"));
+            });
+        }
+
+        [Test]
+        public void GivenManyLocalisations_WhenBuilding_ThenNameNormalisationIsInvokedLinearly()
+        {
+            int locationCount = 20;
+            int languageCount = 10;
+            int normalisationCount = 0;
+            object normalisationLock = new();
+            List<LanguageDataObject> languages = [];
+            List<LocationDataObject> locations = [];
+            Dictionary<string, IEnumerable<Localisation>> localisations = [];
+            StringBuilder landedTitlesBuilder = new();
+
+            for (int languageIndex = 0; languageIndex < languageCount; languageIndex = languageIndex + 1)
+            {
+                languages.Add(ModBuilderTestDataFactory.CreateLanguage(
+                    Game,
+                    $"Language{languageIndex}",
+                    $"language_{languageIndex}"));
+            }
+
+            for (int locationIndex = 0; locationIndex < locationCount; locationIndex = locationIndex + 1)
+            {
+                string locationGameId = $"c_location_{locationIndex}";
+                List<Localisation> locationLocalisations = [];
+
+                locations.Add(ModBuilderTestDataFactory.CreateLocation(
+                    Game,
+                    $"Location{locationIndex}",
+                    locationGameId,
+                    "county",
+                    "Language0"));
+
+                landedTitlesBuilder.Append($"{locationGameId} = {{\n");
+                landedTitlesBuilder.Append("    cultural_names = {\n");
+
+                for (int languageIndex = 0; languageIndex < languageCount; languageIndex = languageIndex + 1)
+                {
+                    locationLocalisations.Add(ModBuilderTestDataFactory.CreateLocalisation(
+                        $"Location{locationIndex}",
+                        locationGameId,
+                        $"Language{languageIndex}",
+                        $"language_{languageIndex}",
+                        $"Location{locationIndex}",
+                        null,
+                        null));
+
+                    landedTitlesBuilder.Append($"        name_list_language_{languageIndex} = original_name\n");
+                }
+
+                landedTitlesBuilder.Append("    }\n");
+                landedTitlesBuilder.Append("}\n");
+
+                localisations[locationGameId] = locationLocalisations;
+            }
+
+            nameNormaliser
+                .Setup(normaliser => normaliser.ToCK3Charset(It.IsAny<string>()))
+                .Returns((string value) =>
+                {
+                    lock (normalisationLock)
+                    {
+                        normalisationCount = normalisationCount + 1;
+                    }
+
+                    return value;
+                });
+
+            ConfigureRepositories(languages, locations);
+            ConfigureLocalisations(localisations);
+            File.WriteAllText(landedTitlesFilePath, landedTitlesBuilder.ToString());
+            modBuilder = CreateModBuilder(BuildSettings(false));
+
+            modBuilder.Build();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(normalisationCount, Is.GreaterThanOrEqualTo(locationCount * languageCount));
+                Assert.That(normalisationCount, Is.LessThanOrEqualTo(locationCount * languageCount * 8));
             });
         }
 

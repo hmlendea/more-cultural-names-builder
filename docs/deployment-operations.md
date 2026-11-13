@@ -72,6 +72,19 @@ Releases are produced by the [GitHub Release workflow](../.github/workflows/gith
 | **Disk** | Output size proportional to localisation count × languages |
 | **Network** | None (all data local) |
 
+### Build Performance
+
+Measured against the production data set (~44,000 locations, ~4,500 languages, ~220,000 resolved CK3 localisations) on a single machine:
+
+| Game | Fetching the data | Generating the files | Total |
+|------|-------------------|----------------------|-------|
+| CK2 / CK2HIP / CK2RoI | ~2 s | ~4 s | ~7-9 s |
+| CK3 / CK3AEP / CK3CE / CK3MBP / CK3TFE | ~2-4 s | ~3 s | ~7-9 s |
+| HOI4 / HOI4MDM | ~1 s | ~1 s | ~4 s |
+| Imperator: Rome | ~1 s | ~1 s | ~4 s |
+
+Generation cost is linear in the number of localisations. The CK3 builder resolves every cultural name through a single canonical index, built once per build; it previously re-scanned the entire localisation set for each generated `name_list_` entry, which made the CK3 editions take over 30 minutes. Guard against reintroducing a similar lookup: [`CK3ModBuilderTests`](../MoreCulturalNamesBuilder.UnitTests/Service/ModBuilders/CK3ModBuilderTests.cs) asserts a bound on the number of name-normalisation calls.
+
 ### Environment Variables
 
 None required. All configuration via CLI arguments.
