@@ -22,9 +22,11 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         IFileRepository<LocationDataObject> locationRepository,
         Settings settings) : CK2ModBuilder(localisationFetcher, nameNormaliser, languageRepository, locationRepository, settings)
     {
+        private readonly object canonicalLocalisationsLock = new();
         private readonly object localisationOrderingLock = new();
 
         private IDictionary<string, IEnumerable<Localisation>>? localisationsOrderedByLanguageId;
+        private Dictionary<string, Dictionary<string, Localisation>>? canonicalLocalisationsByLanguageGameId;
 
         protected override string LocalisationDirectoryName => "localization";
 
@@ -272,16 +274,54 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         private string GetDynamicLocalisationKey(Localisation localisation)
         {
-            Localisation canonicalLocalisation = localisations
-                .SelectMany(localisationEntry => localisationEntry.Value)
-                .Where(candidate =>
-                    candidate.LanguageGameId.Equals(localisation.LanguageGameId) &&
-                    NameNormaliser.ToCK3Charset(candidate.Name)
-                        .Equals(NameNormaliser.ToCK3Charset(localisation.Name)))
-                .OrderBy(candidate => candidate.Id)
-                .First();
+            EnsureCanonicalLocalisations();
+
+            Localisation canonicalLocalisation = localisation;
+
+            if (canonicalLocalisationsByLanguageGameId!.TryGetValue(localisation.LanguageGameId, out Dictionary<string, Localisation>? canonicalLocalisationsByName))
+            {
+                string normalisedName = NameNormaliser.ToCK3Charset(localisation.Name);
+
+                if (canonicalLocalisationsByName.TryGetValue(normalisedName, out Localisation? indexedLocalisation))
+                {
+                    canonicalLocalisation = indexedLocalisation;
+                }
+            }
 
             return $"cn_{canonicalLocalisation.Id}_{canonicalLocalisation.LanguageGameId}";
+        }
+
+        private void EnsureCanonicalLocalisations()
+        {
+            lock (canonicalLocalisationsLock)
+            {
+                if (canonicalLocalisationsByLanguageGameId is not null)
+                {
+                    return;
+                }
+
+                Dictionary<string, Dictionary<string, Localisation>> canonicalLocalisations = [];
+
+                foreach (Localisation localisation in localisations
+                    .SelectMany(localisationEntry => localisationEntry.Value)
+                    .OrderBy(localisation => localisation.Id))
+                {
+                    if (!canonicalLocalisations.TryGetValue(localisation.LanguageGameId, out Dictionary<string, Localisation>? canonicalLocalisationsByName))
+                    {
+                        canonicalLocalisationsByName = [];
+                        canonicalLocalisations[localisation.LanguageGameId] = canonicalLocalisationsByName;
+                    }
+
+                    string normalisedName = NameNormaliser.ToCK3Charset(localisation.Name);
+
+                    if (!canonicalLocalisationsByName.ContainsKey(normalisedName))
+                    {
+                        canonicalLocalisationsByName[normalisedName] = localisation;
+                    }
+                }
+
+                canonicalLocalisationsByLanguageGameId = canonicalLocalisations;
+            }
         }
 
         private void EnsureLocalisationsOrderedByLanguageId()
