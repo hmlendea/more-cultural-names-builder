@@ -1,6 +1,7 @@
 [![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/funding)
 [![Latest Release](https://img.shields.io/github/v/release/hmlendea/more-cultural-names-builder)](https://github.com/hmlendea/more-cultural-names-builder/releases/latest)
 [![Build Status](https://github.com/hmlendea/more-cultural-names-builder/actions/workflows/dotnet.yml/badge.svg)](https://github.com/hmlendea/more-cultural-names-builder/actions/workflows/dotnet.yml)
+[![Security Scan](https://github.com/hmlendea/more-cultural-names-builder/actions/workflows/security.yml/badge.svg)](https://github.com/hmlendea/more-cultural-names-builder/actions/workflows/security.yml)
 [![License](https://img.shields.io/github/license/hmlendea/more-cultural-names-builder)](https://github.com/hmlendea/more-cultural-names-builder/blob/master/LICENSE)
 
 # More Cultural Names Mod Builder
@@ -20,6 +21,7 @@ A CLI tool that generates game mods which localise place names into different la
   - [Build](#build)
   - [Test](#test)
   - [Release](#release)
+- [GitHub Actions](#github-actions)
 - [Project Structure](#project-structure)
   - [Projects and Packages](#projects-and-packages)
   - [Directories](#directories)
@@ -133,15 +135,24 @@ dotnet test
 
 ### Release
 
-The repository includes `release.sh`, which delegates to the upstream deployment script used by the project maintainer.
+Releases are published through the [GitHub Release workflow](https://github.com/hmlendea/more-cultural-names-builder/blob/master/.github/workflows/github-release.yml), which runs automatically when a release is published on GitHub:
 
-```bash
-bash ./release.sh 7.1.2
-```
+1. Create and publish a GitHub release with a `v`-prefixed semantic version tag, for example `v7.1.5`.
+2. The workflow resolves the .NET version from `MoreCulturalNamesBuilder/MoreCulturalNamesBuilder.csproj` and strips the `v` prefix from the tag to obtain the release version.
+3. The workflow downloads and runs the shared release helper from `https://raw.githubusercontent.com/hmlendea/dotnet-release-scripts/refs/heads/master/dotnet/10.0.sh`, which publishes self-contained archives for `linux-arm`, `linux-arm64`, `linux-x64`, `osx-arm64`, `osx-x64`, `win-arm64`, and `win-x64` into `MoreCulturalNamesBuilder/bin/Release/`.
+4. The workflow attaches every `MoreCulturalNamesBuilder/bin/Release/more-cultural-names-builder_*` archive to the published release.
 
-This script downloads and executes an external release helper from `https://raw.githubusercontent.com/hmlendea/deployment-scripts/master/release/dotnet/10.0.sh`.
+Versions are taken exclusively from the GitHub release tag; the project file does not declare an assembly version.
 
 **Note:** Piping into `bash` is an intensely controversial topic. Please review any external scripts before running them in your environment!
+
+## ⚙️ GitHub Actions
+
+| Workflow | Purpose | What it does |
+|----------|---------|--------------|
+| [ .NET ](https://github.com/hmlendea/more-cultural-names-builder/blob/master/.github/workflows/dotnet.yml) | Build and test validation | Restores dependencies, builds the solution, and runs the unit test suite on every push and pull request targeting `master` |
+| [ Security ](https://github.com/hmlendea/more-cultural-names-builder/blob/master/.github/workflows/security.yml) | Automated security scanning | Checks for vulnerable NuGet packages and runs CodeQL static analysis for C# on every push to `master`, pull request targeting `master`, and a weekly schedule |
+| [ GitHub Release ](https://github.com/hmlendea/more-cultural-names-builder/blob/master/.github/workflows/github-release.yml) | Release publication | Builds the cross-platform release artefacts when a release is published and attaches them to the GitHub release |
 
 ## 🗂️ Project Structure
 

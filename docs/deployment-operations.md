@@ -34,29 +34,22 @@ dotnet publish -c Release -r linux-x64 --self-contained true -p:PublishSingleFil
 
 ## Release Process
 
-### Current Release Script
+### Release Workflow
 
-**Location:** `release.sh`
-
-```bash
-#!/bin/bash
-# Builds and packages release artifacts
-dotnet publish -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true
-# Additional packaging steps...
-```
+Releases are produced by the [GitHub Release workflow](../.github/workflows/github-release.yml), triggered when a release is published on GitHub. The workflow resolves the .NET version from `MoreCulturalNamesBuilder/MoreCulturalNamesBuilder.csproj`, derives the release version from the `v`-prefixed tag, and runs the shared release helper from `https://raw.githubusercontent.com/hmlendea/dotnet-release-scripts/refs/heads/master/dotnet/<dotnet-version>.sh`.
 
 ### Version Management
 
 - Version specified via `--version` CLI argument at build time
-- No automatic versioning from git tags
+- No automatic versioning from git tags in the project file
 - No assembly version attributes in project file
+- The release workflow assigns `Version`, `AssemblyVersion`, `FileVersion`, and `InformationalVersion` from the release tag during publishing
 
 ### Artifacts
 
 | Artifact | Description |
 |----------|-------------|
-| `MoreCulturalNamesBuilder` | Self-contained executable (Linux x64) |
-| `MoreCulturalNamesBuilder.exe` | Self-contained executable (Windows x64) |
+| `more-cultural-names-builder_<version>_<runtime-identifier>.zip` | Self-contained archive for each supported runtime identifier |
 
 ## Execution Characteristics
 
@@ -186,49 +179,20 @@ MoreCulturalNamesBuilder \
 - No log files generated
 - No log levels or structured logging
 
-## CI/CD Recommendations
+## Continuous Integration and Delivery
 
-### Build Pipeline
-```yaml
-# .github/workflows/build.yml
-name: Build
-on: [push, pull_request]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-      - run: dotnet restore
-      - run: dotnet build -c Release --no-restore
-      - run: dotnet test --no-restore
-```
+### Build and Test Workflow
 
-### Release Pipeline
-```yaml
-# .github/workflows/release.yml
-name: Release
-on:
-  push:
-    tags: ['v*']
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-      - run: dotnet publish -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true
-      - run: dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
-      - uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            bin/Release/net10.0/linux-x64/publish/MoreCulturalNamesBuilder
-            bin/Release/net10.0/win-x64/publish/MoreCulturalNamesBuilder.exe
-```
+The build and test workflow (`.github/workflows/dotnet.yml`) runs on every push and pull request targeting `master`. It restores dependencies, builds the solution, and runs the test suite with .NET 10.0.
+
+### Release Workflow
+
+The release workflow (`.github/workflows/github-release.yml`) is triggered when a GitHub release is published. It:
+
+1. Determines the .NET version from `MoreCulturalNamesBuilder/MoreCulturalNamesBuilder.csproj`
+2. Extracts the release version from the GitHub tag
+3. Runs the shared release helper from `https://raw.githubusercontent.com/hmlendea/dotnet-release-scripts/refs/heads/master/dotnet/<version>.sh`, which publishes self-contained archives for `linux-arm`, `linux-arm64`, `linux-x64`, `osx-arm64`, `osx-x64`, `win-arm64`, and `win-x64`
+4. Attaches the produced `MoreCulturalNamesBuilder/bin/Release/more-cultural-names-builder_*` archives to the GitHub release
 
 ### Security Scanning
 
