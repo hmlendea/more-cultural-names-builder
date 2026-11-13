@@ -229,13 +229,13 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         private string GenerateDynamicNamesLocalisationFileContent()
         {
+            EnsureCanonicalLocalisations();
+
             List<string> lines = [];
             object lineCollectionLock = new();
 
-            List<Localisation> uniqueLocalisations = [.. localisations
-                .SelectMany(localisationEntry => localisationEntry.Value)
-                .GroupBy(localisation => $"{localisation.LanguageGameId}_{NameNormaliser.ToCK3Charset(localisation.Name)}")
-                .Select(group => group.OrderBy(localisation => localisation.Id).First())];
+            List<Localisation> uniqueLocalisations = [.. canonicalLocalisationsByLanguageGameId!
+                .SelectMany(canonicalLocalisationsEntry => canonicalLocalisationsEntry.Value.Values)];
 
             Parallel.ForEach(
                 uniqueLocalisations,
