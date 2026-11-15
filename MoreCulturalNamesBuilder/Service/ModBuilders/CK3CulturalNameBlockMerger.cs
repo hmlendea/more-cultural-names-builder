@@ -39,8 +39,6 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 {
                     AddMergedCulturalNameBlock(culturalNameBlocks, lines, replacementBlocks, omittedLines);
                 }
-
-                lineIndex = titleEndLineIndex;
             }
 
             if (replacementBlocks.Count == 0)
@@ -104,20 +102,42 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             int lastLineIndex)
         {
             List<CulturalNameBlock> culturalNameBlocks = [];
+            int blockDepth = 0;
 
             for (int lineIndex = firstLineIndex; lineIndex < lastLineIndex; lineIndex += 1)
             {
-                if (!CulturalNamesRegex.IsMatch(lines[lineIndex]))
+                if (blockDepth == 0 && CulturalNamesRegex.IsMatch(lines[lineIndex]))
                 {
+                    int blockEndLineIndex = FindBlockEndLineIndex(lines, lineIndex);
+                    culturalNameBlocks.Add(new CulturalNameBlock(lineIndex, blockEndLineIndex));
+                    lineIndex = blockEndLineIndex;
+
                     continue;
                 }
 
-                culturalNameBlocks.Add(new CulturalNameBlock(
-                    lineIndex,
-                    FindBlockEndLineIndex(lines, lineIndex)));
+                blockDepth += CountBraceDelta(lines[lineIndex]);
             }
 
             return culturalNameBlocks;
+        }
+
+        private static int CountBraceDelta(string line)
+        {
+            int braceDelta = 0;
+
+            for (int characterIndex = 0; characterIndex < line.Length; characterIndex += 1)
+            {
+                if (line[characterIndex] == '{')
+                {
+                    braceDelta += 1;
+                }
+                else if (line[characterIndex] == '}')
+                {
+                    braceDelta -= 1;
+                }
+            }
+
+            return braceDelta;
         }
 
         private static void AddMergedCulturalNameBlock(

@@ -364,7 +364,7 @@ tags={
 
 **Location:** [CK3CulturalNameBlockMerger.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/CK3CulturalNameBlockMerger.cs)
 
-Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key. Block boundaries are found with a single-pass brace counter, and the content is returned unchanged when no title required merging.
+Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key. Block boundaries are found with a single-pass brace counter, and the content is returned unchanged when no title required merging. Only blocks that are direct children of the title are considered: scanning stops descending into any nested block, so a `cultural_names` block belonging to a nested county or barony is left in place instead of being hoisted into its parent title. Every title in the file is visited, so nested titles are merged against their own direct blocks.
 
 ### Localisation Files
 
