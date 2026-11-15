@@ -21,9 +21,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="NuciCLI.Arguments" Version="1.0.3" />
-    <PackageReference Include="NuciDAL" Version="4.3.0" />
+    <PackageReference Include="NuciDAL" Version="4.3.1" />
     <PackageReference Include="NuciExtensions" Version="6.0.3" />
-    <PackageReference Include="NuciText.Conversion" Version="1.0.2" />
+    <PackageReference Include="NuciText.Conversion" Version="1.0.3" />
   </ItemGroup>
 
 </Project>
