@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -339,6 +340,129 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             {
                 Assert.That(normalisationCount, Is.GreaterThanOrEqualTo(locationCount * languageCount));
                 Assert.That(normalisationCount, Is.LessThanOrEqualTo(locationCount * languageCount * 8));
+            });
+        }
+
+        [Test]
+        public void GivenNestedTitles_WhenBuilding_ThenNestedTitleCulturalNamesArePreserved()
+        {
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LocationDataObject dezmir = ModBuilderTestDataFactory.CreateLocation(
+                Game,
+                "Dezmir",
+                "c_dezmir",
+                "county",
+                "Romanian");
+            ConfigureRepositories([romanian], [dezmir]);
+            ConfigureLocalisations(new Dictionary<string, IEnumerable<Localisation>>
+            {
+                ["c_dezmir"] =
+                [
+                    ModBuilderTestDataFactory.CreateLocalisation(
+                        "Dezmir",
+                        "c_dezmir",
+                        "Romanian",
+                        "romanian",
+                        "Dezmir",
+                        null,
+                        null)
+                ]
+            });
+            File.WriteAllText(
+                landedTitlesFilePath,
+                "e_test = {\n" +
+                "    d_test = {\n" +
+                "        c_test = {\n" +
+                "            b_test = {\n" +
+                "                name_list_english = cn_barony\n" +
+                "                cultural_names = {\n" +
+                "                    name_list_romanian = cn_barony_romanian\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
+                "}\n");
+            modBuilder = CreateModBuilder(BuildSettings(false));
+
+            modBuilder.Build();
+
+            string landedTitles = File.ReadAllText(Path.Combine(
+                temporaryDirectory.DirectoryPath,
+                Game,
+                ModId,
+                "common",
+                "landed_titles",
+                "00_landed_titles.txt"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(landedTitles, Does.Contain("name_list_english = cn_barony"));
+                Assert.That(
+                    landedTitles.IndexOf("name_list_romanian = cn_barony_romanian", StringComparison.Ordinal),
+                    Is.GreaterThan(landedTitles.IndexOf("b_test = {", StringComparison.Ordinal)));
+            });
+        }
+
+        [Test]
+        public void GivenNestedTitles_WhenBuilding_ThenOuterTitleKeepsOnlyItsOwnDirectCulturalNames()
+        {
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LocationDataObject dezmir = ModBuilderTestDataFactory.CreateLocation(
+                Game,
+                "Dezmir",
+                "c_dezmir",
+                "county",
+                "Romanian");
+            ConfigureRepositories([romanian], [dezmir]);
+            ConfigureLocalisations(new Dictionary<string, IEnumerable<Localisation>>
+            {
+                ["c_dezmir"] =
+                [
+                    ModBuilderTestDataFactory.CreateLocalisation(
+                        "Dezmir",
+                        "c_dezmir",
+                        "Romanian",
+                        "romanian",
+                        "Dezmir",
+                        null,
+                        null)
+                ]
+            });
+            File.WriteAllText(
+                landedTitlesFilePath,
+                "e_test = {\n" +
+                "    cultural_names = {\n" +
+                "        name_list_english = cn_outer\n" +
+                "    }\n" +
+                "    d_test = {\n" +
+                "        cultural_names = {\n" +
+                "            name_list_romanian = cn_inner\n" +
+                "        }\n" +
+                "    }\n" +
+                "}\n");
+            modBuilder = CreateModBuilder(BuildSettings(false));
+
+            modBuilder.Build();
+
+            string landedTitles = File.ReadAllText(Path.Combine(
+                temporaryDirectory.DirectoryPath,
+                Game,
+                ModId,
+                "common",
+                "landed_titles",
+                "00_landed_titles.txt"));
+
+            int outerBlockStartIndex = landedTitles.IndexOf("e_test = {", StringComparison.Ordinal);
+            int nestedBlockStartIndex = landedTitles.IndexOf("d_test = {", StringComparison.Ordinal);
+            int outerNameIndex = landedTitles.IndexOf("name_list_english = cn_outer", StringComparison.Ordinal);
+            int innerNameIndex = landedTitles.IndexOf("name_list_romanian = cn_inner", StringComparison.Ordinal);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(nestedBlockStartIndex, Is.GreaterThan(outerBlockStartIndex));
+                Assert.That(outerNameIndex, Is.GreaterThan(outerBlockStartIndex));
+                Assert.That(outerNameIndex, Is.LessThan(nestedBlockStartIndex));
+                Assert.That(innerNameIndex, Is.GreaterThan(nestedBlockStartIndex));
             });
         }
 
