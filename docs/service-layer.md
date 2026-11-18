@@ -13,7 +13,7 @@ The service layer provides stateless, reusable data transformation services cons
 
 ### Purpose
 
-Retrieves localised names for game locations across all supported languages, implementing a sophisticated fallback resolution chain.
+Retrieves localised names for game locations throughout all supported languages, implementing a sophisticated fallback resolution chain.
 
 ### Constructor Dependencies
 
@@ -41,9 +41,9 @@ public LocalisationFetcher(
 
 ### Data Loading (LoadData)
 
-Executed in constructor. Builds all lookup dictionaries from repository data:
+Executed in the constructor. Builds all lookup dictionaries from repository data:
 
-1. **Load entities** → Convert to service models → Index by ID
+1. **Load entities** → Convert to service models → Index by identifier
 2. **Build location indexes**:
    - `locationGameIdIndex`: Maps `(game, locationGameId)` → `Location`
    - `locationGameIdWithTypeIndex`: Maps `(game, locationGameId, type)` → `Location`
@@ -81,21 +81,21 @@ IEnumerable<Localisation> GetGameLocationLocalisations(
 
 ```
 1. Look up Location by (game, locationGameId[, type])
-   → If not found, return empty list
+   → If not found, return a vacant list
 
 2. For each language game ID in the game:
-   a. Check cache for (location.Id, languageId)
-   b. If cached, return cached result
-   c. If not cached, resolve via fallback chain:
-      i.   For each location ID in fallback chain:
-           For each language ID in fallback chain:
-               If name exists → cache and return
-      ii.  If no name found → cache as missing, return null
-   d. If localisation found:
+   a. Check the cache for (location.Id, languageId)
+   b. If cached, return the cached result
+   c. If not cached, resolve via the fallback chain:
+      i.   For each location ID in the fallback chain:
+           For each language ID in the fallback chain:
+               If a name exists → cache and return
+      ii.  If no name is found → cache as absent, return null
+   d. If a localisation is found:
       - Set GameId = locationGameId
       - Set LanguageGameId = language game ID
-      - Add to results
-   e. If localisation is null → skip (continue to next language)
+      - Append to the results
+   e. If the localisation is null → skip (continue to the next language)
 
 3. Return all resolved localisations
 ```
@@ -111,8 +111,8 @@ string[] BuildLocationIdsToCheck(Location location)
     return idsToCheck.ToArray();
 }
 ```
-- Starts with the location's own ID
-- Appends all fallback location IDs in order
+- Starts with the location's own identifier
+- Appends all fallback location identifiers in order
 
 #### Language Fallback Chain (BuildLanguageIdsToCheck)
 ```csharp
@@ -123,8 +123,8 @@ string[] BuildLanguageIdsToCheck(Language language)
     return idsToCheck.ToArray();
 }
 ```
-- Starts with the language's own ID
-- Appends all fallback language IDs in order
+- Starts with the language's own identifier
+- Appends all fallback language identifiers in order
 
 ### Caching Strategy
 
@@ -177,7 +177,7 @@ public NameNormaliser(INuciTextConverter textConverter)
 
 ### Transformation Pipeline
 
-Each game-specific method follows this pattern:
+Each game-specific method follows this configuration:
 
 ```
 Input Name
@@ -211,7 +211,7 @@ Shared preprocessing applied by all game-specific methods:
 7. **Invisible character removal**: Various invisible Unicode characters
 8. **Letterform alternatives**: Unicode lookalikes → standard Latin (e.g., `𝖠` → `A`)
 9. **Floating diacritic resolution**: Combining marks → precomposed characters
-10. **Special replacements**: `ḡ` → `ğ`, `ڭ` → `ġ`, etc.
+10. **Special replacements**: `ḡ` → `ğ`, `ڭ` → `ġ`, and so on.
 
 ### Game-Specific Character Maps
 
@@ -280,7 +280,7 @@ private static string ReplaceUsingMap(string input, Dictionary<char, string> map
 }
 ```
 
-**Optimization**: Early exit when no characters need replacement avoids StringBuilder allocation.
+**Optimisation**: Early exit when no characters need replacement avoids StringBuilder allocation.
 
 ## Mapping Extensions
 

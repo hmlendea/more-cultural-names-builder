@@ -42,7 +42,7 @@ Applied by all game-specific methods in order:
 | 7 | Invisible chars | `` | Various invisible Unicode |
 | 8 | Letterform alternatives | Standard Latin | Unicode lookalikes (e.g., `𝖠`→`A`) |
 | 9 | Floating diacritics | Precomposed | Combining marks → precomposed |
-| 10 | Special | Various | `ḡ`→`ğ`, `ڭ`→`ġ`, etc. |
+| 10 | Special | Various | `ḡ`→`ğ`, `ڭ`→`ġ`, and so on |
 
 ## Game-Specific Character Maps
 
@@ -132,7 +132,7 @@ private static string ReplaceUsingMap(string input, Dictionary<char, string> map
 }
 ```
 
-**Optimization**: Early exit when no characters need replacement avoids StringBuilder allocation.
+**Optimisation**: Early exit when no characters need replacement avoids StringBuilder allocation.
 
 ## Caching
 
@@ -163,7 +163,7 @@ string ToWindows1252(string text)
 
 ### Coverage
 - Each game charset method
-- Edge cases (empty strings, null inputs, special characters)
+- Edge cases (strings devoid of content, null inputs, special characters)
 - Round-trip verification where applicable
 
 ### Gaps

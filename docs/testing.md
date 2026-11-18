@@ -44,7 +44,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 - ArchUnit.NET checks the explicitly inventoried production assembly, documented dependency directions, independent game builders, shared builder inheritance, and production assembly isolation.
 - Roslyn checks handwritten production and test sources for file/type correspondence, namespaces, syntax conventions, interface contracts, model declarations, mappings, collection contracts, and NUnit conventions.
 - Separate project tests inspect declared XML and evaluated MSBuild metadata for Debug and Release, production references, solution inventory, and analyser enforcement.
-- Source checks require a repository checkout, exclude generated files and build outputs, and fail when expected sources or selectors are missing.
+- Source checks require a repository checkout, exclude generated files and build outputs, and fail when expected sources or selectors are absent.
 - Existing violations remain failures, including builder dependencies on configuration and CK3 dependencies on CK2; production code is not changed or exempted to make the suite green.
 - These structural checks do not prove runtime behaviour, security, game compatibility, or exhaustive compliance with contextual and review-only instructions.
 
@@ -60,7 +60,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 - Invalid argument combinations
 - File path validation (existence, readability)
 - Game version pattern validation
-- Verbose flag edge cases (`"True"`, `"1"`, etc.)
+- Verbose flag edge cases (`"True"`, `"1"`, et cetera.)
 
 ### Data Access Layer (Mapping)
 
@@ -73,7 +73,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `LanguageCodeMappingTests.cs` | Entity ↔ Model round-trip |
 
 **Gaps:**
-- XML deserialization edge cases
+- XML deserialisation edge cases
 - Missing/optional XML attributes
 - Malformed XML handling
 - Large file performance
@@ -193,19 +193,19 @@ dotnet test --logger "console;verbosity=detailed"
    - Validate output file structure and content
 
 2. **Snapshot Testing**
-   - Capture expected output for known inputs
+   - Capture the expected output for known inputs
    - Compare generated files against snapshots
    - Detect unintended format changes
 
 3. **Game Compatibility Tests**
-   - Load generated mods in target games (CI)
-   - Verify localisation displays correctly
+   - Load generated mods in the target games (CI)
+   - Verify that localisation displays correctly
    - Check for encoding issues
 
 4. **Performance Benchmarks**
-   - Measure build time for large datasets
-   - Profile memory usage during localisation fetching
-   - Benchmark parallel vs sequential processing
+   - Measure build time for large data sets
+   - Profile memory usage during localisation retrieval
+   - Benchmark parallel versus sequential processing
 
 5. **Property-Based Testing**
    - Test normalisation idempotency
@@ -214,34 +214,25 @@ dotnet test --logger "console;verbosity=detailed"
 
 ## CI/CD Integration
 
-**Current:** No CI configuration detected in repository
+**Current:** The [.NET workflow](../.github/workflows/dotnet.yml) restores dependencies, builds the solution, and runs the full test suite on .NET 10.0 for every push and pull request targeting `master`. The [Security workflow](../.github/workflows/security.yml) adds dependency vulnerability scanning and CodeQL analysis.
 
-**Recommended:**
-```yaml
-# .github/workflows/test.yml
-name: Test
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-      - run: dotnet test --no-restore
+Reproduce the required checks locally with:
+
+```bash
+dotnet build MoreCulturalNamesBuilder.slnx
+dotnet test
 ```
 
 ## Test Data Management
 
 ### Current
-- No test data files in repository
-- Tests use inline/mock data
+- No test data files in the repository
+- Tests use inline or mock data
 
 ### Recommended
 - Add minimal valid `languages.xml` and `locations.xml` to `test-data/`
-- Version control test data alongside tests
-- Document test data schema and update process
+- Version control test data alongside the tests
+- Document the test data configuration and update process
 
 ## Related Documentation
 - [Architecture Overview](architecture-overview.md) - System context

@@ -7,15 +7,35 @@ This document describes the current architecture of the More Cultural Names Buil
 - [Purpose](#purpose)
 - [System Context](#system-context)
 - [Architectural Style](#architectural-style)
-- [Runtime Flow](#runtime-flow)
+- [Runtime Process](#runtime-process)
+- [Components](#components)
 - [Architectural Areas](#architectural-areas)
+  - [Configuration](#configuration)
+  - [Data Access](#data-access)
+  - [Service Layer](#service-layer)
+  - [Mod Builders](#mod-builders)
 - [Data Architecture](#data-architecture)
 - [Interfaces and Integrations](#interfaces-and-integrations)
-- [External Dependencies](#external-dependencies)
+- [Key Processes](#key-processes)
+  - [Landed Titles Patching](#landed-titles-patching)
+- [Name Normalisation](#name-normalisation)
+- [Cultural Name Block Merging](#cultural-name-block-merging)
+- [Cross-Cutting Concerns](#cross-cutting-concerns)
+  - [Security and Privacy](#security-and-privacy)
+  - [Error Handling](#error-handling)
+  - [Observability](#observability)
+  - [Configuration](#configuration-1)
+  - [Concurrency and Resource Use](#concurrency-and-resource-use)
 - [Dependency Direction and Rules](#dependency-direction-and-rules)
+- [External Dependencies](#external-dependencies)
 - [Deployment and Operations](#deployment-and-operations)
+- [Compatibility Contracts](#compatibility-contracts)
 - [Testing and Verification](#testing-and-verification)
 - [Design Constraints](#design-constraints)
+- [Extension Points](#extension-points)
+  - [Adding a Game Target](#adding-a-game-target)
+  - [Adding a Data Object](#adding-a-data-object)
+  - [Adding a CLI Argument](#adding-a-cli-argument)
 - [Source Map](#source-map)
 - [Related Documentation](#related-documentation)
 
@@ -64,12 +84,12 @@ flowchart TB
 
 The principal architecture boundaries are:
 
-- **Configuration Layer:** Parses and validates command-line arguments; raises errors for missing required values.
+- **Configuration Layer:** Parses and validates command-line arguments; raises errors for absent required values.
 - **Data Layer:** Reads XML repositories; provides immutable entity objects to services.
 - **Service Layer:** Transforms and normalises localisation and name data; independent of game logic.
 - **Builder Layer:** Game-specific implementations of `IModBuilder`; each builder consumes service outputs and writes mod-format files.
 
-## 🔄 Runtime Flow
+## 🔄 Runtime Process
 
 ```mermaid
 flowchart TD
@@ -89,11 +109,23 @@ flowchart TD
 
 The principal runtime sequence is:
 
-1. **Argument Parsing:** `Settings` constructor parses all command-line arguments and validates required fields; raises exception if validation fails.
+1. **Argument Parsing:** `Settings` constructor parses all command-line arguments and validates required fields; raises an exception if validation fails.
 2. **Dependency Injection Setup:** `BuildServiceProvider()` instantiates the DI container and registers all singletons (settings, repositories, services, factory).
 3. **Builder Selection:** `IModBuilderFactory.GetModBuilder(settings)` instantiates the correct game-specific builder based on `settings.Mod.GameId`.
 4. **Build Execution:** The selected builder loads data from XML repositories, applies data transformation services, and writes output files.
 5. **Process Exit:** Application terminates with status code 0 on success or non-zero on unhandled exception.
+
+## 🧩 Components
+
+| Component | Responsibility | Principal Dependencies | Lifetime or Ownership |
+|-----------|----------------|------------------------|-----------------------|
+| `Program` | Parses arguments, composes the service provider, and invokes the build | `Settings`, `IModBuilderFactory` via the service provider | One instance for the process |
+| `Settings` | Holds the parsed CLI configuration and its sub-settings | `NuciCLI.Arguments` | Singleton for the process |
+| `XmlRepository<T>` | Materialises data objects from a caller-supplied XML file | `NuciDAL` | Singleton per registered data object type |
+| `LocalisationFetcher` | Resolves cultural names per location and language with fallback chains | Repositories, `NameNormaliser` output models | Singleton for the process |
+| `NameNormaliser` | Converts names to the character set each game engine supports | `NuciText.Conversion` | Singleton for the process |
+| `ModBuilderFactory` | Selects the game-specific builder from the `--game` argument | `IModBuilder` implementations | Singleton for the process |
+| `ModBuilder` and subclasses | Load data and write the mod files for one game | Repositories, `ILocalisationFetcher`, `INameNormaliser` | One instance per build |
 
 ## 🗂️ Architectural Areas
 
@@ -183,10 +215,70 @@ The application processes two principal data flows:
 
 | Interface or Integration | Direction | Contract | Owner | Failure Semantics |
 |---|---|---|---|---|
-| CLI Arguments | Inbound | Command-line string array, parsed by `ArgumentParser`. | Configuration layer | Unrecognised or missing required arguments raise exception; application terminates. |
-| XML Data Stores | Inbound | Language and Location XML files at paths specified by `--lang` and `--loc`. | Data access layer | File-not-found or XML parse errors raise exception; application terminates. |
+| CLI Arguments | Inbound | Command-line string array, parsed by `ArgumentParser`. | Configuration layer | Unrecognised or missing required arguments raise an exception; application terminates. |
+| XML Data Stores | Inbound | Language and Location XML files at paths specified by `--lang` and `--loc`. | Data access layer | File-not-found or XML parse errors raise an exception; application terminates. |
 | Landed Titles File (Optional) | Inbound/Outbound | CK2/CK3 landed-titles format; read, patched, and written to output directory. | `CK2ModBuilder`, `CK3ModBuilder` | File read failure: exception. Invalid format: silent skip or partial output (determined by builder). |
-| Game Mod Output | Outbound | Game-specific format (e.g., `.txt` for CK3 localisation, custom formats for HOI4/IR). | Builders | File write errors raise exception; application terminates. |
+| Game Mod Output | Outbound | Game-specific format (e.g., `.txt` for CK3 localisation, custom formats for HOI4/IR). | Builders | File write errors raise an exception; application terminates. |
+
+## 🔀 Key Processes
+
+### Landed Titles Patching
+
+```mermaid
+sequenceDiagram
+    participant B as CK2ModBuilder / CK3ModBuilder
+    participant F as Input File
+    participant N as NameNormaliser
+    participant O as Output File
+
+    B->>F: Read the existing landed titles file
+    B->>B: Locate each title by its identifier prefix
+    B->>B: Remove existing cultural name lines
+    B->>N: Normalise every candidate name for the target charset
+    B->>B: Merge multiple cultural name blocks per title
+    B->>O: Write the patched file in Windows-1252 encoding
+```
+
+The builder preserves every unrelated line of the source file and rewrites only the cultural name blocks. Merging operates on direct children of a title block, so a block owned by a nested county or barony stays with that nested title instead of being hoisted into its parent. The width of the recognised title identifier class is supplied by the builder (`ekdcb` for CK2, `hekdcb` for CK3 with the hegemony tier), so extending the recognised tiers is a single override.
+
+## ⚙️ Name Normalisation
+
+`NameNormaliser` converts Unicode names to the limited character sets each engine accepts. Shared preprocessing removes zero-width characters, directionality marks, and invisible characters, normalises apostrophes and dashes, resolves floating diacritics into precomposed characters, and applies common transliterations. Each game then applies its own character map and final regular-expression adjustments, and every per-game method caches its results in a `ConcurrentDictionary<string, string>`.
+
+The replacement loop exits as soon as no replaceable character is found, which avoids allocating a `StringBuilder` for the common case of an already-conforming name.
+
+## ⚙️ Cultural Name Block Merging
+
+`CK3CulturalNameBlockMerger` merges multiple `cultural_names` blocks belonging to the same title into a single block and deduplicates `name_list_` entries by key. Block boundaries are located with a single-pass brace counter. The content is returned unchanged when no title requires merging, and only blocks that are direct children of the title are considered, so nested titles keep their own blocks.
+
+## 🧵 Cross-Cutting Concerns
+
+### Security and Privacy
+
+The application runs locally, performs no network access, receives no credentials, and stores no personal data. Trust boundaries are limited to the operator shell, the caller-supplied XML data stores, and the output directory; the data stores are read as XML, and the output path is used verbatim, so the operator is responsible for supplying trustworthy inputs and a writable directory.
+
+### Error Handling
+
+Failures originate in argument parsing, XML loading, name normalisation, and file writing. Argument and repository failures surface as exceptions from `Settings` and `XmlRepository<T>` respectively, the factory raises `NotImplementedException` for an unsupported game, and all of them propagate to `Program.Main`, terminating the process with a non-zero status code. No degradation, retry, or fallback path exists, and a failed build leaves any files already written in place.
+
+### Observability
+
+Progress is written to standard output, timing is reported for the data-retrieving and file-generation phases, and errors reach standard error through the unhandled exception path. No log files, metrics, traces, or health checks are produced; structured diagnostics are limited to the platform exception output.
+
+### Configuration
+
+| Configuration Area | Source | Responsibility | Supersede or Secret Policy |
+|--------------------|--------|----------------|---------------------------|
+| Input data stores | `--lang`, `--loc` command-line arguments | Paths of the language and location XML repositories | Required; no alternative source |
+| Landed titles input | `--landed-titles` command-line argument | Optional source file patched in place for CK2 and CK3 | Absent for HOI4 and Imperator: Rome |
+| Mod identity | `--id`, `--name`, `--version`/`--ver` command-line arguments | Descriptor identity written into the generated mod | Required |
+| Mod dependency | `--dependency`/`--dep` command-line argument | Optional mod identifier recorded in the descriptor | Optional |
+| Game selection | `--game`, `--game-version` command-line arguments | Target builder and declared game version | Required; unknown values raise `NotImplementedException` |
+| Output | `--output`/`--out`, `--landed-titles-name`, `--verbose` command-line arguments | Output directory, output file name, and verbose comments | Required output directory; no secrets are involved |
+
+### Concurrency and Resource Use
+
+Builders parallelise localisation retrieval with `Parallel.ForEach` over the location game identifiers and collect results in `ConcurrentDictionary` instances before materialising deterministic dictionaries. The CK3 canonical localisation index is built once per build and reused. All language and location data is held in memory for the duration of the build, and the process handles exactly one build per invocation, so no resource pool, backpressure mechanism, or capacity limit is applied beyond the memory required by the data set.
 
 ## 🧭 Dependency Direction and Rules
 
@@ -217,6 +309,17 @@ The principal dependency rules are:
 - **Prohibited:** No circular dependencies; no downward dependencies (builder → service → builder).
 - **Prohibited:** Configuration layer must not be referenced by service, builder, or data access layers. Builders must not instantiate other builders.
 
+## 📦 External Dependencies
+
+| Dependency | Responsibility | Integration Boundary | Architectural Consequence |
+|------------|----------------|----------------------|---------------------------|
+| `NuciDAL` | XML repository implementation and entity base type | `Program.BuildServiceProvider()`, `DataAccess/DataObjects/` | Supplies the repository and entity contracts; the production project declares no project references |
+| `NuciCLI.Arguments` | Command-line parsing | `Configuration/Settings.cs` | Constrains argument registration and error messages |
+| `NuciText.Conversion` | Character-set conversion | `Service/NameNormaliser.cs` | Provides the Windows-1252 conversion used for CK output |
+| `NuciExtensions` | Shared extension helpers | Throughout the production project | Reduces local utility code |
+| `Microsoft.Extensions.DependencyInjection` | Service composition | `Program.BuildServiceProvider()` | Centralises the composition root and singleton lifetimes |
+| `Microsoft.Extensions.Configuration` and its binder and JSON providers | Configuration primitives | Available to the production project | Declared dependencies; the pipeline is configured through CLI arguments rather than configuration files |
+
 ## 🚀 Deployment and Operations
 
 More Cultural Names Builder is a stateless, single-invocation console application. Each execution is independent; no server, persistent state, or background processes are maintained.
@@ -230,12 +333,26 @@ More Cultural Names Builder is a stateless, single-invocation console applicatio
 | **Output Directory** | User-specified via `--output` or `--out`. | Caller must ensure directory exists and is writable; application does not create intermediate directories. |
 | **Scaling** | Not applicable. | Scaling is achieved by running multiple independent processes, not by changing the application runtime. |
 
+## 🛡️ Compatibility Contracts
+
+| Contract | Owner | Invariant | Verification | Change Policy |
+|----------|-------|-----------|--------------|---------------|
+| CLI argument names and aliases | `Configuration/Settings.cs` | `--lang`, `--loc`, `--output`/`--out`, `--id`, `--name`, `--version`/`--ver`, `--game`, `--game-version`, `--landed-titles`, `--landed-titles-name`, `--dependency`/`--dep`, `--verbose` remain accepted | `SettingsTests` | Renaming or removing an argument is a breaking change for existing mod build scripts |
+| Game identifiers | `ModBuilderFactory.GetModBuilder()` | `CK2`, `CK3`, `HOI4`, and `IR` select their builders | `ModBuilderFactoryTests` | Additional identifiers are additive; existing identifiers must keep resolving |
+| Input XML schema | `DataAccess/DataObjects/` | Element and attribute names including `Language`, `Location`, `GameId`, `Name`, `iso-639-1` remain mapped | `DataObjectSerialisationTests` | Schema changes are breaking for callers who supply data stores |
+| Output layout | Game builders | The mod descriptor, localisation, landed titles, and province name paths within the mod directory remain stable | Builder tests that build against temporary directories | Changes require a coordinated update to the mod packaging scripts |
+| Landed titles format | `CK2ModBuilder`, `CK3ModBuilder`, `CK3CulturalNameBlockMerger` | Unrelated lines survive patching, and cultural name blocks remain valid for the game | `CK2ModBuilderTests`, `CK3ModBuilderTests` | Format changes follow the supported game versions |
+| Name normalisation output | `NameNormaliser` | Each game method returns names within the supported character set for its target | `NameNormaliserTests`, `NameNormaliserEdgeCaseTests` | Changes alter every generated name and require regeneration of existing mods |
+
 ## ✅ Testing and Verification
 
-The project includes a unit test suite (`MoreCulturalNamesBuilder.UnitTests`) that verifies:
+The project includes two test suites that verify:
 
-- **Configuration Parsing:** `SettingsTests` validate argument parsing, required field detection, and alias argument normalization.
-- **Name Normalisation:** `NameNormaliserTests` verify linguistic transformation rules (special character handling, diacritics).
+- **Configuration parsing:** `SettingsTests` validate argument parsing, required field detection, and alias argument normalisation.
+- **Name normalisation:** `NameNormaliserTests` verify linguistic transformation rules (special character handling, diacritics).
+- **Mappings and services:** mapping tests and `LocalisationFetcherTests` cover entity-to-model conversion and fallback resolution.
+- **Builder output:** every game builder is exercised end to end against temporary directories, asserting descriptor, localisation, landed titles, and data-file content.
+- **Structural conventions:** `MoreCulturalNamesBuilder.ArchitectureTests` enforces dependency direction, project conventions, and source conventions, including the rule that builders must not depend on the configuration layer.
 
 Execute the principal automated verification with:
 
@@ -245,7 +362,8 @@ dotnet test
 
 **Test Boundaries:**
 - Unit tests cover the configuration and service layers, and build every game builder end to end against temporary directories; game compatibility (loading the generated mods in the games) is not verified.
-- Data access layer is not mocked; tests use actual XML deserialization.
+- Data access layer is not mocked; tests use real XML deserialisation.
+- The architecture test suite requires a repository checkout and fails when expected sources or selectors are absent.
 
 **Material Coverage Gaps:**
 - No game compatibility validation: generated mod file syntax is asserted only against the builder's own expectations, never against the games.
@@ -254,13 +372,39 @@ dotnet test
 
 ## ⚠️ Design Constraints
 
-- **No Directory Creation:** The application does not create intermediate directories; output directory must exist and be writable before execution.
+- **No Directory Creation:** The application does not create intermediate directories; output directory must exist and be writable prior to execution.
 - **Single Invocation Per Process:** Each process handles exactly one build; no daemon or persistent server mode.
-- **Configuration Ownership:** Settings expose mutable auto-properties; every build uses the same parsed configuration and assumes callers do not modify it concurrently.
+- **Configuration Ownership:** Settings expose mutable auto-properties; every build uses the same parsed configuration and presumes callers do not modify it concurrently.
 - **In-Memory Data Loading:** All localisation data is loaded into memory during startup; no streaming or pagination of large datasets.
 - **No Transaction Support:** Failed builds do not roll back partial output files; idempotency is caller responsibility.
 - **Game Alias Requirement:** The `--game` argument requires an exact string match (CK2, CK3, HOI4, IR); no fuzzy matching or abbreviations.
 - **Alias Argument Handling:** `--output`/`--out` and `--version`/`--ver` pairs must both be provided or validation fails, even when only one pair is used; this is a validation gap introduced to support legacy scripts.
+
+## 🔧 Extension Points
+
+### Adding a Game Target
+
+1. Create a builder in `MoreCulturalNamesBuilder/Service/ModBuilders/` that derives from `ModBuilder`, or from `CK2ModBuilder` when the landed titles format is shared.
+2. Add the game identifier case to `ModBuilderFactory.GetModBuilder()`.
+3. Add the game-specific character map and method to `INameNormaliser` and `NameNormaliser` when the engine needs its own character set.
+4. Include unit tests covering the descriptor, data files, localisation content, and failure handling.
+
+The new builder must inherit the `IModBuilder` contract, avoid referencing sibling builders, and keep the recognised landed-title identifier class aligned with the tiers the game supports.
+
+### Adding a Data Object
+
+1. Define the data object in `MoreCulturalNamesBuilder/DataAccess/DataObjects/` with the XML serialisation attributes.
+2. Add the mapping extension in `MoreCulturalNamesBuilder/Service/Mapping/`.
+3. Register the repository in `Program.BuildServiceProvider()`.
+4. Extend `LocalisationFetcher` and the affected builders when the new data participates in name resolution or output.
+
+### Adding a CLI Argument
+
+1. Register the argument in the `Settings` constructor.
+2. Add the property to `InputSettings`, `ModSettings`, or `OutputSettings`, with resolution logic for any alias.
+3. Extend `SettingsTestFactory` and `SettingsTests` to cover the new argument.
+
+Extension points inherit the existing conventions: services remain stateless, data objects remain passive, and builders remain independent of one another.
 
 ## 🗺️ Source Map
 

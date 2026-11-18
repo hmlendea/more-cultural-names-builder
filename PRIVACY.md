@@ -6,15 +6,19 @@ This document describes the personal data handling practices of the More Cultura
 
 ## 📑 Table of Contents
 
-- What This Document Covers
-- Self-Hosted Deployments
-- Data We Handle
-- Processing and Use
-- Storage, Retention, and Deletion
-- External Processing and Integrations
-- Data Protection and Security
-- Document Changes
-- Contact
+- [What This Document Covers](#what-this-document-covers)
+- [Self-Hosted Deployments](#self-hosted-deployments)
+- [Data We Handle](#data-we-handle)
+  - [Data Provided to the Application](#data-provided-to-the-application)
+  - [Data Generated or Collected by the Application](#data-generated-or-collected-by-the-application)
+  - [Data Received from Integrations](#data-received-from-integrations)
+- [Processing and Use](#processing-and-use)
+- [Storage, Retention, and Deletion](#storage-retention-and-deletion)
+- [External Processing and Integrations](#external-processing-and-integrations)
+- [User Controls and Requests](#user-controls-and-requests)
+- [Data Protection and Security](#data-protection-and-security)
+- [Document Changes](#document-changes)
+- [Contact](#contact)
 
 ## 🔎 What This Document Covers
 
@@ -81,6 +85,13 @@ The application has no built-in external data transfers, integrations, or third-
 |-----------------------|---------|---------------|--------------------------------|
 | None | N/A | N/A | N/A |
 
+## ⚙️ User Controls and Requests
+
+The following documented controls or request procedures are available:
+- Deleting the generated mod files — remove the output directory supplied through `--output`, or delete individual generated files.
+- Inspecting generated output — every produced file resides in the output directory and can be reviewed directly.
+- Avoiding data retention — the application caches nothing outside the output directory; terminating the process discards all in-memory data.
+
 ## 🛡️ Data Protection and Security
 
 The application itself implements no data protection mechanisms beyond standard filesystem permissions, as it handles no personal data. For self-hosted deployments, the instance operator is responsible for:
@@ -91,6 +102,8 @@ The application itself implements no data protection mechanisms beyond standard 
 - Updates (the user controls when to rebuild or update the tool)
 
 No secrets, credentials, or authentication mechanisms are used by the application.
+
+The original maintainers are not responsible for changes, modifications, or privacy issues introduced by downstream forks.
 
 ## 🔄 Document Changes
 

@@ -53,8 +53,8 @@ parser.AddArgument("game-version", required: true);
 ```
 
 ### Validation Behaviour
-- Required arguments (`lang`, `loc`, `id`, `name`, `game`, `game-version`) throw exception if missing
-- Alias pairs (`output`/`out`, `version`/`ver`, `dependency`/`dep`) - **both must be provided or validation fails** (known validation gap for legacy script support)
+- Required arguments (`lang`, `loc`, `id`, `name`, `game`, `game-version`) throw an exception when omitted
+- Alias pairs (`output`/`out`, `version`/`ver`, `dependency`/`dep`) - **both must be provided or validation fails** (a known validation gap for legacy script support)
 - No I/O operations during construction (parsing only)
 
 ## InputSettings.cs
@@ -65,14 +65,14 @@ parser.AddArgument("game-version", required: true);
 
 | Property | Source Argument | Required | Description |
 |----------|-----------------|----------|-------------|
-| `LanguageStorePath` | `--lang` | Yes | Path to languages XML data store |
-| `LocationStorePath` | `--loc` | Yes | Path to locations XML data store |
-| `LandedTitlesFilePath` | `--landed-titles` | No | Path to existing landed titles file (CK2/CK3 only) |
+| `LanguageStorePath` | `--lang` | Yes | Path to the languages XML data store |
+| `LocationStorePath` | `--loc` | Yes | Path to the locations XML data store |
+| `LandedTitlesFilePath` | `--landed-titles` | No | Path to an existing landed titles file (CK2 and CK3 only) |
 
 ### Implementation Notes
-- Uses `args.Get<string>("key")` for required arguments (throws if missing)
-- Uses indexer `args["key"]` for optional arguments (returns null if missing)
-- No validation of file existence - deferred to data access layer
+- Uses `args.Get<string>("key")` for required arguments (throws when omitted)
+- Uses the indexer `args["key"]` for optional arguments (returns null when omitted)
+- No validation of file existence - deferred to the data access layer
 
 ## ModSettings.cs
 
@@ -118,8 +118,8 @@ private static string ResolveDependency(ArgumentsCollection args)
 ```
 
 ### Known Issues
-- **Validation Gap**: Both `--version` and `--ver` must be provided or validation fails, even when only one is used. This was introduced to support legacy scripts but creates confusing error messages.
-- **Game Validation**: No validation of `--game` value in `ModSettings`; validation deferred to `ModBuilderFactory` which throws `NotImplementedException` for unsupported games.
+- **Validation Gap**: Both `--version` and `--ver` must be provided or validation fails, even when only one is used. This was introduced to support legacy scripts but produces confusing error messages.
+- **Game Validation**: No validation of the `--game` value in `ModSettings`; validation is deferred to `ModBuilderFactory`, which throws `NotImplementedException` for unsupported games.
 
 ## OutputSettings.cs
 
@@ -129,9 +129,9 @@ private static string ResolveDependency(ArgumentsCollection args)
 
 | Property | Source Argument | Required | Default | Description |
 |----------|-----------------|----------|---------|-------------|
-| `ModOutputDirectory` | `--output` / `--out` | Yes | - | Output directory for generated mod files |
-| `AreVerboseCommentsEnabled` | `--verbose` | No | `false` | Include verbose comments in generated output |
-| `LandedTitlesFileName` | `--landed-titles-name` | No | - | File name for output landed titles file |
+| `ModOutputDirectory` | `--output` / `--out` | Yes | - | Output directory for the generated mod files |
+| `AreVerboseCommentsEnabled` | `--verbose` | No | `false` | Include verbose comments in the generated output |
+| `LandedTitlesFileName` | `--landed-titles-name` | No | - | File name for the output landed titles file |
 
 ### Output Directory Resolution
 ```csharp
@@ -160,13 +160,13 @@ AreVerboseCommentsEnabled = args.Get<string>("verbose") == "true";
 |---------|-------|---------|-------|
 | `--output` | `--out` | OutputSettings | Both must be present or validation fails |
 | `--version` | `--ver` | ModSettings | Both must be present or validation fails |
-| `--dependency` | `--dep` | ModSettings | Optional; returns null if neither provided |
+| `--dependency` | `--dep` | ModSettings | Optional; returns null when neither is provided |
 
 ## Error Handling
 
 ### Exception Types Thrown
 - `ArgumentException` - Missing required arguments (from `ArgumentParser` or custom resolution)
-- `NotImplementedException` - Unsupported game value (from `ModBuilderFactory`, not configuration layer)
+- `NotImplementedException` - Unsupported game value (from `ModBuilderFactory`, not the configuration layer)
 
 ### Error Messages
 - `"Missing required argument: --output (alias: --out)."`
@@ -174,7 +174,7 @@ AreVerboseCommentsEnabled = args.Get<string>("verbose") == "true";
 - `"The game \"{game}\" is not supported"` (from factory)
 
 ### Fail-Fast Guarantee
-All validation occurs in `Settings` constructor before any I/O or build operations begin. Invalid configuration prevents application startup entirely.
+All validation occurs in the `Settings` constructor before any I/O or build operations begin. Invalid configuration prevents application startup entirely.
 
 ## Usage in Program.cs
 
@@ -210,13 +210,13 @@ public static void Main(string[] args)
 
 ## Extension Points
 
-To add new configuration options:
-1. Add argument registration in `Settings` constructor
-2. Add property to appropriate sub-settings class (`InputSettings`, `ModSettings`, or `OutputSettings`)
-3. Implement resolution logic if aliases or complex validation needed
+To include new configuration options:
+1. Add argument registration in the `Settings` constructor
+2. Add a property to the appropriate sub-settings class (`InputSettings`, `ModSettings`, or `OutputSettings`)
+3. Implement resolution logic when aliases or complex validation are required
 4. Update `SettingsTestFactory` and add tests in `SettingsTests.cs`
 
 ## Related Documentation
-- [Architecture Overview](architecture-overview.md) - Configuration layer in context
+- [Architecture Overview](architecture-overview.md) - The configuration layer in context
 - [Data Access Layer](data-access-layer.md) - How settings feed into repositories
 - [Mod Builders](mod-builders.md) - How settings drive builder selection

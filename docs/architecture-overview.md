@@ -8,10 +8,10 @@ The application implements a **console pipeline architecture** with these defini
 
 | Characteristic | Implementation |
 |----------------|----------------|
-| **Stateless Processing** | Configuration loaded once at startup; no state accumulation during build |
-| **Factory-Based Polymorphism** | `ModBuilderFactory` selects game-specific builder at runtime via `--game` argument |
+| **Stateless Processing** | Configuration loaded once at startup; no state accumulation during the build |
+| **Factory-Based Polymorphism** | `ModBuilderFactory` selects the game-specific builder at runtime via the `--game` argument |
 | **Layered Dependency Injection** | `Microsoft.Extensions.DependencyInjection` wires services, repositories, and builders |
-| **Fail-Fast Validation** | Configuration parsing/validation occurs before build phase |
+| **Fail-Fast Validation** | Configuration parsing and validation occur prior to the build phase |
 
 ## Layered Architecture
 
@@ -107,7 +107,7 @@ flowchart TD
 1. **Argument Parsing** (`Settings` constructor): Parses all command-line arguments, validates required fields, raises exception on validation failure
 2. **Dependency Injection Setup** (`BuildServiceProvider()`): Instantiates DI container, registers all singletons (settings, repositories, services, factory)
 3. **Builder Selection** (`IModBuilderFactory.GetModBuilder(settings)`): Instantiates correct game-specific builder based on `settings.Mod.Game`
-4. **Build Execution**: Selected builder loads data from XML repositories, applies data transformation services, writes output files
+4. **Build Execution**: The selected builder loads data from XML repositories, applies data transformation services, and writes output files
 5. **Process Exit**: Terminates with status code 0 on success, non-zero on unhandled exception
 
 ## Architectural Areas
@@ -124,14 +124,14 @@ flowchart TD
 **Boundary Rules:**
 - Configuration instantiated once at startup; immutable after construction
 - No I/O during Settings instantiation (parsing only)
-- Invalid arguments cause exception; error recovery is caller's responsibility
+- Invalid arguments cause an exception; error recovery is the caller's responsibility
 
 ### Data Access Layer
 **Path:** `MoreCulturalNamesBuilder/DataAccess/DataObjects/`
 
 **Responsibilities:**
 - Define domain entity classes (`LanguageEntity`, `LocationEntity`, `NameEntity`, `LanguageCodeEntity`, `GameIdEntity`)
-- Serve as DTOs between XML repositories and service layer
+- Serve as DTOs between XML repositories and the service layer
 - Maintain no business logic; entities are passive data containers
 
 **Boundary Rules:**
@@ -142,7 +142,7 @@ flowchart TD
 **Path:** [Service](../MoreCulturalNamesBuilder/Service/) and [Mapping](../MoreCulturalNamesBuilder/Service/Mapping/)
 
 **Responsibilities:**
-- `LocalisationFetcher`: Retrieves localisation data for location/language, normalising keys for consistency
+- `LocalisationFetcher`: Retrieves localisation data for a location and language, normalising keys for consistency
 - `NameNormaliser`: Applies linguistic rules to normalise names (diacritics, phonetic transformations)
 - Mapping extensions: Convert between entity and model objects
 
@@ -154,15 +154,15 @@ flowchart TD
 **Path:** [Mod Builders](../MoreCulturalNamesBuilder/Service/ModBuilders/)
 
 **Responsibilities:**
-- `IModBuilder`: Interface defining `Build()` contract
-- `ModBuilder`: Base class providing common file generation logic
+- `IModBuilder`: Interface defining the `Build()` contract
+- `ModBuilder`: Base class providing shared file generation logic
 - Game-specific builders: `CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`
 - `IModBuilderFactory`: Runtime builder selection
 
 **Boundary Rules:**
 - All builders implement `IModBuilder` and inherit from `ModBuilder`
-- Builders depend on service layer (`ILocalisationFetcher`, `INameNormaliser`) but not on each other
-- Game-specific builders instantiated only once during build phase
+- Builders depend on the service layer (`ILocalisationFetcher`, `INameNormaliser`) but not on each other
+- Game-specific builders instantiated only once during the build phase
 
 ## Data Architecture
 
@@ -197,50 +197,50 @@ Persist: Normalised names included in generated mod files
 
 | Data/Store | Owner | Representation & Storage | Lifecycle/Consistency |
 |------------|-------|-------------------------|----------------------|
-| `LanguageEntity`, `LocationEntity` collections | `IFileRepository<T>` (NuciDAL) | Loaded entirely into memory at startup; discarded on exit | No mutations after load; guaranteed consistency by immutability |
-| `Language`, `Location`, `Localisation` models | Service layer | Derived from entities; intermediate representation for builders | Created on-demand during build; no persistent caching |
-| Generated mod files | `ModBuilder` | Game-specific format (CK3 localisation, HOI4 custom, etc.) | Written once to `OutputSettings.OutputPath`; no subsequent updates |
+| `LanguageEntity`, `LocationEntity` collections | `IFileRepository<T>` (NuciDAL) | Loaded entirely into memory at startup; discarded on exit | No mutations after loading; guaranteed consistency by immutability |
+| `Language`, `Location`, `Localisation` models | Service layer | Derived from entities; intermediate representation for builders | Created on demand during the build; no persistent caching |
+| Generated mod files | `ModBuilder` | Game-specific format (CK3 localisation, HOI4 custom, and so on) | Written once to `OutputSettings.OutputPath`; no subsequent updates |
 
 ## Interfaces and Integrations
 
 | Interface/Integration | Direction | Contract | Owner | Failure Semantics |
 |----------------------|-----------|----------|-------|-------------------|
-| CLI Arguments | Inbound | String array parsed by `ArgumentParser` | Configuration | Unrecognised/missing required args raise exception; app terminates |
-| XML Data Stores | Inbound | Language/Location XML at `--lang`/`--loc` paths | Data Access | File-not-found or XML parse errors raise exception; app terminates |
-| Landed Titles File (Optional) | Inbound/Outbound | CK2/CK3 landed-titles format; read, patched, written | `CK2ModBuilder`, `CK3ModBuilder` | Read failure: exception. Invalid format: silent skip or partial output |
-| Game Mod Output | Outbound | Game-specific format (`.txt` for CK3, custom for HOI4/IR) | Builders | Write errors raise exception; app terminates |
+| CLI Arguments | Inbound | String array parsed by `ArgumentParser` | Configuration | Unrecognised or missing required arguments raise an exception; the application terminates |
+| XML Data Stores | Inbound | Language and Location XML at the `--lang` and `--loc` paths | Data Access | File-not-found or XML parse errors raise an exception; the application terminates |
+| Landed Titles File (Optional) | Inbound/Outbound | CK2 and CK3 landed-titles format; read, patched, written | `CK2ModBuilder`, `CK3ModBuilder` | Read failure: exception. Invalid format: silent skip or partial output |
+| Game Mod Output | Outbound | Game-specific format (`.txt` for CK3, custom for HOI4 and IR) | Builders | Write errors raise an exception; the application terminates |
 
 ## Deployment and Operations
 
 | Concern | Current Design | Architectural Consequence |
 |---------|----------------|---------------------------|
-| **Process Topology** | Single-threaded console process; one build per invocation | No concurrency primitives; simplicity aids debugging/portability |
-| **Execution Model** | Stateless pipeline; all input loaded at startup, output at completion | No partial results or resumable builds; failed builds re-executed from scratch |
-| **Persistent State** | None. Output files independent; no shared state/locks | Multiple builds can run in parallel without coordination |
+| **Process Topology** | Single-threaded console process; one build per invocation | No concurrency primitives required; simplicity aids debugging and portability |
+| **Execution Model** | Stateless pipeline; all input loaded at startup, output produced at completion | No partial results or resumable builds; a failed build must be re-executed from scratch |
+| **Persistent State** | None. Output files are independent; no shared state or locks | Multiple builds can run in parallel without coordination |
 | **Exit Semantics** | Status code 0 on success; non-zero on exception | Shell scripts can chain builds or implement conditional logic |
-| **Output Directory** | User-specified via `--output`/`--out` | Caller must ensure directory exists/writable; app doesn't create intermediate dirs |
-| **Scaling** | Not applicable | Scaling via multiple independent processes, not runtime changes |
+| **Output Directory** | User-specified via `--output` or `--out` | The caller must ensure the directory exists and is writable; the application does not create intermediate directories |
+| **Scaling** | Not applicable | Scaling is achieved via multiple independent processes, not via runtime changes |
 
 ## Design Constraints
 
-- **No Directory Creation**: Application doesn't create intermediate directories; output directory must exist and be writable
-- **Single Invocation Per Process**: Each process handles exactly one build; no daemon/server mode
-- **Immutable Configuration**: Once parsed, settings cannot be modified
-- **In-Memory Data Loading**: All localisation data loaded into memory at startup; no streaming/pagination
-- **No Transaction Support**: Failed builds don't roll back partial output; idempotency is caller responsibility
-- **Game Alias Requirement**: `--game` requires exact string match (CK2, CK3, HOI4, IR); no fuzzy matching
-- **Alias Argument Handling**: `--output`/`--out` and `--version`/`--ver` pairs must both be provided or validation fails (validation gap for legacy script support)
+- **No Directory Creation**: The application does not create intermediate directories; the output directory must exist and be writable
+- **Single Invocation Per Process**: Each process handles exactly one build; no daemon or server mode
+- **Immutable Configuration**: Once parsed, the settings cannot be modified
+- **In-Memory Data Loading**: All localisation data is loaded into memory at startup; no streaming or pagination
+- **No Transaction Support**: A failed build does not roll back partial output; idempotency is the caller's responsibility
+- **Game Alias Requirement**: The `--game` argument requires an exact string match (CK2, CK3, HOI4, IR); no fuzzy matching
+- **Alias Argument Handling**: The `--output`/`--out` and `--version`/`--ver` pairs must both be provided or validation fails (a validation gap for legacy script support)
 
 ## Source Map
 
 | Area | Path |
 |------|------|
-| Configuration parsing/validation | `MoreCulturalNamesBuilder/Configuration/` |
+| Configuration parsing and validation | `MoreCulturalNamesBuilder/Configuration/` |
 | Domain entity definitions | `MoreCulturalNamesBuilder/DataAccess/DataObjects/` |
-| Data transformation services/mapping | [Service](../MoreCulturalNamesBuilder/Service/) |
+| Data transformation services and mapping | [Service](../MoreCulturalNamesBuilder/Service/) |
 | Game-specific mod builders | [Mod Builders](../MoreCulturalNamesBuilder/Service/ModBuilders/) |
 | Unit test suite | `MoreCulturalNamesBuilder.UnitTests/` |
-| DI setup and entry point | `MoreCulturalNamesBuilder/Program.cs` |
+| Dependency injection setup and entry point | `MoreCulturalNamesBuilder/Program.cs` |
 
 ## Related Documentation
 

@@ -1,12 +1,12 @@
 # Deployment & Operations
 
-This document describes build, release, and execution characteristics of the More Cultural Names Builder.
+This document describes the build, release, and execution characteristics of the More Cultural Names Builder.
 
 ## Build Process
 
 ### Prerequisites
 - .NET 10.0 SDK
-- Linux/macOS/Windows (cross-platform)
+- Linux, macOS, and Windows (cross-platform)
 
 ### Build Commands
 
@@ -40,9 +40,9 @@ Releases are produced by the [GitHub Release workflow](../.github/workflows/gith
 
 ### Version Management
 
-- Version specified via `--version` CLI argument at build time
-- No automatic versioning from git tags in the project file
-- No assembly version attributes in project file
+- Version specified through the `--version` CLI argument at build time
+- No automatic versioning from Git tags in the project file
+- No assembly version attributes in the project file
 - The release workflow assigns `Version`, `AssemblyVersion`, `FileVersion`, and `InformationalVersion` from the release tag during publishing
 
 ### Artifacts
@@ -58,7 +58,7 @@ Releases are produced by the [GitHub Release workflow](../.github/workflows/gith
 | Characteristic | Value |
 |----------------|-------|
 | **Topology** | Single-threaded console process |
-| **Concurrency** | Parallel.ForEach for localisation fetching only |
+| **Concurrency** | Parallel.ForEach for localisation retrieval only |
 | **Memory** | All XML data loaded into memory at startup |
 | **I/O** | Synchronous file reads/writes |
 | **Exit Codes** | 0 = success, non-zero = exception |
@@ -67,16 +67,16 @@ Releases are produced by the [GitHub Release workflow](../.github/workflows/gith
 
 | Resource | Estimate |
 |----------|----------|
-| **Memory** | ~50-200 MB (depends on XML data size) |
-| **CPU** | Single core + parallel localisation fetching |
-| **Disk** | Output size proportional to localisation count × languages |
-| **Network** | None (all data local) |
+| **Memory** | ~50-200 MB (depends on the XML data size) |
+| **CPU** | A single core plus parallel localisation retrieval |
+| **Disk** | Output size proportional to the localisation count × languages |
+| **Network** | None (all data is local) |
 
 ### Build Performance
 
 Measured against the production data set (~44,000 locations, ~4,500 languages, ~220,000 resolved CK3 localisations) on a single machine:
 
-| Game | Fetching the data | Generating the files | Total |
+| Game | Retrieving the data | Generating the files | Total |
 |------|-------------------|----------------------|-------|
 | CK2 / CK2HIP / CK2RoI | ~2 s | ~4 s | ~7-9 s |
 | CK3 / CK3AEP / CK3CE / CK3MBP / CK3TFE | ~2-4 s | ~3 s | ~7-9 s |
@@ -112,7 +112,7 @@ MoreCulturalNamesBuilder \
 | `--landed-titles` | Existing landed titles file (CK2/CK3) |
 | `--landed-titles-name` | Output landed titles file name |
 | `--dependency` / `--dep` | Mod dependency ID |
-| `--verbose` | Enable verbose comments (`true`/`false`) |
+| `--verbose` | Enable verbose comments (`true` or `false`) |
 
 ### Game Targets
 
@@ -173,9 +173,9 @@ MoreCulturalNamesBuilder \
 ## Operational Considerations
 
 ### Idempotency
-- **Not idempotent**: Re-running with same arguments overwrites output files
-- **No partial rollback**: Failed builds leave partial output
-- **Recommendation**: Clean output directory before re-running
+- **Not idempotent**: Re-running with the same arguments overwrites output files
+- **No partial rollback**: A failed build leaves partial output
+- **Recommendation**: Clean the output directory prior to re-running
 
 ### Parallel Execution
 - Multiple builds can run simultaneously if output directories differ
@@ -183,9 +183,9 @@ MoreCulturalNamesBuilder \
 - Safe for CI/CD parallelisation
 
 ### Error Handling
-- All exceptions bubble to `Main` → non-zero exit
+- All exceptions surface at `Main` → non-zero exit
 - No structured error codes (all failures = exit code 1)
-- Error messages written to stderr
+- Error messages written to standard error
 
 ### Logging
 - Console output only (stdout for progress, stderr for errors)
@@ -211,9 +211,9 @@ The release workflow (`.github/workflows/github-release.yml`) is triggered when 
 
 The repository includes a dedicated security scanning workflow (`.github/workflows/security.yml`) that runs:
 
-- **On every push** to `master` branch
-- **On every pull request** targeting `master` branch
-- **Weekly schedule** (Sundays at 00:00 UTC)
+- **On every push** to the `master` branch
+- **On every pull request** targeting the `master` branch
+- **On a weekly schedule** (Sundays at 00:00 UTC)
 
 The security scan performs:
 
@@ -222,11 +222,11 @@ The security scan performs:
    - SQL injection vulnerabilities
    - Path traversal vulnerabilities
    - Cross-site scripting (XSS) patterns
-   - Insecure deserialization
+   - Insecure deserialisation
    - Hardcoded secrets
-   - And other common security anti-patterns
+   - And other prevalent security anti-patterns
 
-Results are published to the GitHub Security tab and can be viewed in the Actions workflow runs. Failed security scans will block merges when branch protection rules are configured.
+Results are published to the GitHub Security tab and can be viewed in the Actions workflow runs. A failed security scan will block merges when branch protection rules are configured.
 
 ## Troubleshooting
 
@@ -234,11 +234,11 @@ Results are published to the GitHub Security tab and can be viewed in the Action
 
 | Issue | Cause | Resolution |
 |-------|-------|------------|
-| `FileNotFoundException` | XML file path incorrect | Verify `--lang` and `--loc` paths |
-| `XmlException` | Malformed XML | Validate XML against expected schema |
-| `ArgumentException` | Missing required args | Check all required arguments provided |
+| `FileNotFoundException` | Incorrect XML path | Verify the `--lang` and `--loc` paths |
+| `XmlException` | Malformed XML | Validate the XML against the expected schema |
+| `ArgumentException` | Missing required arguments | Check that all required arguments are provided |
 | `NotImplementedException` | Unsupported game | Use CK2, CK3, HOI4, or IR |
-| Output directory not created | App doesn't create dirs | Create output directory manually |
+| Output directory not created | The application creates no directories | Create the output directory manually |
 
 ### Debugging
 
@@ -262,13 +262,13 @@ dotnet run -- --lang ... --loc ... --output ...
 
 ### Horizontal Scaling
 - Run multiple independent processes with different output directories
-- Partition input data by location ranges (manual)
+- Partition the input data by location intervals (manual)
 - No built-in sharding support
 
 ### Vertical Scaling
-- Increase memory for larger datasets
-- More CPU cores benefit parallel localisation fetching
-- SSD improves I/O for large output generation
+- Increase memory for larger data sets
+- More CPU cores benefit parallel localisation retrieval
+- An SSD improves I/O for large output generation
 
 ## Related Documentation
 - [Architecture Overview](architecture-overview.md) - Deployment constraints

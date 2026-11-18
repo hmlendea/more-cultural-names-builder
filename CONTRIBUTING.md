@@ -1,10 +1,12 @@
+[![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/funding)
+
 # Contributing to More Cultural Names Mod Builder
 
 This document covers the guidelines and processes for contributing to this project, including how to report issues, suggest enhancements, submit code changes, and follow project standards.
 
 ## 📑 Table of Contents
 
-- [How to Contribute](#how-to-contribute)
+- [Contributing](#contributing)
   - [Reporting Issues](#reporting-issues)
   - [Suggesting Enhancements](#suggesting-enhancements)
   - [Code Contributions](#code-contributions)
@@ -17,11 +19,12 @@ This document covers the guidelines and processes for contributing to this proje
   - [Documentation](#documentation)
 - [Code of Conduct](#code-of-conduct)
 - [Security](#security)
+- [Donations](#donations)
 - [License](#license)
 - [Recognition](#recognition)
 - [Getting Assistance](#getting-assistance)
 
-## 🤝 How to Contribute
+## 🤝 Contributing
 
 ### Reporting Issues
 
@@ -32,9 +35,9 @@ This document covers the guidelines and processes for contributing to this proje
 
 ### Suggesting Enhancements
 
-- Check the roadmap and existing discussions.
-- Explain the use case and expected behaviour.
-- Consider implementation complexity.
+- Check the existing discussions.
+- Explain the use case and expected conduct.
+- Consider the implementation complexity.
 
 ### Code Contributions
 
@@ -59,7 +62,7 @@ dotnet restore
 2. Create a feature branch: `git checkout -b feature/your-feature-name`
 3. Make your changes.
 4. Run tests: `dotnet test`
-5. Run linters: `dotnet build`
+5. Run linters: `dotnet build MoreCulturalNamesBuilder.slnx`
 6. Commit with clear and descriptive messages.
 7. Push to your fork.
 8. Open a Pull Request.
@@ -75,8 +78,8 @@ dotnet restore
 ### Code Style
 
 Follow the project's coding standards:
-- C# coding conventions as defined in the repository instructions
-- Run `dotnet build` before committing to verify compilation
+- C# coding conventions enforced by the repository analyser rules
+- Run `dotnet build MoreCulturalNamesBuilder.slnx` before committing.
 
 ### Testing
 
@@ -93,20 +96,19 @@ dotnet test MoreCulturalNamesBuilder.UnitTests
 - Revise relevant docs for changes.
 - Follow the documentation style guide.
 - Preview changes locally if possible.
+- When updating dependencies (e.g., NuGet packages) or modifying code that affects project structure, update relevant documentation files (README.md, SECURITY.md, ARCHITECTURE.md, docs/, or any other project-specific documentation files) to reflect the changes.
 
-## 📋 Code of Conduct
+## 📜 Code of Conduct
 
 This project follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## 🔒 Security
 
-This project uses automated security scanning via GitHub Actions:
-
-- **Security Scan Workflow** (`.github/workflows/security.yml`) runs on every push, pull request, and weekly schedule
-- **Vulnerable Package Detection** via `dotnet list package --vulnerable --include-transitive`
-- **CodeQL Static Analysis** for C# code security issues
-
 Report security vulnerabilities per the [Security Policy](SECURITY.md).
+
+## 💝 Donations
+
+This project is developed and maintained during spare time. If you find it useful, consider [donating](https://hmlendea.go.ro/funding) and giving it a star ⭐️ on GitHub!
 
 ## 📄 License
 
@@ -114,7 +116,7 @@ By contributing, you agree that your contributions will be licensed under the GN
 
 ## 🙏 Recognition
 
-Contributors are recognized in the GitHub contributors list.
+Contributors are recognised in the GitHub contributors list.
 
 ## ❓ Getting Assistance
 
