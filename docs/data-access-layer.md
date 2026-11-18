@@ -4,7 +4,7 @@ This document describes the XML repository integration, entity definitions, and 
 
 ## Overview
 
-The data access layer uses `NuciDAL` (a custom XML repository library) to deserialize user-provided XML files into domain entity objects. The layer is deliberately passive - it performs no business logic, only data loading and entity materialisation.
+The data access layer employs `NuciDAL` (a custom XML repository library) to deserialise user-provided XML files into domain entity objects. The layer is deliberately passive - it performs no business logic, only data loading and entity materialisation.
 
 ## Repository Integration
 
@@ -27,13 +27,13 @@ public interface IFileRepository<T> where T : EntityBase
 
 ### Implementation
 - `XmlRepository<T>` from `NuciDAL.Repositories`
-- Loads entire XML file into memory on first `GetAll()` call
-- Uses XML serialization attributes on entity classes for mapping
-- No streaming or pagination - full dataset loaded at startup
+- Loads the entire XML file into memory on the first `GetAll()` call
+- Uses XML serialisation attributes on entity classes for mapping
+- No streaming or pagination - the full data set is loaded at startup
 
 ## Entity Definitions
 
-All entities inherit from `NuciDAL.DataObjects.EntityBase` (provides `Id` property).
+All entities inherit from `NuciDAL.DataObjects.EntityBase` (which provides the `Id` property).
 
 ### LanguageEntity
 **Location:** [LanguageDataObject.cs](../MoreCulturalNamesBuilder/DataAccess/DataObjects/LanguageDataObject.cs)
@@ -158,10 +158,10 @@ public class GameIdEntity
 
 **Key Attributes:**
 - `Game` - Target game identifier (CK2, CK3, HOI4, IR)
-- `Type` - Entity type within game (e.g., "Province", "State", "City", "Language")
-- `Parent` - Hierarchical parent ID (optional)
-- `DefaultNameLanguageId` - Language ID for default name
-- `Id` (XmlText) - The actual game-specific identifier
+- `Type` - Entity type within the game (e.g., "Province", "State", "City", "Language")
+- `Parent` - Hierarchical parent identifier (optional)
+- `DefaultNameLanguageId` - Language identifier for the default name
+- `Id` (XmlText) - The game-specific identifier itself
 
 ## Data Loading Flow
 
@@ -199,7 +199,7 @@ Each entity has a corresponding mapping extension:
 | `GameIdEntity` | `GameIdMapping.ToServiceModel()` | `GameId` |
 | `LanguageCodeEntity` | `LanguageCodeMapping.ToServiceModel()` | `LanguageCode` |
 
-### Mapping Pattern
+### Mapping Configuration
 ```csharp
 static class LanguageMapping
 {
@@ -216,7 +216,7 @@ static class LanguageMapping
 }
 ```
 
-## Data Loading in Builders
+## Data Loading in the Builders
 
 ### Base ModBuilder.LoadAllData()
 **Location:** [ModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilder.cs)
@@ -275,7 +275,7 @@ protected override void LoadData()
 }
 ```
 
-`InitializeOrderedLocalisations()` populates `localisationsOrderedByLanguageGameId` for CK2. `CK3ModBuilder` overrides it with an empty dictionary because CK3 resolves title names through its own canonical index instead.
+`InitializeOrderedLocalisations()` populates `localisationsOrderedByLanguageGameId` for CK2. `CK3ModBuilder` overrides it with an empty dictionary, since CK3 resolves title names through its own canonical index instead.
 
 #### HOI4 (HOI4ModBuilder.LoadData)
 ```csharp
@@ -335,41 +335,41 @@ protected override void LoadData()
 
 ## Parallel Processing
 
-All builders use `Parallel.ForEach` for localisation fetching:
+All builders use `Parallel.ForEach` for localisation retrieval:
 - **Thread Safety**: `ConcurrentDictionary` used for intermediate storage
-- **Performance**: Parallelises I/O-bound localisation lookups across locations
-- **Ordering**: Results sorted after parallel completion for deterministic output
+- **Performance**: Parallelises I/O-bound localisation lookups throughout locations
+- **Ordering**: Results are sorted after parallel completion for deterministic output
 
 ## Error Handling
 
 ### Repository Errors
-- `FileNotFoundException` - XML file not found at specified path
-- `XmlException` - Malformed XML or deserialization mismatch
-- `InvalidOperationException` - EntityBase.Id missing or duplicate
+- `FileNotFoundException` - XML file not found at the specified path
+- `XmlException` - Malformed XML or a deserialisation mismatch
+- `InvalidOperationException` - `EntityBase.Id` absent or duplicated
 
 ### Propagation
-All repository exceptions bubble up to `Program.Main` → unhandled → non-zero exit code
+All repository exceptions propagate to `Program.Main` → unhandled → non-zero exit code
 
 ### No Retry Logic
 - No automatic retry on transient failures
 - No partial load recovery
-- Fail-fast philosophy consistent with console pipeline architecture
+- Fail-fast philosophy consistent with the console pipeline architecture
 
 ## Data Invariants
 
 ### Entity Immutability
-- Entities are read-only after repository load
-- No setters exposed beyond XML deserialization
-- Mutations only in mapping/service layers
+- Entities are read-only after repository loading
+- No setters exposed beyond XML deserialisation
+- Mutations occur only in mapping and service layers
 
 ### ID Uniqueness
 - `EntityBase.Id` must be unique within each repository
 - `GameIdEntity.Id` unique per (Game, Type) combination
-- Duplicate IDs cause undefined behaviour (last write wins in dictionary)
+- Duplicate identifiers cause undefined behaviour (the last write takes precedence in the dictionary)
 
 ### Fallback Chains
-- `LanguageEntity.FallbackLanguages` - ordered list of language IDs to try
-- `LocationEntity.FallbackLocations` - ordered list of location IDs to try
+- `LanguageEntity.FallbackLanguages` - ordered list of language identifiers to attempt
+- `LocationEntity.FallbackLocations` - ordered list of location identifiers to attempt
 - Used by `LocalisationFetcher` for localisation resolution
 
 ## Testing
@@ -381,22 +381,22 @@ All repository exceptions bubble up to `Program.Main` → unhandled → non-zero
 - Collection mapping (ToServiceModels)
 
 ### Gaps
-- XML deserialization edge cases (missing attributes, malformed data)
+- XML deserialisation edge cases (absent attributes, malformed data)
 - Large file performance
 - Concurrent repository access
 - Fallback chain resolution
 
 ## Extension Points
 
-To add new entity types:
-1. Create entity class in `DataAccess/DataObjects/` with XML attributes
-2. Add a mapping extension in [Mapping](../MoreCulturalNamesBuilder/Service/Mapping/).
-3. Register repository in `Program.cs` DI container
-4. Update `LocalisationFetcher` if new data needed for localisation
-5. Update builders if new data needed for output generation
+To include new entity types:
+1. Create the entity class in `DataAccess/DataObjects/` with XML attributes
+2. Include a mapping extension in [Mapping](../MoreCulturalNamesBuilder/Service/Mapping/).
+3. Register the repository in the `Program.cs` dependency injection container
+4. Update `LocalisationFetcher` when the new data participates in localisation
+5. Revise the builders when the new data participates in output generation
 
 ## Related Documentation
-- [Architecture Overview](architecture-overview.md) - Data access in context
+- [Architecture Overview](architecture-overview.md) - The data access layer in context
 - [Service Layer](service-layer.md) - How entities are transformed
 - [Localisation Fetcher](service-layer.md#localisationfetcher) - Consumes loaded entities
 - [Mod Builders](mod-builders.md) - Game-specific data loading

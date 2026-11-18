@@ -119,7 +119,7 @@ public class GameIdEntity
 | Property | XML Source | Description |
 |----------|------------|-------------|
 | `Game` | `game` attribute | Target game (CK2, CK3, HOI4, IR) |
-| `Type` | `type` attribute | Entity type (Language, Province, State, City, etc.) |
+| `Type` | `type` attribute | Entity type (Language, Province, State, City, and so on) |
 | `Parent` | `parent` attribute | Hierarchical parent ID (optional) |
 | `DefaultNameLanguageId` | `defaultLanguage` attribute | Default language for name |
 | `Id` | Element text content | Game-specific identifier |
@@ -511,7 +511,7 @@ Requested: (Location L, Language Lang, Game G)
 ### Transformation Invariants
 - Mapping is lossless for all defined properties
 - Collections preserve order (List → IEnumerable → List)
-- Null collections become empty enumerables, not null
+- Null collections become vacant enumerables, not null
 - `Location.IsEmpty()` returns true when no names and no fallbacks
 
 ## Usage in Builders
@@ -558,7 +558,7 @@ Dictionary<string, GameId> locationGameIdsById;
 - Null handling in mappings
 
 ### Gaps
-- XML deserialization edge cases
+- XML deserialisation edge cases
 - Fallback chain resolution with real data
 - Localisation model construction verification
 

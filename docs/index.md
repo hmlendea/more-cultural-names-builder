@@ -6,10 +6,10 @@ This directory contains comprehensive technical documentation for the More Cultu
 
 | Document | Description |
 |----------|-------------|
-| [Architecture Overview](architecture-overview.md) | High-level architectural decomposition, runtime flows, and component relationships |
+| [Architecture Overview](architecture-overview.md) | High-level architectural decomposition, runtime sequences, and component relationships |
 | [Configuration System](configuration-system.md) | CLI argument parsing, validation, and settings management |
 | [Data Access Layer](data-access-layer.md) | XML repository integration, entity definitions, and data loading |
-| [Service Layer](service-layer.md) | Localisation fetching, name normalisation, and data transformation |
+| [Service Layer](service-layer.md) | Localisation retrieval, name normalisation, and data transformation |
 | [Mod Builders](mod-builders.md) | Game-specific mod generation for CK2, CK3, HOI4, and Imperator: Rome |
 | [Data Models](data-models.md) | Domain models, entity mappings, and data flow transformations |
 | [Name Normalisation](name-normalisation.md) | Linguistic transformation rules per game target |
@@ -25,7 +25,7 @@ This directory contains comprehensive technical documentation for the More Cultu
 - **Imperator: Rome** (IR) - Generates `.mod` descriptor, province name data files, and YAML localisation
 
 ### Key Entry Points
-- **Program.cs** - Application entry point, DI container setup, builder factory invocation
+- **Program.cs** - Application entry point, dependency injection container configuration, builder factory invocation
 - **Settings.cs** - CLI argument parsing and validation
 - **ModBuilderFactory.cs** - Runtime game-specific builder selection
 - **IModBuilder.Build()** - Main build pipeline entry point

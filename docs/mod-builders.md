@@ -160,7 +160,7 @@ public CK2ModBuilder(
 
 ### LoadData()
 
-Parallel fetches localisations for all location game IDs:
+Parallel retrieval of localisations for all location game IDs:
 
 ```csharp
 protected override void LoadData()
@@ -251,7 +251,7 @@ path = "mod/more-cultural-names"
 
 1. **Read** existing landed titles file (Windows-1252 encoding)
 2. **Clean** - Remove existing cultural names, standardise formatting
-3. **Inject** - Add cultural name blocks for each title with localisations
+3. **Inject** - Insert cultural name blocks for each title with localisations
 4. **Write** - Output as Windows-1252 encoded file
 
 #### CleanLandedTitlesFile() Operations
@@ -369,7 +369,7 @@ tags={
 
 **Location:** [CK3CulturalNameBlockMerger.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/CK3CulturalNameBlockMerger.cs)
 
-Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key. `Merge()` receives the landed-title prefixes from the calling builder, so recognition matches the builder's supported tiers. Block boundaries are found with a single-pass brace counter, and the content is returned unchanged when no title required merging. Only blocks that are direct children of the title are considered: scanning stops descending into any nested block, so a `cultural_names` block belonging to a nested county or barony is left in place instead of being hoisted into its parent title. Every title in the file is visited, so nested titles are merged against their own direct blocks.
+Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key. `Merge()` receives the landed-title prefixes from the calling builder, so recognition corresponds to the builder's supported tiers. Block boundaries are located with a single-pass brace counter, and the content is returned unchanged when no title required merging. Only blocks that are direct children of the title are considered: scanning stops descending into any nested block, so a `cultural_names` block belonging to a nested county or barony remains in place instead of being hoisted into its parent title. Every title in the file is visited, so nested titles are merged against their own direct blocks.
 
 ### Localisation Files
 
@@ -725,6 +725,7 @@ public IModBuilder GetModBuilder(Settings settings)
 - Factory selection logic
 - Builder instantiation
 - End-to-end builds against temporary directories, asserting descriptor, landed-titles, data file, and localisation content
+- Coverage of the per-game output structures and identifier handling
 - Error propagation for malformed identifiers and duplicate localisations
 - Bounded name-normalisation invocation counts (CK3)
 
@@ -734,12 +735,12 @@ public IModBuilder GetModBuilder(Settings settings)
 
 ## Extension Points
 
-To add a new game target:
+To include a new game target:
 1. Create new builder class inheriting from `ModBuilder`
 2. Implement `LoadData()` and `GenerateFiles()`
 3. Add case to `ModBuilderFactory.GetModBuilder()`
 4. Add game-specific normalisation to `NameNormaliser` if needed
-5. Add tests for new builder
+5. Include tests for the new builder
 
 ## Related Documentation
 - [Architecture Overview](architecture-overview.md) - Builder layer in context
