@@ -1,0 +1,39 @@
+e_test = {
+    cultural_names = {
+        name_list_french = cn_outer
+    }
+    d_test = {
+        cultural_names = {
+            name_list_french = cn_inner
+        }
+    }
+}
+h_test = {
+    cultural_names = {
+        name_list_french = cn_first
+    }
+    cultural_names = {
+        name_list_german = cn_second
+    }
+    k_test = {
+        b_test = {
+            name_list_french = cn_barony
+            cultural_names = {
+                name_list_romanian = cn_barony_romanian
+            }
+        }
+    }
+}
+c_cluj = {
+    cultural_names = {
+        name_list_french = old_name
+    }
+}
+allow = {
+c_floresti = {
+}
+c_oradea = {
+has_holder = yes
+}
+c_cornova = {
+}

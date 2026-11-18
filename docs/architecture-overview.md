@@ -240,6 +240,7 @@ Persist: Normalised names included in generated mod files
 | Data transformation services and mapping | [Service](../MoreCulturalNamesBuilder/Service/) |
 | Game-specific mod builders | [Mod Builders](../MoreCulturalNamesBuilder/Service/ModBuilders/) |
 | Unit test suite | `MoreCulturalNamesBuilder.UnitTests/` |
+| Integration test suite | `MoreCulturalNamesBuilder.IntegrationTests/` |
 | Dependency injection setup and entry point | `MoreCulturalNamesBuilder/Program.cs` |
 
 ## Related Documentation

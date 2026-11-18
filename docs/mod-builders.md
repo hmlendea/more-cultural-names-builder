@@ -719,7 +719,7 @@ public IModBuilder GetModBuilder(Settings settings)
 
 ## Testing Coverage
 
-**Location:** [Mod Builder Tests](../MoreCulturalNamesBuilder.UnitTests/Service/ModBuilders/)
+**Location:** [Mod Builder Tests](../MoreCulturalNamesBuilder.UnitTests/Service/ModBuilders/), [Mod Builder Integration Tests](../MoreCulturalNamesBuilder.IntegrationTests/)
 
 ### Current Coverage
 - Factory selection logic
@@ -728,10 +728,10 @@ public IModBuilder GetModBuilder(Settings settings)
 - Coverage of the per-game output structures and identifier handling
 - Error propagation for malformed identifiers and duplicate localisations
 - Bounded name-normalisation invocation counts (CK3)
+- Integration builds that run the complete pipeline against real XML data stores and landed titles files, asserting the exact content, encoding, and file inventory of every generated mod file
 
 ### Major Gaps
 - No game compatibility verification (generated mods are not loaded in the games)
-- No integration tests with real XML data
 
 ## Extension Points
 

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLocationEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <LocationEntity>
+    <Id>Cluj-Napoca</Id>
+    <GeoNamesId>681290</GeoNamesId>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="Romanian">c_cluj</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="Romanian">c_cluj</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="Romanian">42</GameId>
+      <GameId game="HOI4" type="City" defaultLanguage="Romanian">613</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="Romanian">42</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Florești</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="Romanian">c_floresti</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="Romanian">c_floresti</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="Romanian">4</GameId>
+      <GameId game="HOI4" type="City" defaultLanguage="Romanian">8</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="Romanian">4</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Çupișan</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="Romanian">c_cupisan</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="Romanian">c_cupisan</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="Romanian">48</GameId>
+      <GameId game="HOI4" type="City" defaultLanguage="Romanian">96</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="Romanian">16</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Newport</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="English">c_newport</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="English">c_newport</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="English">16</GameId>
+      <GameId game="HOI4" type="City" defaultLanguage="English">32</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="English">8</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Dezmir</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="Romanian">c_dezmir</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="Romanian">c_dezmir</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="Romanian">64</GameId>
+      <GameId game="HOI4" type="City" defaultLanguage="Romanian">128</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="Romanian">32</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Cornova</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="Romanian">c_cornova</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="Romanian">c_cornova</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="Romanian">256</GameId>
+      <GameId game="HOI4" type="City" defaultLanguage="Romanian">512</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="Romanian">48</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Oradea</Id>
+    <FallbackLocations>
+      <LocationId>Dezmir</LocationId>
+    </FallbackLocations>
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="Romanian">c_oradea</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="Romanian">c_oradea</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="Romanian">1024</GameId>
+      <GameId game="HOI4" type="City" defaultLanguage="Romanian">2048</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="Romanian">64</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+</ArrayOfLocationEntity>

@@ -18,6 +18,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         [
             "MoreCulturalNamesBuilder",
             "MoreCulturalNamesBuilder.ArchitectureTests",
+            "MoreCulturalNamesBuilder.IntegrationTests",
             "MoreCulturalNamesBuilder.UnitTests"
         ];
 

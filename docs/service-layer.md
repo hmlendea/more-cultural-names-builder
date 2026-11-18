@@ -346,15 +346,16 @@ languages = languageRepository
 - [NameNormaliserTests.cs](../MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserTests.cs)
 - [NameNormaliserEdgeCaseTests.cs](../MoreCulturalNamesBuilder.UnitTests/Service/NameNormaliserEdgeCaseTests.cs)
 - [Mapping Tests](../MoreCulturalNamesBuilder.UnitTests/Service/Mapping/)
+- [Integration Tests](../MoreCulturalNamesBuilder.IntegrationTests/)
 
 ### Coverage Areas
 - Localisation resolution with fallback chains
 - Name normalisation for each game charset
 - Edge cases (empty strings, null inputs, special characters)
 - Mapping round-trip correctness
+- End-to-end localisation resolution for every game against real XML data stores
 
 ### Gaps
-- No integration tests with real XML data files
 - No performance benchmarks for large datasets
 - No concurrent access stress tests
 

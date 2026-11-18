@@ -1,0 +1,402 @@
+namespace MoreCulturalNamesBuilder.IntegrationTests
+{
+    internal static class ExpectedModContent
+    {
+        internal static string Ck2DescriptorBody => Join(
+            "# for CK2 1.18.*",
+            "name = \"More Cultural Names\"",
+            "picture = \"thumbnail.png\"",
+            "tags = { map immersion }",
+            "path = \"mod/more-cultural-names\"");
+
+        internal static string Ck2LandedTitles => Join(
+            "c_cluj = {",
+            "    english = \"Newport\" # Language=English",
+            "    romanian = \"Cluj-Napoca\" # Language=Romanian # Praise the Sun!",
+            "}",
+            "c_floresti = {",
+            "    romanian = \"Floresti\" # Language=Romanian",
+            "}",
+            "allow = {",
+            "c_newport = {",
+            "    english = \"Newport\" # Language=English",
+            "    romanian = \"Newport\" # Language=English",
+            "}",
+            "c_dezmir = {",
+            "has_holder = yes",
+            "}",
+            "c_cupisan = {",
+            "    romanian = \"Çupisan\" # Language=Romanian",
+            "}",
+            "not_a_title = {",
+            "}");
+
+        internal static string Ck2LandedTitlesWithoutComments => Join(
+            "c_cluj = {",
+            "    english = \"Newport\"",
+            "    romanian = \"Cluj-Napoca\" # Praise the Sun!",
+            "}",
+            "c_floresti = {",
+            "    romanian = \"Floresti\"",
+            "}",
+            "allow = {",
+            "c_newport = {",
+            "    english = \"Newport\"",
+            "    romanian = \"Newport\"",
+            "}",
+            "c_dezmir = {",
+            "has_holder = yes",
+            "}",
+            "c_cupisan = {",
+            "    romanian = \"Çupisan\"",
+            "}",
+            "not_a_title = {",
+            "}");
+
+        internal static string Ck2PristineLandedTitles => Join(
+            "c_cluj = { romanian = \"Original\" }",
+            "c_floresti = {",
+            "}",
+            "allow = {",
+            "c_newport = {",
+            "}",
+            "c_dezmir = {",
+            "has_holder = yes",
+            "}",
+            "c_cupisan = {",
+            "}",
+            "not_a_title = {",
+            "}");
+
+        internal static string Ck2NamelessLandedTitles => Join(
+            "c_cluj = {",
+            "}",
+            "c_floresti = {",
+            "}",
+            "allow = {",
+            "c_newport = {",
+            "}",
+            "c_dezmir = {",
+            "has_holder = yes",
+            "}",
+            "c_cupisan = {",
+            "}",
+            "not_a_title = {",
+            "}");
+
+        internal static string Ck2Localisation => Join(
+            "c_cluj_adj_english;Newportian;Newportian;Newportian;;Newportian;;;;;;;;;x",
+            "c_cluj_adj_romanian;Clujean;Clujean;Clujean;;Clujean;;;;;;;;;x",
+            "c_cluj_adj;Clujean;Clujean;Clujean;;Clujean;;;;;;;;;x",
+            "c_cluj;Cluj-Napoca;Cluj-Napoca;Cluj-Napoca;;Cluj-Napoca;;;;;;;;;x",
+            "c_cornova_adj_english;Cornovan;Cornovan;Cornovan;;Cornovan;;;;;;;;;x",
+            "c_cornova_adj_romanian;Cornovan;Cornovan;Cornovan;;Cornovan;;;;;;;;;x",
+            "c_cupisan_adj_romanian;Çupisean;Çupisean;Çupisean;;Çupisean;;;;;;;;;x",
+            "c_cupisan_adj;Çupisean;Çupisean;Çupisean;;Çupisean;;;;;;;;;x",
+            "c_cupisan;Çupisan;Çupisan;Çupisan;;Çupisan;;;;;;;;;x",
+            "c_dezmir_adj_romanian;Dezmiran;Dezmiran;Dezmiran;;Dezmiran;;;;;;;;;x",
+            "c_dezmir_adj;Dezmiran;Dezmiran;Dezmiran;;Dezmiran;;;;;;;;;x",
+            "c_dezmir;Dezmir;Dezmir;Dezmir;;Dezmir;;;;;;;;;x",
+            "c_floresti_adj_romanian;Florestean;Florestean;Florestean;;Florestean;;;;;;;;;x",
+            "c_floresti_adj;Florestean;Florestean;Florestean;;Florestean;;;;;;;;;x",
+            "c_floresti;Floresti;Floresti;Floresti;;Floresti;;;;;;;;;x",
+            "c_newport_adj_english;Newportian;Newportian;Newportian;;Newportian;;;;;;;;;x",
+            "c_newport_adj_romanian;Newportian;Newportian;Newportian;;Newportian;;;;;;;;;x",
+            "c_newport_adj;Newportian;Newportian;Newportian;;Newportian;;;;;;;;;x",
+            "c_newport_adj;Newportian;Newportian;Newportian;;Newportian;;;;;;;;;x",
+            "c_newport;Newport;Newport;Newport;;Newport;;;;;;;;;x",
+            "c_newport;Newport;Newport;Newport;;Newport;;;;;;;;;x",
+            "c_oradea_adj_romanian;Dezmiran;Dezmiran;Dezmiran;;Dezmiran;;;;;;;;;x",
+            "c_oradea_adj;Dezmiran;Dezmiran;Dezmiran;;Dezmiran;;;;;;;;;x",
+            "c_oradea;Dezmir;Dezmir;Dezmir;;Dezmir;;;;;;;;;x");
+
+        internal static string Ck3MainDescriptorBody => Join(
+            "name=\"More Cultural Names\"",
+            "version=\"1.0.0\"",
+            "supported_version=\"1.18.*\"",
+            "tags={",
+            "    \"Culture\"",
+            "    \"Historical\"",
+            "    \"Map\"",
+            "    \"Translation\"",
+            "}",
+            "path=\"mod/more-cultural-names\"");
+
+        internal static string Ck3InnerDescriptorBody => Ck3DescriptorBody;
+
+        internal static string Ck3DescriptorBody => Join(
+            "name=\"More Cultural Names\"",
+            "version=\"1.0.0\"",
+            "supported_version=\"1.18.*\"",
+            "tags={",
+            "    \"Culture\"",
+            "    \"Historical\"",
+            "    \"Map\"",
+            "    \"Translation\"",
+            "}");
+
+        internal static string Ck3LandedTitles => Join(
+            "e_test = {",
+            "    cultural_names = {",
+            "        name_list_french = cn_outer",
+            "    }",
+            "    d_test = {",
+            "        cultural_names = {",
+            "            name_list_french = cn_inner",
+            "        }",
+            "    }",
+            "}",
+            "h_test = {",
+            "    cultural_names = {",
+            "        name_list_french = cn_first",
+            "        name_list_german = cn_second",
+            "    }",
+            "    k_test = {",
+            "        b_test = {",
+            "            name_list_french = cn_barony",
+            "            cultural_names = {",
+            "                name_list_romanian = cn_barony_romanian",
+            "            }",
+            "        }",
+            "    }",
+            "}",
+            "c_cluj = {",
+            "    cultural_names = {",
+            "        name_list_english = cn_Cluj-Napoca_english # Newport # Language=English",
+            "        name_list_romanian = cn_Cluj-Napoca_romanian # Cluj-Napoca # Language=Romanian # Praise the Sun!",
+            "        name_list_french = old_name",
+            "    }",
+            "}",
+            "allow = {",
+            "c_floresti = {",
+            "    cultural_names = {",
+            "        name_list_romanian = cn_Florești_romanian # Florești # Language=Romanian",
+            "    }",
+            "}",
+            "c_oradea = {",
+            "has_holder = yes",
+            "}",
+            "c_cornova = {",
+            "    cultural_names = {",
+            "        name_list_romanian = cn_Cornova_romanian # Cornova # Language=English",
+            "        name_list_english = cn_Cornova_english # Cornova # Language=English",
+            "    }",
+            "}",
+            "");
+
+        internal static string Ck3LandedTitlesWithoutComments => Join(
+            "e_test = {",
+            "    cultural_names = {",
+            "        name_list_french = cn_outer",
+            "    }",
+            "    d_test = {",
+            "        cultural_names = {",
+            "            name_list_french = cn_inner",
+            "        }",
+            "    }",
+            "}",
+            "h_test = {",
+            "    cultural_names = {",
+            "        name_list_french = cn_first",
+            "        name_list_german = cn_second",
+            "    }",
+            "    k_test = {",
+            "        b_test = {",
+            "            name_list_french = cn_barony",
+            "            cultural_names = {",
+            "                name_list_romanian = cn_barony_romanian",
+            "            }",
+            "        }",
+            "    }",
+            "}",
+            "c_cluj = {",
+            "    cultural_names = {",
+            "        name_list_english = cn_Cluj-Napoca_english # Newport",
+            "        name_list_romanian = cn_Cluj-Napoca_romanian # Cluj-Napoca # Praise the Sun!",
+            "        name_list_french = old_name",
+            "    }",
+            "}",
+            "allow = {",
+            "c_floresti = {",
+            "    cultural_names = {",
+            "        name_list_romanian = cn_Florești_romanian # Florești",
+            "    }",
+            "}",
+            "c_oradea = {",
+            "has_holder = yes",
+            "}",
+            "c_cornova = {",
+            "    cultural_names = {",
+            "        name_list_romanian = cn_Cornova_romanian # Cornova",
+            "        name_list_english = cn_Cornova_english # Cornova",
+            "    }",
+            "}",
+            "");
+
+        internal static string Ck3DefaultNamesLocalisation => Join(
+            "l_english:",
+            " c_cluj_adj:0 \"Clujean\" # Language=Romanian # Praise the Sun!",
+            " c_cluj:0 \"Cluj-Napoca\" # Language=Romanian # Praise the Sun!",
+            " c_cupisan_adj:0 \"Çupișean\" # Language=Romanian",
+            " c_cupisan:0 \"Çupișan\" # Language=Romanian",
+            " c_dezmir_adj:0 \"Dezmiran\" # Language=Romanian",
+            " c_dezmir:0 \"Dezmir\" # Language=Romanian",
+            " c_floresti_adj:0 \"Floreștean\" # Language=Romanian",
+            " c_floresti:0 \"Florești\" # Language=Romanian",
+            " c_newport_adj:0 \"Newportian\" # Language=English",
+            " c_newport:0 \"Newport\" # Language=English",
+            " c_oradea_adj:0 \"Dezmiran\" # Language=Romanian",
+            " c_oradea:0 \"Dezmir\" # Language=Romanian");
+
+        internal static string Ck3DefaultNamesLocalisationWithoutComments => Join(
+            "l_english:",
+            " c_cluj_adj:0 \"Clujean\" # Praise the Sun!",
+            " c_cluj:0 \"Cluj-Napoca\" # Praise the Sun!",
+            " c_cupisan_adj:0 \"Çupișean\"",
+            " c_cupisan:0 \"Çupișan\"",
+            " c_dezmir_adj:0 \"Dezmiran\"",
+            " c_dezmir:0 \"Dezmir\"",
+            " c_floresti_adj:0 \"Floreștean\"",
+            " c_floresti:0 \"Florești\"",
+            " c_newport_adj:0 \"Newportian\"",
+            " c_newport:0 \"Newport\"",
+            " c_oradea_adj:0 \"Dezmiran\"",
+            " c_oradea:0 \"Dezmir\"");
+
+        internal static string Ck3DynamicNamesLocalisation => Join(
+            "l_english:",
+            " cn_Cluj-Napoca_english_adj:0 \"Newportian\" # Language=English",
+            " cn_Cluj-Napoca_english:0 \"Newport\" # Language=English",
+            " cn_Cluj-Napoca_romanian_adj:0 \"Clujean\" # Language=Romanian # Praise the Sun!",
+            " cn_Cluj-Napoca_romanian:0 \"Cluj-Napoca\" # Language=Romanian # Praise the Sun!",
+            " cn_Cornova_english_adj:0 \"Cornovan\" # Language=English",
+            " cn_Cornova_english:0 \"Cornova\" # Language=English",
+            " cn_Cornova_romanian_adj:0 \"Cornovan\" # Language=English",
+            " cn_Cornova_romanian:0 \"Cornova\" # Language=English",
+            " cn_Çupișan_romanian_adj:0 \"Çupișean\" # Language=Romanian",
+            " cn_Çupișan_romanian:0 \"Çupișan\" # Language=Romanian",
+            " cn_Dezmir_romanian_adj:0 \"Dezmiran\" # Language=Romanian",
+            " cn_Dezmir_romanian:0 \"Dezmir\" # Language=Romanian",
+            " cn_Florești_romanian_adj:0 \"Floreștean\" # Language=Romanian",
+            " cn_Florești_romanian:0 \"Florești\" # Language=Romanian",
+            " cn_Newport_romanian_adj:0 \"Newportian\" # Language=English",
+            " cn_Newport_romanian:0 \"Newport\" # Language=English");
+
+        internal static string Ck3DynamicNamesLocalisationWithoutComments => Join(
+            "l_english:",
+            " cn_Cluj-Napoca_english_adj:0 \"Newportian\"",
+            " cn_Cluj-Napoca_english:0 \"Newport\"",
+            " cn_Cluj-Napoca_romanian_adj:0 \"Clujean\" # Praise the Sun!",
+            " cn_Cluj-Napoca_romanian:0 \"Cluj-Napoca\" # Praise the Sun!",
+            " cn_Cornova_english_adj:0 \"Cornovan\"",
+            " cn_Cornova_english:0 \"Cornova\"",
+            " cn_Cornova_romanian_adj:0 \"Cornovan\"",
+            " cn_Cornova_romanian:0 \"Cornova\"",
+            " cn_Çupișan_romanian_adj:0 \"Çupișean\"",
+            " cn_Çupișan_romanian:0 \"Çupișan\"",
+            " cn_Dezmir_romanian_adj:0 \"Dezmiran\"",
+            " cn_Dezmir_romanian:0 \"Dezmir\"",
+            " cn_Florești_romanian_adj:0 \"Floreștean\"",
+            " cn_Florești_romanian:0 \"Florești\"",
+            " cn_Newport_romanian_adj:0 \"Newportian\"",
+            " cn_Newport_romanian:0 \"Newport\"");
+
+        internal static string HoI4DescriptorBody => Join(
+            "name=\"More Cultural Names\"",
+            "version=\"1.0.0\"",
+            "supported_version=\"1.18.*\"",
+            "tags={",
+            "    \"Historical\"",
+            "}");
+
+        internal static string HoI4MainDescriptorBody => Join(
+            HoI4DescriptorBody,
+            "path=\"mod/more-cultural-names\"");
+
+        internal static string HoI4Localisation => Join(
+            "l_english:",
+            " english_STATE_16:0 \"Newport\"",
+            " english_STATE_256:0 \"Cornova\"",
+            " english_STATE_42:0 \"Newport\"",
+            " english_VICTORY_POINTS_32:0 \"Newport\"",
+            " english_VICTORY_POINTS_512:0 \"Cornova\"",
+            " english_VICTORY_POINTS_613:0 \"Newport\"",
+            " romanian_STATE_1024:0 \"Dezmir\"",
+            " romanian_STATE_16:0 \"Newport\"",
+            " romanian_STATE_256:0 \"Cornova\"",
+            " romanian_STATE_4:0 \"Floreşti\"",
+            " romanian_STATE_42:0 \"Cluj-Napoca\"",
+            " romanian_STATE_48:0 \"Çupişan\"",
+            " romanian_STATE_64:0 \"Dezmir\"",
+            " romanian_VICTORY_POINTS_128:0 \"Dezmir\"",
+            " romanian_VICTORY_POINTS_2048:0 \"Dezmir\"",
+            " romanian_VICTORY_POINTS_32:0 \"Newport\"",
+            " romanian_VICTORY_POINTS_512:0 \"Cornova\"",
+            " romanian_VICTORY_POINTS_613:0 \"Cluj-Napoca\"",
+            " romanian_VICTORY_POINTS_8:0 \"Floreşti\"",
+            " romanian_VICTORY_POINTS_96:0 \"Çupişan\"");
+
+        internal static string ImperatorRomeDescriptorBody => Join(
+            "name=\"More Cultural Names\"",
+            "version=\"1.0.0\"",
+            "supported_version=\"1.18.*\"",
+            "tags={",
+            "    \"Historical\"",
+            "}");
+
+        internal static string ImperatorRomeMainDescriptorBody => Join(
+            ImperatorRomeDescriptorBody,
+            "path=\"mod/more-cultural-names\"");
+
+        internal static string ImperatorRomeDuplicateProvinceNames => Join(
+            "romanian = {",
+            "    42 = PROV42_romanian # Cluj-Napoca # Language=Romanian",
+            "}");
+
+        internal static string ImperatorRomeDuplicateLocalisation => Join(
+            "l_english:",
+            " PROV42_romanian:0 \"Cluj-Napoca\" # Language=Romanian",
+            " PROV42:0 \"Cluj-Napoca\" # Language=Romanian");
+
+        internal static string ImperatorRomeRomanianProvinceNames => Join(
+            "romanian = {",
+            "    4 = PROV4_romanian # Floresti # Language=Romanian",
+            "    8 = PROV8_romanian # Newport # Language=English",
+            "    16 = PROV16_romanian # Çupisan # Language=Romanian",
+            "    32 = PROV32_romanian # Dezmir # Language=Romanian",
+            "    42 = PROV42_romanian # Cluj-Napoca # Language=Romanian # Praise the Sun!",
+            "    48 = PROV48_romanian # Cornova # Language=English",
+            "    64 = PROV64_romanian # Dezmir # Language=Romanian",
+            "}");
+
+        internal static string ImperatorRomeEnglishProvinceNames => Join(
+            "english = {",
+            "    8 = PROV8_english # Newport # Language=English",
+            "    42 = PROV42_english # Newport # Language=English",
+            "    48 = PROV48_english # Cornova # Language=English",
+            "}");
+
+        internal static string ImperatorRomeLocalisation => Join(
+            "l_english:",
+            " PROV16_romanian:0 \"Çupisan\" # Language=Romanian",
+            " PROV16:0 \"Çupisan\" # Language=Romanian",
+            " PROV32_romanian:0 \"Dezmir\" # Language=Romanian",
+            " PROV32:0 \"Dezmir\" # Language=Romanian",
+            " PROV4_romanian:0 \"Floresti\" # Language=Romanian",
+            " PROV4:0 \"Floresti\" # Language=Romanian",
+            " PROV42_english:0 \"Newport\" # Language=English",
+            " PROV42_romanian:0 \"Cluj-Napoca\" # Language=Romanian # Praise the Sun!",
+            " PROV42:0 \"Cluj-Napoca\" # Language=Romanian # Praise the Sun!",
+            " PROV48_english:0 \"Cornova\" # Language=English",
+            " PROV48_romanian:0 \"Cornova\" # Language=English",
+            " PROV64_romanian:0 \"Dezmir\" # Language=Romanian",
+            " PROV64:0 \"Dezmir\" # Language=Romanian",
+            " PROV8_english:0 \"Newport\" # Language=English",
+            " PROV8_romanian:0 \"Newport\" # Language=English",
+            " PROV8:0 \"Newport\" # Language=English");
+
+        internal static string EmptyLocalisationHeader(string language) => $"l_{language}:\n";
+
+        private static string Join(params string[] lines) => string.Join('\n', lines);
+    }
+}

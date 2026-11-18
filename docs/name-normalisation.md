@@ -165,8 +165,8 @@ string ToWindows1252(string text)
 - Each game charset method
 - Edge cases (strings devoid of content, null inputs, special characters)
 - Round-trip verification where applicable
+- Real normalisation output applied to the canonical fixture names by every game builder integration test
 
 ### Gaps
-- No integration tests with real localisation data
 - No performance benchmarks
 - No concurrent access stress tests
