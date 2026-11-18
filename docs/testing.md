@@ -4,7 +4,9 @@ This document describes the test coverage, gaps, and verification strategies for
 
 ## Test Project Structure
 
-**Location:** `MoreCulturalNamesBuilder.UnitTests/`
+The solution contains three test projects.
+
+**Unit tests:** `MoreCulturalNamesBuilder.UnitTests/`
 
 ```
 MoreCulturalNamesBuilder.UnitTests/
@@ -31,11 +33,64 @@ MoreCulturalNamesBuilder.UnitTests/
     └── TemporaryDirectory.cs
 ```
 
+**Integration tests:** `MoreCulturalNamesBuilder.IntegrationTests/`
+
+```
+MoreCulturalNamesBuilder.IntegrationTests/
+├── Ck2ModBuilderIntegrationTests.cs
+├── Ck3ModBuilderIntegrationTests.cs
+├── HoI4ModBuilderIntegrationTests.cs
+├── ImperatorRomeModBuilderIntegrationTests.cs
+├── ProgramIntegrationTests.cs
+├── ExpectedModContent.cs
+├── IntegrationTestSetup.cs
+├── ModBuildRequest.cs
+├── ModBuildRunner.cs
+├── TestArguments.cs
+├── TestPaths.cs
+├── TextContent.cs
+├── TemporaryDirectory.cs
+└── TestData/
+    ├── languages.xml
+    ├── locations.xml
+    ├── empty_languages.xml
+    ├── empty_locations.xml
+    ├── malformed_languages.xml
+    ├── duplicate_languages.xml
+    ├── duplicate_locations.xml
+    ├── nameless_locations.xml
+    ├── non_numeric_hoi4_locations.xml
+    ├── non_numeric_ir_locations.xml
+    ├── duplicate_hoi4_locations.xml
+    ├── duplicate_ir_locations.xml
+    ├── ck2_landed_titles.txt
+    └── ck3_landed_titles.txt
+```
+
+The integration tests invoke `Program.Main` directly with real XML data stores and real landed titles files, so the configuration layer, dependency injection container, repository deserialisation, localisation retrieval, name normalisation, and every game builder run as they do in production. The XML stores and landed titles inputs are read from the repository `TestData` directory, which is copied to the test output directory on build.
+
 ## Test Framework
 
 - **Framework:** NUnit 5
 - **Test Runner:** `dotnet test`
-- **Mocking:** Moq
+- **Mocking:** Moq (unit tests only)
+
+## Integration Tests
+
+The [integration test project](../MoreCulturalNamesBuilder.IntegrationTests/MoreCulturalNamesBuilder.IntegrationTests.csproj) is included in the solution and runs with `dotnet test`.
+
+- Every game builder is exercised end to end against temporary output directories, asserting the complete content of the descriptor, landed titles, province name, and localisation files with exact string equality.
+- The descriptor timestamp is the only non-deterministic element; assertions strip it before comparison.
+- Failure scenarios assert the exception type and message that production code raises, including `ArgumentNullException` for absent required arguments, `ArgumentException` for absent aliases and unknown arguments, `NotImplementedException` for unsupported games, `FileNotFoundException` for absent data stores, `InvalidOperationException` for malformed XML, `DuplicateEntityException` for duplicate entity identifiers, and `DirectoryNotFoundException` for an unusable output path.
+- Builder failure scenarios assert `AggregateException` wrapping the `FormatException` or `ArgumentException` raised by the parallel data-loading loops.
+- A determinism test builds the same inputs twice and compares every generated file byte for byte.
+- The integration tests are marked `[NonParallelizable]` because they share the static `Program.ServiceProvider`.
+
+Run the integration tests on their own with:
+
+```bash
+dotnet test MoreCulturalNamesBuilder.IntegrationTests/MoreCulturalNamesBuilder.IntegrationTests.csproj
+```
 
 ## Architecture Fitness Tests
 
@@ -55,10 +110,10 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | Test File | Coverage |
 |-----------|----------|
 | `SettingsTests.cs` | Required argument detection, alias normalisation |
+| `ProgramIntegrationTests.cs` | Required and alias arguments, unknown arguments, unsupported games, absent and malformed stores, duplicate entities, unusable output paths, output directory creation |
 
 **Gaps:**
 - Invalid argument combinations
-- File path validation (existence, readability)
 - Game version pattern validation
 - Verbose flag edge cases (`"True"`, `"1"`, et cetera.)
 
@@ -73,9 +128,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `LanguageCodeMappingTests.cs` | Entity ↔ Model round-trip |
 
 **Gaps:**
-- XML deserialisation edge cases
 - Missing/optional XML attributes
-- Malformed XML handling
 - Large file performance
 
 ### Service Layer
@@ -85,9 +138,9 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `LocalisationFetcherTests.cs` | Fallback chain resolution |
 | `NameNormaliserTests.cs` | Game charset transformations |
 | `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars |
+| Game builder integration tests | Real charset transformation applied to the canonical fixture names for every target game |
 
 **Gaps:**
-- No integration tests with real XML data files
 - No performance benchmarks for large datasets
 - No concurrent access stress tests
 - Cache invalidation scenarios (not applicable - immutable data)
@@ -101,9 +154,17 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `HOI4ModBuilderTests.cs` | State/city localisation, descriptors, empty-input handling, identifier and duplicate failures |
 | `ImperatorRomeModBuilderTests.cs` | Province name data, localisation, descriptors, empty-input handling, identifier and duplicate failures |
 
+**Integration coverage:**
+
+| Test File | Coverage |
+|-----------|----------|
+| `Ck2ModBuilderIntegrationTests.cs` | Full CK2 output content, Windows-1252 encoding, comment suppression, dependency declaration, empty and nameless data stores, absent landed titles inputs |
+| `Ck3ModBuilderIntegrationTests.cs` | Full CK3 output content, descriptor pair, block merging, prefix tiers, dynamic name keys, comment suppression, empty data stores, absent landed titles inputs |
+| `HoI4ModBuilderIntegrationTests.cs` | Full HOI4 output content, locale directories, header-only files, non-numeric and duplicate identifiers |
+| `ImperatorRomeModBuilderIntegrationTests.cs` | Full Imperator: Rome output content, province name data, header-only files, non-numeric and duplicate identifiers |
+
 **Major Gaps:**
 - No game compatibility verification (generated mods are not loaded in the target games)
-- No integration tests with real XML data
 - No performance benchmarks
 
 ## Test Infrastructure
@@ -181,33 +242,29 @@ dotnet test --logger "console;verbosity=detailed"
 ## Verification Strategy
 
 ### Current Approach
-- Unit tests for isolated components
-- Manual verification of generated mod files
-- No automated integration testing
+- Unit tests for isolated components with mocked collaborators
+- Integration tests that run the full pipeline for every game against real XML data stores and real landed titles inputs
+- Exact-equality assertions on every generated file, which detect unintended format changes
+- Manual verification of generated mod files in the target games
 
 ### Recommended Improvements
 
-1. **Integration Tests**
-   - Create minimal valid XML test data
-   - Run full build pipeline for each game
-   - Validate output file structure and content
-
-2. **Snapshot Testing**
-   - Capture the expected output for known inputs
+1. **Snapshot Testing**
+   - Store the expected output as external snapshot files rather than inline expectations
    - Compare generated files against snapshots
-   - Detect unintended format changes
+   - Detect unintended format changes with less review effort
 
-3. **Game Compatibility Tests**
+2. **Game Compatibility Tests**
    - Load generated mods in the target games (CI)
    - Verify that localisation displays correctly
    - Check for encoding issues
 
-4. **Performance Benchmarks**
+3. **Performance Benchmarks**
    - Measure build time for large data sets
    - Profile memory usage during localisation retrieval
    - Benchmark parallel versus sequential processing
 
-5. **Property-Based Testing**
+4. **Property-Based Testing**
    - Test normalisation idempotency
    - Test fallback chain termination
    - Test mapping round-trip properties
@@ -226,13 +283,17 @@ dotnet test
 ## Test Data Management
 
 ### Current
-- No test data files in the repository
-- Tests use inline or mock data
+- Integration test data files live in `MoreCulturalNamesBuilder.IntegrationTests/TestData/`
+- The canonical `languages.xml` and `locations.xml` stores hold two languages, seven locations, and identifiers for every supported game
+- Additional stores cover empty, malformed, duplicate, nameless, and non-numeric identifier scenarios
+- The CK2 and CK3 landed titles inputs exercise comment stripping, inline block expansion, nested titles, repeated cultural name blocks, and forbidden-token guards
+- The `TestData` directory is copied to the test output directory on build
+- Unit tests use inline or mocked data
 
-### Recommended
-- Add minimal valid `languages.xml` and `locations.xml` to `test-data/`
-- Version control test data alongside the tests
-- Document the test data configuration and update process
+### Update Process
+- Prefer `test-values` fixture values when adding a location, language, or name
+- Update `ExpectedModContent` whenever a fixture change alters generated output, and re-run the integration tests
+- Keep the stores valid against the XML serialisation attributes in `DataAccess/DataObjects`
 
 ## Related Documentation
 - [Architecture Overview](architecture-overview.md) - System context

@@ -1,0 +1,12 @@
+c_cluj={ romanian="Original" } # Original name
+c_floresti = {
+}
+allow = {
+c_newport = {
+}
+c_dezmir = {
+has_holder = yes
+}
+c_cupisan = { }
+not_a_title = {
+}

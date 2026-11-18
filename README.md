@@ -25,6 +25,7 @@ A CLI tool that generates game mods which localise place names into different la
   - [Build](#build)
   - [Run](#run)
   - [Test](#test)
+  - [Integration Tests](#integration-tests)
   - [Coverage](#coverage)
   - [Linting](#linting)
   - [Static Analysis](#static-analysis)
@@ -196,6 +197,16 @@ dotnet run --project MoreCulturalNamesBuilder -- \
 dotnet test
 ```
 
+### Integration Tests
+
+Integration tests are part of the solution and run with `dotnet test`. They invoke the entry point with the XML data stores and landed titles files under `MoreCulturalNamesBuilder.IntegrationTests/TestData`, which are copied to the test output directory on build.
+
+Run them on their own with:
+
+```bash
+dotnet test MoreCulturalNamesBuilder.IntegrationTests/MoreCulturalNamesBuilder.IntegrationTests.csproj
+```
+
 ### Coverage
 
 ```bash
@@ -268,7 +279,7 @@ Versions are taken exclusively from the GitHub release tag; the project file doe
 
 ## 🗂️ Project Structure
 
-The solution comprises three projects:
+The solution comprises four projects:
 
 ### Projects and Packages
 
@@ -276,6 +287,7 @@ The solution comprises three projects:
 |---------|------|---------|
 | `MoreCulturalNamesBuilder` | Console Application | Generates mod files for supported games |
 | `MoreCulturalNamesBuilder.UnitTests` | Test Suite | Validates configuration parsing, mappings, services, and builder output |
+| `MoreCulturalNamesBuilder.IntegrationTests` | Test Suite | Runs the complete pipeline against repository fixtures and asserts every generated file |
 | `MoreCulturalNamesBuilder.ArchitectureTests` | Test Suite | Enforces dependency direction, project conventions, and source conventions |
 
 ### Directories

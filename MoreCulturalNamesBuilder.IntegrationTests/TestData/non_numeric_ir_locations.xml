@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLocationEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <LocationEntity>
+    <Id>Cluj-Napoca</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="IR" type="Province" defaultLanguage="Romanian">Cluj-Napoca</GameId>
+    </GameIds>
+    <Names>
+      <Name language="Romanian" value="Cluj-Napoca" />
+    </Names>
+  </LocationEntity>
+</ArrayOfLocationEntity>

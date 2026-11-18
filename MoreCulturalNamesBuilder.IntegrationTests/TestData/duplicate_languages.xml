@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLanguage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Language>
+    <Id>Romanian</Id>
+    <Code iso-639-1="ro" iso-639-2="rum" iso-639-3="ron" />
+    <GameIds>
+      <GameId game="CK2">romanian</GameId>
+    </GameIds>
+    <FallbackLanguages />
+  </Language>
+  <Language>
+    <Id>Romanian</Id>
+    <Code iso-639-1="ro" iso-639-2="rum" iso-639-3="ron" />
+    <GameIds>
+      <GameId game="CK3">romanian</GameId>
+    </GameIds>
+    <FallbackLanguages />
+  </Language>
+</ArrayOfLanguage>

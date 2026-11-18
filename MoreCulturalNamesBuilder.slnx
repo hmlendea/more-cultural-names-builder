@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="MoreCulturalNamesBuilder/MoreCulturalNamesBuilder.csproj" />
   <Project Path="MoreCulturalNamesBuilder.ArchitectureTests/MoreCulturalNamesBuilder.ArchitectureTests.csproj" />
+  <Project Path="MoreCulturalNamesBuilder.IntegrationTests/MoreCulturalNamesBuilder.IntegrationTests.csproj" />
   <Project Path="MoreCulturalNamesBuilder.UnitTests/MoreCulturalNamesBuilder.UnitTests.csproj" />
 </Solution>

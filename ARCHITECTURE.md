@@ -346,12 +346,13 @@ More Cultural Names Builder is a stateless, single-invocation console applicatio
 
 ## ✅ Testing and Verification
 
-The project includes two test suites that verify:
+The project includes three test suites that verify:
 
 - **Configuration parsing:** `SettingsTests` validate argument parsing, required field detection, and alias argument normalisation.
 - **Name normalisation:** `NameNormaliserTests` verify linguistic transformation rules (special character handling, diacritics).
 - **Mappings and services:** mapping tests and `LocalisationFetcherTests` cover entity-to-model conversion and fallback resolution.
 - **Builder output:** every game builder is exercised end to end against temporary directories, asserting descriptor, localisation, landed titles, and data-file content.
+- **End-to-end pipeline:** `MoreCulturalNamesBuilder.IntegrationTests` invokes the entry point with real XML data stores and landed titles files, asserting the exact content, encoding, and file inventory of every generated mod file, plus every configuration and data-loading failure mode.
 - **Structural conventions:** `MoreCulturalNamesBuilder.ArchitectureTests` enforces dependency direction, project conventions, and source conventions, including the rule that builders must not depend on the configuration layer.
 
 Execute the principal automated verification with:
@@ -361,14 +362,15 @@ dotnet test
 ```
 
 **Test Boundaries:**
-- Unit tests cover the configuration and service layers, and build every game builder end to end against temporary directories; game compatibility (loading the generated mods in the games) is not verified.
+- Unit tests cover the configuration and service layers, and build every game builder end to end against temporary directories.
+- Integration tests run the complete pipeline against repository fixtures but do not load the generated mods in the games.
 - Data access layer is not mocked; tests use real XML deserialisation.
 - The architecture test suite requires a repository checkout and fails when expected sources or selectors are absent.
 
 **Material Coverage Gaps:**
 - No game compatibility validation: generated mod file syntax is asserted only against the builder's own expectations, never against the games.
-- No integration tests against the real language and location data sets.
 - No performance benchmarks or regression guards on build duration.
+- No verification against the production language and location data sets, which are maintained outside this repository.
 
 ## ⚠️ Design Constraints
 
@@ -415,6 +417,7 @@ Extension points inherit the existing conventions: services remain stateless, da
 | Data transformation services and mapping | [Service](MoreCulturalNamesBuilder/Service/) |
 | Game-specific mod builders | [Mod Builders](MoreCulturalNamesBuilder/Service/ModBuilders/) |
 | Unit test suite | `MoreCulturalNamesBuilder.UnitTests/` |
+| Integration test suite | `MoreCulturalNamesBuilder.IntegrationTests/` |
 | Dependency injection setup and entry point | `MoreCulturalNamesBuilder/Program.cs` |
 
 ## 📚 Related Documentation
