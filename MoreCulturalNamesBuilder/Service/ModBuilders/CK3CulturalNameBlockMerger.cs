@@ -7,24 +7,22 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 {
     internal static partial class CK3CulturalNameBlockMerger
     {
-        [GeneratedRegex("^\\s*[ekdcb]_.*=\\s*\\{.*$")]
-        private static partial Regex TitleRegex { get; }
-
         [GeneratedRegex("^\\s*cultural_names\\s*=\\s*\\{.*$")]
         private static partial Regex CulturalNamesRegex { get; }
 
         [GeneratedRegex("^\\s*(name_list_\\S+)\\s*=.*$")]
         private static partial Regex NameListRegex { get; }
 
-        internal static string Merge(string content)
+        internal static string Merge(string content, string landedTitleIdPrefixes)
         {
+            Regex titleRegex = new("^\\s*[" + landedTitleIdPrefixes + "]_.*=\\s*\\{.*$");
             List<string> lines = [.. content.Split('\n')];
             Dictionary<int, List<string>> replacementBlocks = [];
             HashSet<int> omittedLines = [];
 
             for (int lineIndex = 0; lineIndex < lines.Count; lineIndex += 1)
             {
-                if (!TitleRegex.IsMatch(lines[lineIndex]))
+                if (!titleRegex.IsMatch(lines[lineIndex]))
                 {
                     continue;
                 }

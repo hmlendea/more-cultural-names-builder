@@ -30,6 +30,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
         protected override string LocalisationDirectoryName => "localization";
 
+        protected override string LandedTitleIdPrefixes => "hekdcb";
+
         protected override IEnumerable<string> ForbiddenTokensForPreviousLine => ["allow", "limit", "trigger"];
 
         protected override IEnumerable<string> ForbiddenTokensForNextLine => ["has_holder"];
@@ -57,7 +59,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             => File.ReadAllText(Settings.Input.LandedTitlesFilePath!);
 
         protected override void WriteLandedTitlesFile(string filePath, string content)
-            => File.WriteAllText(filePath, CK3CulturalNameBlockMerger.Merge(content));
+            => File.WriteAllText(filePath, CK3CulturalNameBlockMerger.Merge(content, LandedTitleIdPrefixes));
 
         protected override string CleanLandedTitlesFile(string content) => content;
 

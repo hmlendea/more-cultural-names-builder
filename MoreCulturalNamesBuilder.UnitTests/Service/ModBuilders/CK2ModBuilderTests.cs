@@ -185,6 +185,48 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             });
         }
 
+        [TestCase("e_test")]
+        [TestCase("k_test")]
+        [TestCase("d_test")]
+        [TestCase("c_test")]
+        [TestCase("b_test")]
+        [TestCase("h_test")]
+        public void GivenLandedTitlePrefixes_WhenBuilding_ThenOnlyCK2TiersAreInjected(string titleId)
+        {
+            ConfigureRepositories(
+                [BuildLanguage("Romanian", "romanian")],
+                [BuildLocation("Cluj-Napoca", titleId, "Romanian")]);
+            ConfigureLocalisations(new Dictionary<string, IEnumerable<Localisation>>
+            {
+                [titleId] =
+                [BuildLocalisation(titleId, "Romanian", "romanian", "Cluj-Napoca", null, null)]
+            });
+            Settings settings = BuildSettings(false, null);
+            modBuilder = CreateModBuilder(settings);
+            File.WriteAllText(landedTitlesFilePath, $"{titleId} = {{\n}}\n");
+
+            modBuilder.Build();
+
+            string landedTitles = File.ReadAllText(
+                Path.Combine(
+                    temporaryDirectory.DirectoryPath,
+                    Game,
+                    ModId,
+                    "common",
+                    "landed_titles",
+                    "00_landed_titles.txt"),
+                Encoding.GetEncoding("windows-1252"));
+            bool isCk2Tier = titleId.StartsWith('e') || titleId.StartsWith('k') ||
+                titleId.StartsWith('d') || titleId.StartsWith('c') || titleId.StartsWith('b');
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    landedTitles.Contains("romanian = \"Cluj-Napoca\""),
+                    Is.EqualTo(isCk2Tier));
+            });
+        }
+
         private void ConfigureRepositories(
             IEnumerable<LanguageDataObject> languages,
             IEnumerable<LocationDataObject> locations)

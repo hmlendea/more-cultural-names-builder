@@ -46,10 +46,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         [GeneratedRegex("(^\\s*)([^\\s]*\\s*=\\s*\\{)\\s*\\}", RegexOptions.Multiline)]
         private static partial Regex EmptyBlockRegex { get; }
 
-        [GeneratedRegex("^\\s*([ekdcb]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$")]
-        private static partial Regex TitleIdRegex { get; }
-
         protected virtual string LocalisationDirectoryName => "localisation";
+
+        protected virtual string LandedTitleIdPrefixes => "ekdcb";
 
         protected virtual IEnumerable<string> ForbiddenTokensForPreviousLine
             => ["allow", "dejure_liege_title", "gain_effect", "limit", "trigger"];
@@ -186,7 +185,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
         protected virtual string DoCleanLandedTitlesFile(string content)
             => Regex.Replace( // Break inline cultural name into multiple lines
                 content,
-                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + string.Join('|', languageGameIds.Select(gameId => gameId.Id)) + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
+                "^(\\s*)([" + LandedTitleIdPrefixes + "]_[^\\s]*)\\s*=\\s*\\{\\s*((" + string.Join('|', languageGameIds.Select(gameId => gameId.Id)) + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
                 "$1$2 = {\n$1\t$3\n$1}",
                 RegexOptions.Multiline);
 
@@ -236,6 +235,9 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             Regex forbiddenTokensForNextLineRegEx = new(
                 "^.*" + string.Join('|', ForbiddenTokensForNextLine) + ".*$",
                 RegexOptions.Compiled);
+            Regex titleIdRegEx = new(
+                "^\\s*([" + LandedTitleIdPrefixes + "]_[^ =]*)[^=]\\s*=\\s*\\{[^\\{\\}]*$",
+                RegexOptions.Compiled);
             string previousLine = string.Empty;
 
             for (int lineIndex = 0; lineIndex < landedTitlesFileLines.Length; lineIndex += 1)
@@ -256,7 +258,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     continue;
                 }
 
-                Match titleIdMatch = TitleIdRegex.Match(line);
+                Match titleIdMatch = titleIdRegEx.Match(line);
 
                 if (!titleIdMatch.Success)
                 {
@@ -296,7 +298,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
             newContent = Regex.Replace( // Break inline cultural name into multiple lines
                 newContent,
-                "^(\\s*)([ekdcb]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
+                "^(\\s*)([" + LandedTitleIdPrefixes + "]_[^\\s]*)\\s*=\\s*\\{\\s*((" + culturesPattern + ")\\s*=\\s*\"*[^\"]*\")\\s*\\}",
                 "$1$2 = {\n$1\t$3\n$1}",
                 RegexOptions.Multiline);
 
