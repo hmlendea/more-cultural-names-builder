@@ -466,6 +466,114 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             });
         }
 
+        [TestCase("h_test")]
+        [TestCase("e_test")]
+        [TestCase("k_test")]
+        [TestCase("d_test")]
+        [TestCase("c_test")]
+        [TestCase("b_test")]
+        public void GivenLandedTitlePrefixes_WhenBuilding_ThenCulturalNamesAreInjected(string titleId)
+        {
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LocationDataObject cluj = ModBuilderTestDataFactory.CreateLocation(
+                Game,
+                "Cluj-Napoca",
+                titleId,
+                "county",
+                "Romanian");
+            ConfigureRepositories([romanian], [cluj]);
+            ConfigureLocalisations(new Dictionary<string, IEnumerable<Localisation>>
+            {
+                [titleId] =
+                [
+                    ModBuilderTestDataFactory.CreateLocalisation(
+                        "Cluj-Napoca",
+                        titleId,
+                        "Romanian",
+                        "romanian",
+                        "Cluj-Napoca",
+                        null,
+                        null)
+                ]
+            });
+            File.WriteAllText(landedTitlesFilePath, $"{titleId} = {{\n}}\n");
+            modBuilder = CreateModBuilder(BuildSettings(false));
+
+            modBuilder.Build();
+
+            string landedTitles = File.ReadAllText(Path.Combine(
+                temporaryDirectory.DirectoryPath,
+                Game,
+                ModId,
+                "common",
+                "landed_titles",
+                "00_landed_titles.txt"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(landedTitles, Does.Contain("cultural_names = {"));
+                Assert.That(
+                    landedTitles,
+                    Does.Contain("name_list_romanian = cn_Cluj-Napoca_romanian # Cluj-Napoca"));
+            });
+        }
+
+        [TestCase("h_test")]
+        [TestCase("e_test")]
+        public void GivenTitlesWithRepeatedCulturalNameBlocks_WhenBuilding_ThenBlocksAreMergedForEveryTier(string titleId)
+        {
+            LanguageDataObject romanian = ModBuilderTestDataFactory.CreateLanguage(Game, "Romanian", "romanian");
+            LocationDataObject dezmir = ModBuilderTestDataFactory.CreateLocation(
+                Game,
+                "Dezmir",
+                "c_dezmir",
+                "county",
+                "Romanian");
+            ConfigureRepositories([romanian], [dezmir]);
+            ConfigureLocalisations(new Dictionary<string, IEnumerable<Localisation>>
+            {
+                ["c_dezmir"] =
+                [
+                    ModBuilderTestDataFactory.CreateLocalisation(
+                        "Dezmir",
+                        "c_dezmir",
+                        "Romanian",
+                        "romanian",
+                        "Dezmir",
+                        null,
+                        null)
+                ]
+            });
+            File.WriteAllText(
+                landedTitlesFilePath,
+                $"{titleId} = {{\n" +
+                "    cultural_names = {\n" +
+                "        name_list_english = cn_first\n" +
+                "    }\n" +
+                "    cultural_names = {\n" +
+                "        name_list_romanian = cn_second\n" +
+                "    }\n" +
+                "}\n");
+            modBuilder = CreateModBuilder(BuildSettings(false));
+
+            modBuilder.Build();
+
+            string landedTitles = File.ReadAllText(Path.Combine(
+                temporaryDirectory.DirectoryPath,
+                Game,
+                ModId,
+                "common",
+                "landed_titles",
+                "00_landed_titles.txt"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(landedTitles.Split("cultural_names = {").Length, Is.EqualTo(2));
+                Assert.That(landedTitles, Does.Contain("name_list_english = cn_first"));
+                Assert.That(landedTitles, Does.Contain("name_list_romanian = cn_second"));
+            });
+        }
+
         private void ConfigureRepositories(
             IEnumerable<LanguageDataObject> languages,
             IEnumerable<LocationDataObject> locations)

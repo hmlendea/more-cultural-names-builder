@@ -195,6 +195,10 @@ protected virtual void InitializeOrderedLocalisations()
 
 `InitializeOrderedLocalisations()` is overridable so builders that never read the CK2 lookup table can skip building it. `CK3ModBuilder` overrides it with an empty dictionary, avoiding a full ordered copy of every localisation.
 
+### Landed Title Identification
+
+`LandedTitleIdPrefixes` supplies the character class used to recognise a landed-title line. `CK2ModBuilder` defaults to `"ekdcb"` (empire, kingdom, duchy, county, barony), while `CK3ModBuilder` overrides it with `"hekdcb"` to include the CK3 hegemony tier (`h_`). The property feeds three patterns: the title-id regular expression in `BuildLandedTitlesFile()`, and both cultural-name patterns in `DoCleanLandedTitlesFile()` and `CleanLandedTitlesFile()`. `CK3ModBuilder` forwards the same value to `CK3CulturalNameBlockMerger.Merge()` so block merging recognises every supported tier.
+
 ### GenerateFiles()
 
 ```csharp
@@ -318,6 +322,7 @@ string ToWindows1252(string text)
 | Property/Method | CK2 Value | CK3 Override |
 |-----------------|-----------|--------------|
 | `LocalisationDirectoryName` | `"localisation"` | `"localization"` (US spelling) |
+| `LandedTitleIdPrefixes` | `"ekdcb"` (empire, kingdom, duchy, county, barony) | `"hekdcb"` (adds hegemony) |
 | `ForbiddenTokensForPreviousLine` | `["allow", "dejure_liege_title", "gain_effect", "limit", "trigger"]` | `["allow", "limit", "trigger"]` |
 | `ForbiddenTokensForNextLine` | `["any_direct_de_jure_vassal_title", "has_holder", "is_titular", "owner", "show_scope_change"]` | `["has_holder"]` |
 | `GenerateMainDescriptorContent()` | Includes `path` | Includes `path="mod/{id}"` |
@@ -364,7 +369,7 @@ tags={
 
 **Location:** [CK3CulturalNameBlockMerger.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/CK3CulturalNameBlockMerger.cs)
 
-Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key. Block boundaries are found with a single-pass brace counter, and the content is returned unchanged when no title required merging. Only blocks that are direct children of the title are considered: scanning stops descending into any nested block, so a `cultural_names` block belonging to a nested county or barony is left in place instead of being hoisted into its parent title. Every title in the file is visited, so nested titles are merged against their own direct blocks.
+Merges multiple `cultural_names` blocks for the same title into a single block, deduplicating `name_list_` entries by key. `Merge()` receives the landed-title prefixes from the calling builder, so recognition matches the builder's supported tiers. Block boundaries are found with a single-pass brace counter, and the content is returned unchanged when no title required merging. Only blocks that are direct children of the title are considered: scanning stops descending into any nested block, so a `cultural_names` block belonging to a nested county or barony is left in place instead of being hoisted into its parent title. Every title in the file is visited, so nested titles are merged against their own direct blocks.
 
 ### Localisation Files
 
