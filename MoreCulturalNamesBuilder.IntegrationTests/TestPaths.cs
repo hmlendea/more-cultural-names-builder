@@ -8,6 +8,8 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
     {
         internal static string TestDataDirectory => Path.Combine(AppContext.BaseDirectory, "TestData");
 
+        internal static string ExpectedDirectory => Path.Combine(AppContext.BaseDirectory, "Expected");
+
         internal static string LanguagesFilePath => Path.Combine(TestDataDirectory, "languages.xml");
 
         internal static string LocationsFilePath => Path.Combine(TestDataDirectory, "locations.xml");
@@ -18,6 +20,9 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
 
         internal static string MalformedLanguagesFilePath =>
             Path.Combine(TestDataDirectory, "malformed_languages.xml");
+
+        internal static string MalformedLocationsFilePath =>
+            Path.Combine(TestDataDirectory, "malformed_locations.xml");
 
         internal static string DuplicateLanguagesFilePath =>
             Path.Combine(TestDataDirectory, "duplicate_languages.xml");
@@ -45,6 +50,57 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
 
         internal static string Ck3LandedTitlesFilePath =>
             Path.Combine(TestDataDirectory, "ck3_landed_titles.txt");
+
+        internal static string RichLanguagesFilePath =>
+            Path.Combine(TestDataDirectory, "rich_languages.xml");
+
+        internal static string RichLocationsFilePath =>
+            Path.Combine(TestDataDirectory, "rich_locations.xml");
+
+        internal static string RichCk2LandedTitlesFilePath =>
+            Path.Combine(TestDataDirectory, "rich_ck2_landed_titles.txt");
+
+        internal static string RichCk3LandedTitlesFilePath =>
+            Path.Combine(TestDataDirectory, "rich_ck3_landed_titles.txt");
+
+        internal static string FallbackLanguagesFilePath =>
+            Path.Combine(TestDataDirectory, "fallback_languages.xml");
+
+        internal static string FallbackLocationsFilePath =>
+            Path.Combine(TestDataDirectory, "fallback_locations.xml");
+
+        internal static string FallbackCk2LandedTitlesFilePath =>
+            Path.Combine(TestDataDirectory, "fallback_ck2_landed_titles.txt");
+
+        internal static string FallbackCk3LandedTitlesFilePath =>
+            Path.Combine(TestDataDirectory, "fallback_ck3_landed_titles.txt");
+
+        internal static string DanglingFallbackLanguagesFilePath =>
+            Path.Combine(TestDataDirectory, "dangling_fallback_languages.xml");
+
+        internal static string DanglingFallbackLocationsFilePath =>
+            Path.Combine(TestDataDirectory, "dangling_fallback_locations.xml");
+
+        internal static string DanglingFallbackCk2LandedTitlesFilePath =>
+            Path.Combine(TestDataDirectory, "dangling_fallback_ck2_landed_titles.txt");
+
+        internal static string UnknownLanguageLanguagesFilePath =>
+            Path.Combine(TestDataDirectory, "unknown_language_languages.xml");
+
+        internal static string UnknownLanguageLocationsFilePath =>
+            Path.Combine(TestDataDirectory, "unknown_language_locations.xml");
+
+        internal static string UnknownLanguageCk2LandedTitlesFilePath =>
+            Path.Combine(TestDataDirectory, "unknown_language_ck2_landed_titles.txt");
+
+        internal static string BlankNameLocationsFilePath =>
+            Path.Combine(TestDataDirectory, "blank_name_locations.xml");
+
+        internal static string BlankNameCk2LandedTitlesFilePath =>
+            Path.Combine(TestDataDirectory, "blank_name_ck2_landed_titles.txt");
+
+        internal static string DuplicateHoI4StatesFilePath =>
+            Path.Combine(TestDataDirectory, "duplicate_hoi4_states.xml");
 
         internal static string MissingStoreFilePath => Path.Combine(TestDataDirectory, "missing_store.xml");
 

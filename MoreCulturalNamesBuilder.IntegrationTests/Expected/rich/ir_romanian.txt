@@ -1,0 +1,14 @@
+romanian = {
+    4 = PROV4_romanian # Floresti # Language=Romanian
+    8 = PROV8_romanian # Newport # Language=English
+    16 = PROV16_romanian # Çupisan # Language=Romanian
+    32 = PROV32_romanian # Dezmir # Language=Romanian
+    42 = PROV42_romanian # Cluj-Napoca # Language=Romanian # Praise the Sun!
+    48 = PROV48_romanian # Cornova # Language=English
+    64 = PROV64_romanian # Dezmir # Language=Romanian
+    128 = PROV128_romanian # Solara # Language=English
+    256 = PROV256_romanian # Frigonita # Language=Romanian
+    512 = PROV512_romanian # Nordavia # Language=Romanian # Glory to Nucilandia!
+    1024 = PROV1024_romanian # Horidava # Language=Romanian
+    2048 = PROV2048_romanian # Cratesia # Language=Romanian # All roads lead to Rome
+}

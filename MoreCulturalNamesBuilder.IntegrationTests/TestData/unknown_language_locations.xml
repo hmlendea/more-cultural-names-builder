@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLocationEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <LocationEntity>
+    <Id>Unknown</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="Alienish">c_unknown</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="Alienish">1</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="Alienish">1</GameId>
+    </GameIds>
+    <Names>
+      <Name language="Alienish" value="Unknown" adjective="Unknownish" />
+    </Names>
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Known</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="English">c_known</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="English">2</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="English">2</GameId>
+    </GameIds>
+    <Names>
+      <Name language="English" value="Known" adjective="Knownish" />
+      <Name language="Alienish" value="AlienKnown" />
+    </Names>
+  </LocationEntity>
+</ArrayOfLocationEntity>

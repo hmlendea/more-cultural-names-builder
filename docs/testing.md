@@ -55,6 +55,8 @@ MoreCulturalNamesBuilder.IntegrationTests/
 ├── HoI4ModBuilderIntegrationTests.cs
 ├── ImperatorRomeModBuilderIntegrationTests.cs
 ├── Victoria3ModBuilderIntegrationTests.cs
+├── RichDataIntegrationTests.cs
+├── ResilienceIntegrationTests.cs
 ├── ProgramIntegrationTests.cs
 ├── ExpectedModContent.cs
 ├── IntegrationTestSetup.cs
@@ -64,24 +66,48 @@ MoreCulturalNamesBuilder.IntegrationTests/
 ├── TestPaths.cs
 ├── TextContent.cs
 ├── TemporaryDirectory.cs
+├── Expected/
+│   ├── edge/
+│   ├── fallback/
+│   └── rich/
 └── TestData/
     ├── languages.xml
     ├── locations.xml
+    ├── rich_languages.xml
+    ├── rich_locations.xml
+    ├── fallback_languages.xml
+    ├── fallback_locations.xml
+    ├── dangling_fallback_languages.xml
+    ├── dangling_fallback_locations.xml
+    ├── unknown_language_languages.xml
+    ├── unknown_language_locations.xml
+    ├── blank_name_locations.xml
     ├── empty_languages.xml
     ├── empty_locations.xml
     ├── malformed_languages.xml
+    ├── malformed_locations.xml
     ├── duplicate_languages.xml
     ├── duplicate_locations.xml
     ├── nameless_locations.xml
     ├── non_numeric_hoi4_locations.xml
     ├── non_numeric_ir_locations.xml
     ├── duplicate_hoi4_locations.xml
+    ├── duplicate_hoi4_states.xml
     ├── duplicate_ir_locations.xml
     ├── ck2_landed_titles.txt
-    └── ck3_landed_titles.txt
+    ├── ck3_landed_titles.txt
+    ├── rich_ck2_landed_titles.txt
+    ├── rich_ck3_landed_titles.txt
+    ├── fallback_ck2_landed_titles.txt
+    ├── fallback_ck3_landed_titles.txt
+    ├── dangling_fallback_ck2_landed_titles.txt
+    ├── unknown_language_ck2_landed_titles.txt
+    └── blank_name_ck2_landed_titles.txt
 ```
 
 The integration tests invoke `Program.Main` directly with real XML data stores and real landed titles files, so the configuration layer, dependency injection container, repository deserialisation, localisation retrieval, name normalisation, and every game builder run as they do in production. The XML stores and landed titles inputs are read from the repository `TestData` directory, which is copied to the test output directory on build.
+
+The `Expected` directory holds golden files that capture the complete output of the rich and fallback fixtures for every builder. The golden files are copied to the test output directory alongside the fixtures and are compared with exact string equality, so any behavioural drift in a builder fails the suite. The golden files preserve the original game encoding: CK2 golden files are Windows-1252, and every other golden file is UTF-8.
 
 ## Test Framework
 
@@ -98,6 +124,8 @@ The [integration test project](../MoreCulturalNamesBuilder.IntegrationTests/More
 - Failure scenarios assert the exception type and message that production code raises, including `ArgumentNullException` for absent required arguments, `ArgumentException` for absent aliases and unknown arguments, `NotImplementedException` for unsupported games, `FileNotFoundException` for absent data stores, `InvalidOperationException` for malformed XML, `DuplicateEntityException` for duplicate entity identifiers, and `DirectoryNotFoundException` for an unusable output path.
 - Builder failure scenarios assert `AggregateException` wrapping the `FormatException` or `ArgumentException` raised by the parallel data-loading loops.
 - A determinism test builds the same inputs twice and compares every generated file byte for byte.
+- `RichDataIntegrationTests` builds every game from a seven-language, sixteen-location fixture and asserts the complete descriptor, landed titles, province name, and localisation output against golden files, covering multi-language fallbacks, accented and non-Latin names, missing adjectives, fallback chains, and both verbose-comment modes. It also covers the output, version, and dependency aliases, custom mod identifiers, game-version rendering, and game-identifier normalisation.
+- `ResilienceIntegrationTests` covers duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, and the interaction of each failure with every builder.
 - The integration tests are marked `[NonParallelizable]` because they share the static `Program.ServiceProvider`.
 
 Run the integration tests on their own with:
@@ -190,6 +218,8 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `HoI4ModBuilderIntegrationTests.cs` | Full HOI4 output content, locale directories, header-only files, non-numeric and duplicate identifiers |
 | `ImperatorRomeModBuilderIntegrationTests.cs` | Full Imperator: Rome output content, province name data, header-only files, non-numeric and duplicate identifiers |
 | `Victoria3ModBuilderIntegrationTests.cs` | Full Victoria 3 output content, metadata, dynamic state and hub name effects, on action hooks, comment suppression, empty and nameless data stores, dependency handling, custom mod identifiers |
+| `RichDataIntegrationTests.cs` | Golden-file reproduction for every builder from a seven-language, sixteen-location fixture, in both comment modes; output, version, and dependency aliases; custom mod identifiers; game-version rendering; game-identifier normalisation; rich-input determinism |
+| `ResilienceIntegrationTests.cs` | Duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, missing stores, and duplicate entities across every builder |
 
 **Major Gaps:**
 - No game compatibility verification (generated mods are not loaded in the target games)

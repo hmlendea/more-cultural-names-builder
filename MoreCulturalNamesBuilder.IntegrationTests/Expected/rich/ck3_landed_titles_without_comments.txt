@@ -1,0 +1,112 @@
+e_test = {
+    cultural_names = {
+        name_list_french = cn_outer
+    }
+    d_test = {
+        cultural_names = {
+            name_list_french = cn_inner
+        }
+    }
+}
+h_test = {
+    cultural_names = {
+        name_list_french = cn_first
+        name_list_german = cn_second
+    }
+    k_test = {
+        b_test = {
+            name_list_french = cn_barony
+            cultural_names = {
+                name_list_romanian = cn_barony_romanian
+            }
+        }
+    }
+}
+c_cluj = {
+    cultural_names = {
+        name_list_latin = cn_Cluj-Napoca_latin # Newport
+        name_list_german = cn_Cluj-Napoca_german # Newport
+        name_list_english = cn_Cluj-Napoca_english # Newport
+        name_list_greek = cn_Cluj-Napoca_greek # Newport
+        name_list_french = cn_Cluj-Napoca_french # Cluj # C'est la vie
+        name_list_romanian = cn_Cluj-Napoca_romanian # Cluj-Napoca # Praise the Sun!
+    }
+}
+allow = {
+c_floresti = {
+    cultural_names = {
+        name_list_romanian = cn_Florești_romanian # Florești
+    }
+}
+c_oradea = {
+has_holder = yes
+}
+c_cornova = {
+    cultural_names = {
+        name_list_latin = cn_Cornova_latin # Cornova
+        name_list_romanian = cn_Cornova_romanian # Cornova
+        name_list_german = cn_Cornova_german # Cornova
+        name_list_english = cn_Cornova_english # Cornova
+        name_list_greek = cn_Cornova_greek # Cornova
+        name_list_french = cn_Cornova_french # Cornova
+    }
+}
+c_solara = {
+    cultural_names = {
+        name_list_romanian = cn_Solara_romanian # Solara
+        name_list_german = cn_Solara_german # Solara
+        name_list_english = cn_Solara_english # Solara
+        name_list_greek = cn_Solara_greek # Solara
+        name_list_french = cn_Solara_french # Solère
+        name_list_latin = cn_Solara_latin # Solara # Hic sunt dracones
+    }
+}
+c_nordavia = {
+    cultural_names = {
+        name_list_latin = cn_Nordavia_latin # Nordavia
+        name_list_english = cn_Nordavia_english # Nordavia
+        name_list_greek = cn_Nordavia_greek # Nordavia
+        name_list_french = cn_Nordavia_french # Nordavia
+        name_list_german = cn_Nordavia_german # Nordavia
+        name_list_romanian = cn_Nordavia_romanian # Nordavia # Glory to Nucilandia!
+    }
+}
+c_talmeria = {
+    cultural_names = {
+        name_list_latin = cn_Nordavia_latin # Nordavia
+        name_list_english = cn_Nordavia_english # Nordavia
+        name_list_greek = cn_Nordavia_greek # Nordavia
+        name_list_french = cn_Nordavia_french # Nordavia
+        name_list_german = cn_Nordavia_german # Nordavia
+        name_list_romanian = cn_Nordavia_romanian # Nordavia # Glory to Nucilandia!
+    }
+}
+c_hokazuro = {
+    cultural_names = {
+        name_list_latin = cn_Hokazuro_latin # Hokazuro
+        name_list_romanian = cn_Hokazuro_romanian # Hokazuro
+        name_list_german = cn_Hokazuro_german # Hokazuro
+        name_list_english = cn_Hokazuro_english # Hokazuro
+        name_list_french = cn_Hokazuro_french # Hokazuro
+        name_list_greek = cn_Hokazuro_greek # Chokaζoúρo # Veni, vidi, vici
+    }
+}
+c_flusseland = {
+    cultural_names = {
+        name_list_latin = cn_Flusseland_latin # Flusseland # Not here nor there
+        name_list_romanian = cn_Flusseland_romanian # Flusseland # Not here nor there
+        name_list_german = cn_Flusseland_german # Flusseland # Not here nor there
+        name_list_english = cn_Flusseland_english # Flusseland # Not here nor there
+        name_list_greek = cn_Flusseland_greek # Flusseland # Not here nor there
+        name_list_french = cn_Flusseland_french # Flusseland
+    }
+}
+c_cratesia = {
+    cultural_names = {
+        name_list_latin = cn_Cratesia_latin # Cratesia
+        name_list_greek = cn_Cratesia_greek # Cratesia
+        name_list_romanian = cn_Cratesia_romanian # Cratesia # All roads lead to Rome
+    }
+}
+c_izmir = {
+}

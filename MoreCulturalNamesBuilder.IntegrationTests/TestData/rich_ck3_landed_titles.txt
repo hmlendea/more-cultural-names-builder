@@ -1,0 +1,79 @@
+e_test = {
+    cultural_names = {
+        name_list_french = cn_outer
+    }
+    d_test = {
+        cultural_names = {
+            name_list_french = cn_inner
+        }
+    }
+}
+h_test = {
+    cultural_names = {
+        name_list_french = cn_first
+    }
+    cultural_names = {
+        name_list_german = cn_second
+    }
+    k_test = {
+        b_test = {
+            name_list_french = cn_barony
+            cultural_names = {
+                name_list_romanian = cn_barony_romanian
+            }
+        }
+    }
+}
+c_cluj = {
+    cultural_names = {
+        name_list_french = old_name
+    }
+}
+allow = {
+c_floresti = {
+}
+c_oradea = {
+has_holder = yes
+}
+c_cornova = {
+}
+c_solara = {
+    cultural_names = {
+        name_list_latin = cn_Solara_latin # Solara # Language=Latin # Hic sunt dracones
+        name_list_english = cn_Solara_english # Solara # Language=English
+        name_list_french = cn_Solara_french # Solère # Language=French
+    }
+}
+c_nordavia = {
+    cultural_names = {
+        name_list_german = cn_Nordavia_german # Nordavia # Language=German # Glory to Nucilandia!
+        name_list_english = cn_Nordavia_english # Nordavia # Language=English
+        name_list_romanian = cn_Nordavia_romanian # Nordavia # Language=Romanian
+    }
+}
+c_talmeria = {
+    cultural_names = {
+        name_list_romanian = cn_Talmeria_romanian # Talmeria # Language=Romanian # Praise the Sun!
+        name_list_latin = cn_Talmeria_latin # Talmeria # Language=Latin
+    }
+}
+c_hokazuro = {
+    cultural_names = {
+        name_list_english = cn_Hokazuro_english # Hokazuro # Language=English
+        name_list_greek = cn_Hokazuro_greek # Χοκαζούρο # Language=Greek # Veni, vidi, vici
+    }
+}
+c_flusseland = {
+    cultural_names = {
+        name_list_french = cn_Flusseland_french # Flusseland # Language=French
+        name_list_english = cn_Flusseland_english # Flusseland # Language=English # Not here nor there
+    }
+}
+c_cratesia = {
+    cultural_names = {
+        name_list_romanian = cn_Cratesia_romanian # Cratesia # Language=Romanian # All roads lead to Rome
+        name_list_latin = cn_Cratesia_latin # Cratesia # Language=Latin
+    }
+}
+c_izmir = {
+}

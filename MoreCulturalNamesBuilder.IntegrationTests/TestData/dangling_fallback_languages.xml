@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLanguage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Language>
+    <Id>English</Id>
+    <Code iso-639-1="en" iso-639-2="eng" iso-639-3="eng" />
+    <GameIds>
+      <GameId game="CK2">english</GameId>
+    </GameIds>
+    <FallbackLanguages>
+      <LanguageId>AlienLanguage</LanguageId>
+    </FallbackLanguages>
+  </Language>
+</ArrayOfLanguage>

@@ -16,6 +16,12 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
         internal static string ReadWindows1252(string filePath) =>
             Normalise(File.ReadAllText(filePath, TestPaths.Windows1252Encoding));
 
+        internal static string ReadExpected(string relativeFilePath) =>
+            Read(Path.Combine(TestPaths.ExpectedDirectory, relativeFilePath));
+
+        internal static string ReadExpectedWindows1252(string relativeFilePath) =>
+            ReadWindows1252(Path.Combine(TestPaths.ExpectedDirectory, relativeFilePath));
+
         internal static byte[] ReadBytes(string filePath) => File.ReadAllBytes(filePath);
 
         internal static string WithoutVersionComment(string content)

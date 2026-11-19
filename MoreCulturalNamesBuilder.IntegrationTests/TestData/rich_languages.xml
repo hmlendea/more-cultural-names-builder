@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLanguage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Language>
+    <Id>English</Id>
+    <Code iso-639-1="en" iso-639-2="eng" iso-639-3="eng" />
+    <GameIds>
+      <GameId game="CK2">english</GameId>
+      <GameId game="CK3">english</GameId>
+      <GameId game="HOI4">english</GameId>
+      <GameId game="IR">english</GameId>
+      <GameId game="Vic3">english</GameId>
+    </GameIds>
+    <FallbackLanguages />
+  </Language>
+  <Language>
+    <Id>Romanian</Id>
+    <Code iso-639-1="ro" iso-639-2="rum" iso-639-3="ron" />
+    <GameIds>
+      <GameId game="CK2">romanian</GameId>
+      <GameId game="CK3">romanian</GameId>
+      <GameId game="HOI4">romanian</GameId>
+      <GameId game="IR">romanian</GameId>
+      <GameId game="Vic3">romanian</GameId>
+    </GameIds>
+    <FallbackLanguages>
+      <LanguageId>English</LanguageId>
+    </FallbackLanguages>
+  </Language>
+  <Language>
+    <Id>French</Id>
+    <Code iso-639-1="fr" iso-639-2="fre" iso-639-3="fra" />
+    <GameIds>
+      <GameId game="CK2">french</GameId>
+      <GameId game="CK3">french</GameId>
+      <GameId game="HOI4">french</GameId>
+      <GameId game="IR">french</GameId>
+      <GameId game="Vic3">french</GameId>
+    </GameIds>
+    <FallbackLanguages>
+      <LanguageId>English</LanguageId>
+    </FallbackLanguages>
+  </Language>
+  <Language>
+    <Id>German</Id>
+    <Code iso-639-1="de" iso-639-2="ger" iso-639-3="deu" />
+    <GameIds>
+      <GameId game="CK2">german</GameId>
+      <GameId game="CK3">german</GameId>
+      <GameId game="HOI4">german</GameId>
+      <GameId game="IR">german</GameId>
+      <GameId game="Vic3">german</GameId>
+    </GameIds>
+    <FallbackLanguages>
+      <LanguageId>English</LanguageId>
+    </FallbackLanguages>
+  </Language>
+  <Language>
+    <Id>Latin</Id>
+    <Code iso-639-1="la" iso-639-2="lat" iso-639-3="lat" />
+    <GameIds>
+      <GameId game="CK2">latin</GameId>
+      <GameId game="CK3">latin</GameId>
+      <GameId game="HOI4">latin</GameId>
+      <GameId game="IR">latin</GameId>
+      <GameId game="Vic3">latin</GameId>
+    </GameIds>
+    <FallbackLanguages>
+      <LanguageId>English</LanguageId>
+      <LanguageId>French</LanguageId>
+    </FallbackLanguages>
+  </Language>
+  <Language>
+    <Id>Greek</Id>
+    <Code iso-639-1="el" iso-639-2="gre" iso-639-3="ell" />
+    <GameIds>
+      <GameId game="CK2">greek</GameId>
+      <GameId game="CK3">greek</GameId>
+      <GameId game="HOI4">greek</GameId>
+      <GameId game="IR">greek</GameId>
+      <GameId game="Vic3">greek</GameId>
+    </GameIds>
+    <FallbackLanguages>
+      <LanguageId>English</LanguageId>
+      <LanguageId>Latin</LanguageId>
+    </FallbackLanguages>
+  </Language>
+  <Language>
+    <Id>Turkish</Id>
+    <Code iso-639-1="tr" iso-639-2="tur" iso-639-3="tur" />
+    <GameIds>
+      <GameId game="Vic3">turkish</GameId>
+    </GameIds>
+    <FallbackLanguages>
+      <LanguageId>English</LanguageId>
+    </FallbackLanguages>
+  </Language>
+</ArrayOfLanguage>

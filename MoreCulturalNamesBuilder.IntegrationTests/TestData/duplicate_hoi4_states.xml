@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLocationEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <LocationEntity>
+    <Id>Cluj-Napoca</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="HOI4" type="State" defaultLanguage="Romanian">42</GameId>
+    </GameIds>
+    <Names>
+      <Name language="Romanian" value="Cluj-Napoca" />
+    </Names>
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Dezmir</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="HOI4" type="State" defaultLanguage="Romanian">42</GameId>
+    </GameIds>
+    <Names>
+      <Name language="Romanian" value="Dezmir" />
+    </Names>
+  </LocationEntity>
+</ArrayOfLocationEntity>

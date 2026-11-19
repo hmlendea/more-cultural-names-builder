@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLocationEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <LocationEntity>
+    <Id>Alpha</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="English">c_alpha</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="English">c_alpha</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="English">1</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="English">1</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="English">STATE_ALPHA</GameId>
+    </GameIds>
+    <Names>
+      <Name language="English" value="Alpha" adjective="Alphan" />
+    </Names>
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Beta</Id>
+    <FallbackLocations>
+      <LocationId>Alpha</LocationId>
+    </FallbackLocations>
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="French">c_beta</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="French">c_beta</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="French">2</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="French">2</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="French">STATE_BETA</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Gamma</Id>
+    <FallbackLocations>
+      <LocationId>Beta</LocationId>
+      <LocationId>Alpha</LocationId>
+    </FallbackLocations>
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="German">c_gamma</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="German">c_gamma</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="German">STATE_GAMMA</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Delta</Id>
+    <FallbackLocations>
+      <LocationId>Beta</LocationId>
+    </FallbackLocations>
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="English">c_delta</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="English">c_delta</GameId>
+    </GameIds>
+    <Names />
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Epsilon</Id>
+    <FallbackLocations>
+      <LocationId>Alpha</LocationId>
+    </FallbackLocations>
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="Romanian">c_epsilon</GameId>
+      <GameId game="CK3" type="county" defaultLanguage="Romanian">c_epsilon</GameId>
+    </GameIds>
+    <Names>
+      <Name language="Romanian" value="Epsilon" adjective="Epsilonian" />
+    </Names>
+  </LocationEntity>
+</ArrayOfLocationEntity>

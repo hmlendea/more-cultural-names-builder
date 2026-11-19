@@ -1,0 +1,4 @@
+c_orphan = {
+    english = "Orphan" # Language=English
+    romanian = "Orphan" # Language=English
+}
