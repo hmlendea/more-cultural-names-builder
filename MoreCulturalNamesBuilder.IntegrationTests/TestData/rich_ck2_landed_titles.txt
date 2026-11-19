@@ -1,0 +1,42 @@
+c_cluj = {
+    romanian = "Original Cluj" # Original name
+}
+c_floresti = {
+}
+allow = {
+c_newport = {
+}
+c_dezmir = {
+has_holder = yes
+}
+c_cupisan = { }
+c_solara = {
+    latin = "Solara" # Language=Latin # Hic sunt dracones
+}
+c_nordavia = {
+    german = "Nordavia" # Language=German
+    romanian = "Nordavia" # Language=Romanian # Glory to Nucilandia!
+}
+c_talmeria = {
+    romanian = "Talmeria" # Language=Romanian
+}
+c_hokazuro = {
+    english = "Hokazuro" # Language=English # Praise the Sun!
+    greek = "Χοκαζούρο" # Language=Greek # Veni, vidi, vici
+}
+c_flusseland = {
+    french = "Flusseland" # Language=French # Not here nor there
+    english = "Flusseland" # Language=English
+}
+c_cratesia = {
+    romanian = "Cratesia" # Language=Romanian # All roads lead to Rome
+    latin = "Cratesia" # Language=Latin
+}
+c_izmir = {
+}
+not_a_title = {
+    has_holder = yes
+}
+nomatch = {
+    english = "Nowhere" # Language=English
+}

@@ -1,0 +1,8 @@
+c_blank = {
+    english = "" # Language=English
+    romanian = "" # Language=English
+}
+c_spaced = {
+    english = "  Spaced  " # Language=English
+    romanian = "  Spaced  " # Language=English
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLocationEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <LocationEntity>
+    <Id>Orphan</Id>
+    <FallbackLocations>
+      <LocationId>Nonexistent</LocationId>
+    </FallbackLocations>
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="English">c_orphan</GameId>
+    </GameIds>
+    <Names>
+      <Name language="English" value="Orphan" adjective="Orphaned" />
+    </Names>
+  </LocationEntity>
+</ArrayOfLocationEntity>

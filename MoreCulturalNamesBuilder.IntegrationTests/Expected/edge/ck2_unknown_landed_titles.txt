@@ -1,0 +1,6 @@
+c_unknown = {
+}
+c_known = {
+    english = "Known" # Language=English
+    romanian = "Known" # Language=English
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfLocationEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <LocationEntity>
+    <Id>Blank</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="English">c_blank</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="English">1</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="English">1</GameId>
+    </GameIds>
+    <Names>
+      <Name language="English" value="" adjective="" />
+    </Names>
+  </LocationEntity>
+  <LocationEntity>
+    <Id>Spaced</Id>
+    <FallbackLocations />
+    <GameIds>
+      <GameId game="CK2" type="county" defaultLanguage="English">c_spaced</GameId>
+      <GameId game="HOI4" type="State" defaultLanguage="English">2</GameId>
+      <GameId game="IR" type="Province" defaultLanguage="English">2</GameId>
+    </GameIds>
+    <Names>
+      <Name language="English" value="  Spaced  " adjective="  Spacedish  " />
+    </Names>
+  </LocationEntity>
+</ArrayOfLocationEntity>
