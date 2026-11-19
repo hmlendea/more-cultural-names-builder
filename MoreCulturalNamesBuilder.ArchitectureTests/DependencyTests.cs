@@ -95,6 +95,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         [TestCase(typeof(CK3ModBuilder))]
         [TestCase(typeof(HOI4ModBuilder))]
         [TestCase(typeof(ImperatorRomeModBuilder))]
+        [TestCase(typeof(Victoria3ModBuilder))]
         public void GameBuildersMustNotDependOnOtherGameBuilders(Type builder)
         {
             if (builder == typeof(CK3ModBuilder))
@@ -121,7 +122,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             Type[] builders = productionAssemblies.SelectMany(assembly => assembly.GetTypes())
                 .Where(type => type.IsClass && !type.IsAbstract &&
                     typeof(IModBuilder).IsAssignableFrom(type)).ToArray();
-            Assert.That(builders, Has.Length.EqualTo(4), "Update the explicit game inventory when adding a builder.");
+            Assert.That(builders, Has.Length.EqualTo(5), "Update the explicit game inventory when adding a builder.");
 
             foreach (Type builder in builders)
             {

@@ -56,6 +56,7 @@ Generates localised mod files for multiple game engines:
 - **Crusader Kings III** (via `CK3`)
 - **Hearts of Iron IV** (via `HOI4`)
 - **Imperator: Rome** (via `IR`)
+- **Victoria 3** (via `Vic3`)
 
 Each generation run:
 
@@ -150,6 +151,7 @@ More Cultural Names Mod Builder is configured entirely via command-line argument
 | Crusader Kings III | All versions | Selected via the `CK3` game identifier |
 | Hearts of Iron IV | All versions | Selected via the `HOI4` game identifier |
 | Imperator: Rome | All versions | Selected via the `IR` game identifier |
+| Victoria 3 | All versions | Selected via the `Vic3` game identifier |
 
 ## 🛡️ Privacy and Data
 
@@ -333,6 +335,7 @@ Additional technical documentation is available in the `docs/` directory.
 | Mod descriptor | Game-specific descriptor file | Identifies and configures the generated mod |
 | Localisation files | Game-specific localisation format | Maps locations to cultural names per language |
 | Province name data | Imperator: Rome province-name format | Supplies province names per culture |
+| Dynamic state name scripts | Victoria 3 scripted effects and on actions | Assigns cultural state and hub names |
 
 ## 🩺 Troubleshooting
 
@@ -341,7 +344,7 @@ Additional technical documentation is available in the `docs/` directory.
 | `FileNotFoundException` | Incorrect XML path | Verify the `--lang` and `--loc` paths |
 | `XmlException` | Malformed XML input | Validate the input against the expected schema |
 | `ArgumentException` | Absent required argument | Supply every required argument |
-| `NotImplementedException` | Unsupported game | Use one of `CK2`, `CK3`, `HOI4`, or `IR` |
+| `NotImplementedException` | Unsupported game | Use one of `CK2`, `CK3`, `HOI4`, `IR`, or `Vic3` |
 | Output directory not created | The application creates no directories | Create the output directory prior to execution |
 
 ## 🤝 Contributing
