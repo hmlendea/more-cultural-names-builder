@@ -47,33 +47,6 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
             });
         }
 
-        [TestCase("false")]
-        [TestCase("False")]
-        [TestCase("TRUE")]
-        [TestCase("0")]
-        [TestCase("")]
-        [TestCase(" ")]
-        public void GivenANonLowercaseTrueVerboseValue_WhenCreatingSettings_ThenVerboseCommentsAreDisabled(
-            string verboseValue)
-        {
-            string[] arguments =
-            [
-                "--lang", "languages.xml",
-                "--loc", "locations.xml",
-                "--output", "mods",
-                "--verbose", verboseValue,
-                "--id", "more-cultural-names",
-                "--name", "More Cultural Names",
-                "--version", "1.0.0",
-                "--game", "CK2",
-                "--game-version", "1.12.*"
-            ];
-
-            Settings settings = new(arguments);
-
-            Assert.That(settings.Output.AreVerboseCommentsEnabled, Is.False);
-        }
-
         [Test]
         public void GivenCanonicalArguments_WhenParsingSettings_ThenSettingsAreParsed()
         {
@@ -154,6 +127,122 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
             Assert.That(
                 () => new Settings(arguments),
                 Throws.TypeOf<ArgumentException>().With.Message.Contains("--output"));
+        }
+
+        [TestCase("--lang")]
+        [TestCase("--loc")]
+        [TestCase("--id")]
+        [TestCase("--name")]
+        [TestCase("--game")]
+        [TestCase("--game-version")]
+        public void GivenAMissingRequiredArgument_WhenParsingSettings_ThenAnArgumentNullExceptionIsThrown(
+            string missingArgument)
+        {
+            string[] arguments = SettingsTestArguments.Except(missingArgument);
+
+            Assert.That(
+                () => new Settings(arguments),
+                Throws.TypeOf<ArgumentNullException>().With.Property("ParamName")
+                    .EqualTo(missingArgument.TrimStart('-')));
+        }
+
+        [TestCase("true", true)]
+        [TestCase("false", false)]
+        [TestCase("True", false)]
+        [TestCase("TRUE", false)]
+        [TestCase("False", false)]
+        [TestCase("1", false)]
+        [TestCase("0", false)]
+        [TestCase("", false)]
+        [TestCase(" ", false)]
+        public void GivenAVerboseValue_WhenParsingSettings_ThenOnlyTheLowercaseTrueEnablesComments(
+            string verboseValue,
+            bool expectedValue)
+        {
+            string[] arguments = SettingsTestArguments.With("--verbose", verboseValue);
+
+            Settings settings = new(arguments);
+
+            Assert.That(settings.Output.AreVerboseCommentsEnabled, Is.EqualTo(expectedValue));
+        }
+
+        [Test]
+        public void GivenBothVersionForms_WhenParsingSettings_ThenTheCanonicalArgumentWins()
+        {
+            string[] arguments =
+            [
+                .. SettingsTestArguments.Except("--version"),
+                "--version", "1.0.0",
+                "--ver", "2.0.0"
+            ];
+
+            Settings settings = new(arguments);
+
+            Assert.That(settings.Mod.Version, Is.EqualTo("1.0.0"));
+        }
+
+        [Test]
+        public void GivenBothDependencyForms_WhenParsingSettings_ThenTheCanonicalArgumentWins()
+        {
+            string[] arguments =
+            [
+                .. SettingsTestArguments.Except("--dependency"),
+                "--dependency", "A Game of Thrones",
+                "--dep", "agot"
+            ];
+
+            Settings settings = new(arguments);
+
+            Assert.That(settings.Mod.Dependency, Is.EqualTo("A Game of Thrones"));
+        }
+
+        [TestCase("")]
+        [TestCase(" ")]
+        public void GivenABlankAliasValue_WhenParsingSettings_ThenTheCanonicalValueIsUsed(
+            string blankValue)
+        {
+            string[] arguments =
+            [
+                .. SettingsTestArguments.Except("--dependency"),
+                "--dependency", "A Game of Thrones",
+                "--dep", blankValue
+            ];
+
+            Settings settings = new(arguments);
+
+            Assert.That(settings.Mod.Dependency, Is.EqualTo("A Game of Thrones"));
+        }
+
+        [TestCase("CK2")]
+        [TestCase("CK3")]
+        public void GivenAnOptionalDependency_WhenParsingSettings_ThenItIsPreserved(string game)
+        {
+            string[] arguments = SettingsTestArguments.WithGameAndDependency(
+                game,
+                "A Game of Thrones");
+
+            Settings settings = new(arguments);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(settings.Mod.Dependency, Is.EqualTo("A Game of Thrones"));
+                Assert.That(settings.Mod.Game, Is.EqualTo(game));
+            });
+        }
+
+        [Test]
+        public void GivenNoOptionalArguments_WhenParsingSettings_ThenOptionalValuesAreNull()
+        {
+            string[] arguments = SettingsTestArguments.WithoutOptionalArguments();
+
+            Settings settings = new(arguments);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(settings.Input.LandedTitlesFilePath, Is.Null);
+                Assert.That(settings.Output.LandedTitlesFileName, Is.Null);
+                Assert.That(settings.Mod.Dependency, Is.Null);
+            });
         }
     }
 }

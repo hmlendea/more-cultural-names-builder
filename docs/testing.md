@@ -11,23 +11,36 @@ The solution contains three test projects.
 ```
 MoreCulturalNamesBuilder.UnitTests/
 ├── Configuration/
+│   ├── SettingsTestArguments.cs
 │   ├── SettingsTestFactory.cs
 │   └── SettingsTests.cs
+├── DataAccess/
+│   └── DataObjects/
+│       └── DataObjectSerialisationTests.cs
 ├── Service/
 │   ├── LocalisationFetcherTests.cs
 │   ├── NameNormaliserTests.cs
 │   ├── NameNormaliserEdgeCaseTests.cs
 │   ├── Mapping/
+│   │   ├── CachedLocalisationMappingTests.cs
 │   │   ├── LanguageMappingTests.cs
 │   │   ├── LocationMappingTests.cs
 │   │   ├── NameMappingTests.cs
 │   │   ├── GameIdMappingTests.cs
 │   │   └── LanguageCodeMappingTests.cs
+│   ├── Models/
+│   │   ├── GameLocationKeyTests.cs
+│   │   ├── LocalisationKeyTests.cs
+│   │   └── TypedGameLocationKeyTests.cs
 │   └── ModBuilders/
 │       ├── CK2ModBuilderTests.cs
 │       ├── CK3ModBuilderTests.cs
 │       ├── HOI4ModBuilderTests.cs
-│       └── ImperatorRomeModBuilderTests.cs
+│       ├── ImperatorRomeModBuilderTests.cs
+│       ├── ModBuilderFactoryTests.cs
+│       ├── ModBuilderTestDataFactory.cs
+│       ├── Victoria3ModBuilderTests.cs
+│       └── Victoria3ModBuilderEdgeCaseTests.cs
 └── TestInfrastructure/
     ├── InternalMappingInvoker.cs
     └── TemporaryDirectory.cs
@@ -41,6 +54,7 @@ MoreCulturalNamesBuilder.IntegrationTests/
 ├── Ck3ModBuilderIntegrationTests.cs
 ├── HoI4ModBuilderIntegrationTests.cs
 ├── ImperatorRomeModBuilderIntegrationTests.cs
+├── Victoria3ModBuilderIntegrationTests.cs
 ├── ProgramIntegrationTests.cs
 ├── ExpectedModContent.cs
 ├── IntegrationTestSetup.cs
@@ -97,6 +111,8 @@ dotnet test MoreCulturalNamesBuilder.IntegrationTests/MoreCulturalNamesBuilder.I
 The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/MoreCulturalNamesBuilder.ArchitectureTests.csproj) is included in the solution and runs with `dotnet test`.
 
 - ArchUnit.NET checks the explicitly inventoried production assembly, documented dependency directions, independent game builders, shared builder inheritance, and production assembly isolation.
+- `ModBuilderContractsTests` verifies that every game builder is reachable through exactly one factory identifier, that only `ModBuilderFactory` constructs builders, and that only CK3 specialises another builder.
+- `IntegrationFixtureTests` keeps `TestPaths` and the `TestData` directory in sync, verifying that every declared fixture exists and that every fixture file is declared, while absent fixtures stay absent.
 - Roslyn checks handwritten production and test sources for file/type correspondence, namespaces, syntax conventions, interface contracts, model declarations, mappings, collection contracts, and NUnit conventions.
 - Separate project tests inspect declared XML and evaluated MSBuild metadata for Debug and Release, production references, solution inventory, and analyser enforcement.
 - Source checks require a repository checkout, exclude generated files and build outputs, and fail when expected sources or selectors are absent.
@@ -109,13 +125,12 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 
 | Test File | Coverage |
 |-----------|----------|
-| `SettingsTests.cs` | Required argument detection, alias normalisation |
+| `SettingsTests.cs` | Required argument detection, canonical and alias precedence, blank alias fallback, verbose flag values, optional argument absence |
+| `SettingsTestArguments.cs` | Shared argument builders that insert, replace, and remove single arguments |
 | `ProgramIntegrationTests.cs` | Required and alias arguments, unknown arguments, unsupported games, absent and malformed stores, duplicate entities, unusable output paths, output directory creation |
 
 **Gaps:**
-- Invalid argument combinations
 - Game version pattern validation
-- Verbose flag edge cases (`"True"`, `"1"`, et cetera.)
 
 ### Data Access Layer (Mapping)
 
@@ -126,10 +141,19 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `NameMappingTests.cs` | Entity ↔ Model round-trip |
 | `GameIdMappingTests.cs` | Entity ↔ Model round-trip |
 | `LanguageCodeMappingTests.cs` | Entity ↔ Model round-trip |
+| `CachedLocalisationMappingTests.cs` | Cached localisation to service model, missing-value sentinel, nullable adjective and comment |
 
 **Gaps:**
 - Missing/optional XML attributes
 - Large file performance
+
+### Models
+
+| Test File | Coverage |
+|-----------|----------|
+| `GameLocationKeyTests.cs` | Equality and hash codes across game and identifier combinations |
+| `TypedGameLocationKeyTests.cs` | Equality, null-type handling, and hash codes across game, identifier, and type |
+| `LocalisationKeyTests.cs` | Equality and hash codes across location and language combinations |
 
 ### Service Layer
 
@@ -154,6 +178,8 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `HOI4ModBuilderTests.cs` | State/city localisation, descriptors, empty-input handling, identifier and duplicate failures |
 | `ImperatorRomeModBuilderTests.cs` | Province name data, localisation, descriptors, empty-input handling, identifier and duplicate failures |
 | `Victoria3ModBuilderTests.cs` | Metadata, dynamic state and hub name effects, on action hooks, localisation, empty-input handling |
+| `Victoria3ModBuilderEdgeCaseTests.cs` | Hub suffix recognition, hub-only cultures, foreign game identifiers, metadata version and dependency values, comment-only annotations, states without localisations, locale file inventory, descriptor suppression |
+| `ModBuilderFactoryTests.cs` | Supported and unsupported game identifiers |
 
 **Integration coverage:**
 
@@ -163,7 +189,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `Ck3ModBuilderIntegrationTests.cs` | Full CK3 output content, descriptor pair, block merging, prefix tiers, dynamic name keys, comment suppression, empty data stores, absent landed titles inputs |
 | `HoI4ModBuilderIntegrationTests.cs` | Full HOI4 output content, locale directories, header-only files, non-numeric and duplicate identifiers |
 | `ImperatorRomeModBuilderIntegrationTests.cs` | Full Imperator: Rome output content, province name data, header-only files, non-numeric and duplicate identifiers |
-| `Victoria3ModBuilderIntegrationTests.cs` | Full Victoria 3 output content, metadata, dynamic state and hub name effects, on action hooks, comment suppression, empty data stores |
+| `Victoria3ModBuilderIntegrationTests.cs` | Full Victoria 3 output content, metadata, dynamic state and hub name effects, on action hooks, comment suppression, empty and nameless data stores, dependency handling, custom mod identifiers |
 
 **Major Gaps:**
 - No game compatibility verification (generated mods are not loaded in the target games)
