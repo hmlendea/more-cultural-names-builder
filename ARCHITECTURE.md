@@ -348,12 +348,12 @@ More Cultural Names Builder is a stateless, single-invocation console applicatio
 
 The project includes three test suites that verify:
 
-- **Configuration parsing:** `SettingsTests` validate argument parsing, required field detection, and alias argument normalisation.
+- **Configuration parsing:** `SettingsTests` validate argument parsing, required field detection, canonical and alias precedence, blank alias fallback, and verbose flag parsing.
 - **Name normalisation:** `NameNormaliserTests` verify linguistic transformation rules (special character handling, diacritics).
-- **Mappings and services:** mapping tests and `LocalisationFetcherTests` cover entity-to-model conversion and fallback resolution.
-- **Builder output:** every game builder is exercised end to end against temporary directories, asserting descriptor, localisation, landed titles, and data-file content.
+- **Mappings and services:** mapping tests, model key tests, and `LocalisationFetcherTests` cover entity-to-model conversion, identity contracts, and fallback resolution.
+- **Builder output:** every game builder is exercised end to end against temporary directories, asserting descriptor, localisation, landed titles, and data-file content, including Victoria 3 hub suffix recognition, hub-only cultures, and foreign identifier handling.
 - **End-to-end pipeline:** `MoreCulturalNamesBuilder.IntegrationTests` invokes the entry point with real XML data stores and landed titles files, asserting the exact content, encoding, and file inventory of every generated mod file, plus every configuration and data-loading failure mode.
-- **Structural conventions:** `MoreCulturalNamesBuilder.ArchitectureTests` enforces dependency direction, project conventions, and source conventions, including the rule that builders must not depend on the configuration layer.
+- **Structural conventions:** `MoreCulturalNamesBuilder.ArchitectureTests` enforces dependency direction, project conventions, and source conventions, including the rule that builders must not depend on the configuration layer, that only `ModBuilderFactory` constructs builders, and that `TestPaths` stays synchronised with the `TestData` fixtures.
 
 Execute the principal automated verification with:
 

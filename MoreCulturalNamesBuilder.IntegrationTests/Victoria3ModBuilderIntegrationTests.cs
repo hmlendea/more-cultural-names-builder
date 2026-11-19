@@ -92,6 +92,90 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
             });
         }
 
+        [Test]
+        public void GivenLocationsWithoutNames_WhenBuildingTheVictoria3Mod_ThenOnlyTheEvaluationAndDispatchEffectsAreEmitted()
+        {
+            ModBuildRequest request = BuildRequest();
+            request.LocationStorePath = TestPaths.NamelessLocationsFilePath;
+
+            ModBuildRunner.Run(temporaryDirectory.DirectoryPath, request);
+
+            string effects = TextContent.Read(Path.Combine(
+                temporaryDirectory.DirectoryPath,
+                "Vic3",
+                "more-cultural-names",
+                "common",
+                "scripted_effects",
+                "more_cultural_names_state_names.txt"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(effects, Does.Contain("more_cultural_names_evaluate_and_assign_state_hub_dynamic_names = {"));
+                Assert.That(effects, Does.Not.Contain("state_name_assign = {"));
+            });
+        }
+
+        [Test]
+        public void GivenADependency_WhenBuildingTheVictoria3Mod_ThenTheMetadataStillDeclaresTheMod()
+        {
+            ModBuildRequest request = BuildRequest();
+            request.Dependency = "A Game of Thrones";
+
+            ModBuildRunner.Run(temporaryDirectory.DirectoryPath, request);
+
+            string mainDirectoryPath = Path.Combine(
+                temporaryDirectory.DirectoryPath,
+                "Vic3",
+                "more-cultural-names");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    TextContent.Read(Path.Combine(mainDirectoryPath, ".metadata", "metadata.json")),
+                    Does.Contain("\"relationships\": []"));
+                Assert.That(
+                    File.Exists(Path.Combine(mainDirectoryPath, "descriptor.mod")),
+                    Is.False);
+            });
+        }
+
+        [Test]
+        public void GivenAMissingLandedTitlesFile_WhenBuildingTheVictoria3Mod_ThenTheBuildSucceeds()
+        {
+            ModBuildRequest request = BuildRequest();
+            request.LandedTitlesFilePath = TestPaths.MissingLandedTitlesFilePath;
+            request.LandedTitlesFileName = "00_landed_titles.txt";
+
+            Assert.That(
+                () => ModBuildRunner.Run(temporaryDirectory.DirectoryPath, request),
+                Throws.Nothing,
+                "Victoria 3 uses dynamic effects rather than landed titles.");
+        }
+
+        [Test]
+        public void GivenACustomModIdentifier_WhenBuildingTheVictoria3Mod_ThenEveryGeneratedFileUsesIt()
+        {
+            ModBuildRequest request = BuildRequest();
+            request.ModId = "cultural-state-names";
+
+            ModBuildRunner.Run(temporaryDirectory.DirectoryPath, request);
+
+            string mainDirectoryPath = Path.Combine(
+                temporaryDirectory.DirectoryPath,
+                "Vic3",
+                "cultural-state-names");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    TextContent.Read(Path.Combine(mainDirectoryPath, "common", "scripted_effects", "cultural_state_names_state_names.txt")),
+                    Does.Contain("cultural_state_names_evaluate_and_assign_state_hub_dynamic_names = {"));
+                Assert.That(
+                    TextContent.Read(Path.Combine(mainDirectoryPath, ".metadata", "metadata.json")),
+                    Does.Contain("\"id\": \"cultural-state-names\""));
+            });
+        }
+
         private static ModBuildRequest BuildRequest()
             => new()
             {
