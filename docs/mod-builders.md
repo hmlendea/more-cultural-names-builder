@@ -838,6 +838,7 @@ l_english:
   "id": "more-cultural-names",
   "version": "1.0.0",
   "game_id": "victoria3",
+  "picture": "thumbnail.png",
   "supported_game_version": "1.15.*",
   "short_description": "More Cultural Names",
   "tags": [
