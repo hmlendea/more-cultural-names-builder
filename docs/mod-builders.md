@@ -1,6 +1,6 @@
 # Mod Builders
 
-This document describes the game-specific mod generation implementations for CK2, CK3, HOI4, and Imperator: Rome.
+This document describes the game-specific mod generation implementations for CK2, CK3, HOI4, Imperator: Rome, and Victoria 3.
 
 ## Overview
 
@@ -21,7 +21,9 @@ ModBuilder (abstract base)
     │
     ├── HOI4ModBuilder
     │
-    └── ImperatorRomeModBuilder
+    ├── ImperatorRomeModBuilder
+    │
+    └── Victoria3ModBuilder
 ```
 
 ## IModBuilder Interface
@@ -671,6 +673,186 @@ path="mod/more-cultural-names"
 
 **Inner Descriptor:** Same content without `path`
 
+## Victoria3ModBuilder
+
+**Location:** [Victoria3ModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/Victoria3ModBuilder.cs)
+
+### Inheritance
+
+- Directly inherits from `ModBuilder` (not `CK2ModBuilder`)
+
+### Constructor Dependencies
+
+```csharp
+public Victoria3ModBuilder(
+    ILocalisationFetcher localisationFetcher,
+    INameNormaliser nameNormaliser,
+    IFileRepository<LanguageDataObject> languageRepository,
+    IFileRepository<LocationDataObject> locationRepository,
+    Settings settings)
+```
+
+### Game Model
+
+Victoria 3 has no title or province hierarchy. Cultural names are driven by *dynamic state and hub names*:
+
+| Concept | Game identifier | Localisation key |
+|---------|-----------------|------------------|
+| State (state region) | `type="State"`, e.g. `STATE_ABRUZZO` | `STATE_ABRUZZO` |
+| Hub | `type="Hub"`, e.g. `STATE_ABRUZZO_city` | `HUB_NAME_STATE_ABRUZZO_city` |
+| Culture | language game ID, e.g. `english` | n/a |
+
+A hub identifier is `<state id>_<hub type>`, where the hub type is one of `city`, `port`, `mine`, `farm`, or `wood`. The state is derived by stripping the trailing hub type.
+
+The language game IDs map to Victoria 3 **culture** identifiers (188 of the 193 shipped identifiers resolve against `common/cultures`), so a cultural name is gated with `country_has_primary_culture = cu:<culture>`. Culture-specific localisation keys are `<key>_<culture>`, which vanilla also uses for its own dynamic names.
+
+### Key Fields
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `stateIds` | `IList<string>` | Ordered state identifiers |
+| `cultureIds` | `IList<string>` | Ordered culture identifiers referenced by the data |
+| `hubIdsByStateId` | `IDictionary<string, IList<string>>` | Hubs grouped by their state |
+| `localisationsByGameId` | `IDictionary<string, IDictionary<string, Localisation>>` | Localisations per state or hub, keyed by culture |
+
+### Dynamic Name Mechanism
+
+Victoria 3 resolves dynamic names through scripted effects that are invoked by `on_actions`. Because a vanilla on action's `effect` block cannot be appended to, the builder emits its behaviour as a separate on action and appends it to the vanilla on action's `on_actions` list, which is the mechanism the game documents for exactly this purpose.
+
+The generated scripted effects are:
+
+| Effect | Responsibility |
+|--------|----------------|
+| `{prefix}_evaluate_and_assign_state_hub_dynamic_names` | Honours the `no_dynamic_naming` game rule, otherwise dispatches |
+| `{prefix}_assign_state_hub_dynamic_names` | Dispatches to the assignment effect of the current state region |
+| `{prefix}_<state>_state_name_assign` | Assigns the state name and its hub names, or resets to defaults |
+
+`{prefix}` is the mod identifier with `-` replaced by `_`.
+
+The read-only `on_actions` hooks are emitted for `on_state_owner_change`, `on_state_created`, `on_become_subject`, and `on_become_independent`; the two country-scope on actions wrap the evaluation in `every_scope_state`.
+
+### LoadData()
+
+```csharp
+protected override void LoadData()
+{
+    stateIds = [.. locationGameIds
+        .Where(gameId => string.Equals(gameId.Type, "State", StringComparison.Ordinal))
+        .Select(gameId => gameId.Id)
+        .Distinct(StringComparer.Ordinal)
+        .OrderBy(stateId => stateId, StringComparer.Ordinal)];
+
+    Parallel.ForEach(stateIds, stateId =>
+        concurrentLocalisations.TryAdd(stateId, GetLocalisations(stateId, "State")));
+
+    Parallel.ForEach(
+        locationGameIds.Where(gameId => string.Equals(gameId.Type, "Hub", StringComparison.Ordinal)),
+        hubGameId =>
+        {
+            string stateId = GetStateId(hubGameId.Id);
+            concurrentLocalisations.TryAdd(hubGameId.Id, GetLocalisations(hubGameId.Id, "Hub"));
+            hubStatePairs.Add(new(stateId, hubGameId.Id));
+        });
+
+    // Hubs are grouped by state and cultures are collected from every loaded localisation.
+}
+```
+
+### GenerateFiles()
+
+```csharp
+protected override void GenerateFiles()
+{
+    string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
+    string effectsDirectoryPath = Path.Combine(mainDirectoryPath, "common", "scripted_effects");
+    string onActionsDirectoryPath = Path.Combine(mainDirectoryPath, "common", "on_actions");
+    string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "localization");
+    string metadataDirectoryPath = Path.Combine(mainDirectoryPath, ".metadata");
+
+    // Create the directories, then:
+    CreateStateNamesFile(effectsDirectoryPath);
+    CreateOnActionsFile(onActionsDirectoryPath);
+    CreateLocalisationFiles(localisationDirectoryPath);
+    CreateMetadataFiles(metadataDirectoryPath);
+}
+```
+
+### Output Structure (Victoria 3)
+
+```text
+<output>/Vic3/<mod-id>/
+├── .metadata/
+│   └── metadata.json                          # Launcher metadata, UTF-8 without BOM
+├── common/
+│   ├── on_actions/
+│   │   └── <prefix>_state_names.txt           # Hooks appended to the vanilla on actions
+│   └── scripted_effects/
+│       └── <prefix>_state_names.txt           # Evaluation, dispatch, and assignment effects
+└── localization/
+    ├── english/
+    │   └── <prefix>_state_names_l_english.yml
+    └── <language>/                            # 11 locales
+```
+
+There is no outer `.mod` descriptor; Victoria 3 identifies a mod solely by the `.metadata` folder.
+
+### Script Generation
+
+```text
+<prefix>_<state>_state_name_assign = {
+    if = {
+        limit = { owner = { country_has_primary_culture = cu:romanian } }
+        set_state_name = STATE_CLUJ_romanian # Language=Romanian
+        set_hub_name = { type = city name = HUB_NAME_STATE_CLUJ_city_romanian } # Cluj-Napoca
+    }
+    else = { # Switches back to the default names
+        reset_state_name = yes
+        reset_hub_names = yes
+    }
+}
+```
+
+Each hub of a state gets its own singular `set_hub_name`, because the culture suffix of the hub localisation key differs from the hub type. The `else` block always resets the names so a state reverts to its defaults when an unsupported culture takes it.
+
+### Localisation Files
+
+**Format:** YAML (UTF-8 with BOM)
+**Languages:** braz_por, english, french, german, japanese, korean, polish, russian, simp_chinese, spanish, turkish
+
+**File naming:** `<prefix>_state_names_l_<language>.yml`, in a `<language>/` sub-folder
+
+**Content:**
+```yaml
+l_english:
+ HUB_NAME_STATE_CLUJ_city_romanian: "Cluj-Napoca" # Language=Romanian
+ STATE_CLUJ_romanian: "Cluj-Napoca" # Language=Romanian
+```
+
+**Normalisation:** `nameNormaliser.ToVictoria3Charset()`
+
+### Metadata Format
+
+```json
+{
+  "name": "More Cultural Names",
+  "id": "more-cultural-names",
+  "version": "1.0.0",
+  "game_id": "victoria3",
+  "supported_game_version": "1.15.*",
+  "short_description": "More Cultural Names",
+  "tags": [
+    "Culture",
+    "Historical",
+    "Map",
+    "Translation"
+  ],
+  "relationships": [],
+  "game_custom_data": {
+    "multiplayer_synchronized": true
+  }
+}
+```
+
 ## ModBuilderFactory
 
 **Location:** [ModBuilderFactory.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilderFactory.cs)
@@ -695,6 +877,10 @@ public IModBuilder GetModBuilder(Settings settings)
         normalisedGame.StartsWith("IMPERATORROME"))
         return new ImperatorRomeModBuilder(...);
 
+    if (normalisedGame.StartsWith("VIC3") ||
+        normalisedGame.StartsWith("VICTORIA3"))
+        return new Victoria3ModBuilder(...);
+
     throw new NotImplementedException($"The game \"{settings.Mod.Game}\" is not supported");
 }
 ```
@@ -704,18 +890,19 @@ public IModBuilder GetModBuilder(Settings settings)
 - `CK3*` → CK3ModBuilder
 - `HOI4*` → HOI4ModBuilder
 - `IR*` or `IMPERATORROME*` → ImperatorRomeModBuilder
+- `VIC3*` or `VICTORIA3*` → Victoria3ModBuilder
 
 ## Output Comparison Summary
 
-| Aspect | CK2 | CK3 | HOI4 | Imperator: Rome |
-|--------|-----|-----|------|-----------------|
-| **Descriptor** | Single `.mod` | Main + inner `.mod` | Main + inner `.mod` | Main + inner `.mod` |
-| **Landed Titles** | Patched file | Merged + patched | N/A | N/A |
-| **Localisation Format** | CSV (Win-1252) | YAML (UTF-8) | YAML (UTF-8) | YAML (UTF-8) |
-| **Localisation Files** | 1 CSV | 2 YAML × 9 langs | 1 YAML × 5 langs | 1 YAML × 4 langs |
-| **Data Files** | None | None | None | Province names (txt) |
-| **Name Normalisation** | Windows-1252 | CK3 charset | HOI4 city/state | IR charset |
-| **Directory Name** | `localisation` | `localization` | `localisation` | `localization` |
+| Aspect | CK2 | CK3 | HOI4 | Imperator: Rome | Victoria 3 |
+|--------|-----|-----|------|-----------------|------------|
+| **Descriptor** | Single `.mod` | Main + inner `.mod` | Main + inner `.mod` | Main + inner `.mod` | `.metadata/metadata.json` |
+| **Landed Titles** | Patched file | Merged + patched | N/A | N/A | N/A |
+| **Localisation Format** | CSV (Win-1252) | YAML (UTF-8) | YAML (UTF-8) | YAML (UTF-8) | YAML (UTF-8 BOM) |
+| **Localisation Files** | 1 CSV | 2 YAML × 9 langs | 1 YAML × 5 langs | 1 YAML × 4 langs | 1 YAML × 11 langs |
+| **Data Files** | None | None | None | Province names (txt) | Scripted effects + on actions (txt) |
+| **Name Normalisation** | Windows-1252 | CK3 charset | HOI4 city/state | IR charset | Victoria 3 charset |
+| **Directory Name** | `localisation` | `localization` | `localisation` | `localization` | `localization` |
 
 ## Testing Coverage
 

@@ -44,6 +44,10 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
         [TestCase("ir beta", typeof(ImperatorRomeModBuilder))]
         [TestCase("ImperatorRome", typeof(ImperatorRomeModBuilder))]
         [TestCase(" imperatorrome beta ", typeof(ImperatorRomeModBuilder))]
+        [TestCase("Vic3", typeof(Victoria3ModBuilder))]
+        [TestCase("vic3 beta", typeof(Victoria3ModBuilder))]
+        [TestCase("Victoria3", typeof(Victoria3ModBuilder))]
+        [TestCase(" victoria3 beta ", typeof(Victoria3ModBuilder))]
         public void GivenASupportedGame_WhenGettingAModBuilder_ThenTheCorrespondingBuilderIsReturned(
             string game,
             Type expectedBuilderType)

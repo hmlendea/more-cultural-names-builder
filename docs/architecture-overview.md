@@ -33,7 +33,7 @@ The application implements a **console pipeline architecture** with these defini
 ┌─────────────────────────────────────────────────────────────────┐
 │                      ModBuilderFactory                          │
 │  Selects: CK2ModBuilder / CK3ModBuilder / HOI4ModBuilder /     │
-│           ImperatorRomeModBuilder                               │
+│           ImperatorRomeModBuilder / Victoria3ModBuilder        │
 └─────────────────────────────┬───────────────────────────────────┘
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
@@ -156,7 +156,7 @@ flowchart TD
 **Responsibilities:**
 - `IModBuilder`: Interface defining the `Build()` contract
 - `ModBuilder`: Base class providing shared file generation logic
-- Game-specific builders: `CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`
+- Game-specific builders: `CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`, `Victoria3ModBuilder`
 - `IModBuilderFactory`: Runtime builder selection
 
 **Boundary Rules:**

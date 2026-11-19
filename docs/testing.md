@@ -153,6 +153,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `CK3ModBuilderTests.cs` | Descriptor pair, block merging, default and dynamic localisation files, landed-title prefix tiers including `h_`, name-normalisation call bound |
 | `HOI4ModBuilderTests.cs` | State/city localisation, descriptors, empty-input handling, identifier and duplicate failures |
 | `ImperatorRomeModBuilderTests.cs` | Province name data, localisation, descriptors, empty-input handling, identifier and duplicate failures |
+| `Victoria3ModBuilderTests.cs` | Metadata, dynamic state and hub name effects, on action hooks, localisation, empty-input handling |
 
 **Integration coverage:**
 
@@ -162,6 +163,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `Ck3ModBuilderIntegrationTests.cs` | Full CK3 output content, descriptor pair, block merging, prefix tiers, dynamic name keys, comment suppression, empty data stores, absent landed titles inputs |
 | `HoI4ModBuilderIntegrationTests.cs` | Full HOI4 output content, locale directories, header-only files, non-numeric and duplicate identifiers |
 | `ImperatorRomeModBuilderIntegrationTests.cs` | Full Imperator: Rome output content, province name data, header-only files, non-numeric and duplicate identifiers |
+| `Victoria3ModBuilderIntegrationTests.cs` | Full Victoria 3 output content, metadata, dynamic state and hub name effects, on action hooks, comment suppression, empty data stores |
 
 **Major Gaps:**
 - No game compatibility verification (generated mods are not loaded in the target games)

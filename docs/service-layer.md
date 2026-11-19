@@ -173,6 +173,7 @@ public NameNormaliser(INuciTextConverter textConverter)
 | `ToHOI4CityCharset(string name)` | Hearts of Iron IV (Cities) | Converts to HOI4 city name charset |
 | `ToHOI4StateCharset(string name)` | Hearts of Iron IV (States) | Converts to HOI4 state name charset |
 | `ToImperatorRomeCharset(string name)` | Imperator: Rome | Converts to IR-supported characters |
+| `ToVictoria3Charset(string name)` | Victoria 3 | Converts to Victoria 3-supported characters |
 | `ToWindows1252(string name)` | All games (file encoding) | Converts to Windows-1252 encoding |
 
 ### Transformation Pipeline

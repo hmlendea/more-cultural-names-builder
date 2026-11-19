@@ -10,6 +10,8 @@ namespace MoreCulturalNamesBuilder.Service
 
         public string ToImperatorRomeCharset(string name);
 
+        public string ToVictoria3Charset(string name);
+
         public string ToWindows1252(string name);
     }
 }

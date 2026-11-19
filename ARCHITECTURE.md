@@ -41,7 +41,7 @@ This document describes the current architecture of the More Cultural Names Buil
 
 ## 🎯 Purpose
 
-The More Cultural Names Builder is a command-line tool that transforms linguistic and geographic data into game-specific mod files. It reads XML data stores for languages and locations, applies localisation and name normalisation, and generates output files compatible with Crusader Kings II, Crusader Kings III, Hearts of Iron IV, and Imperator: Rome. The architecture prioritises independent game-specific generation logic, reusable data transformation services, and fail-fast configuration validation.
+The More Cultural Names Builder is a command-line tool that transforms linguistic and geographic data into game-specific mod files. It reads XML data stores for languages and locations, applies localisation and name normalisation, and generates output files compatible with Crusader Kings II, Crusader Kings III, Hearts of Iron IV, Imperator: Rome, and Victoria 3. The architecture prioritises independent game-specific generation logic, reusable data transformation services, and fail-fast configuration validation.
 
 ## 🌐 System Context
 
@@ -182,7 +182,7 @@ The principal runtime sequence is:
 **Responsibilities:**
 - `IModBuilder`: Interface defining the `Build()` contract.
 - `ModBuilder`: Base class providing common file generation logic for all games (shared localisation file format).
-- Game-specific builders (`CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`): Extend `ModBuilder` and implement game-specific file output (patched `landed_titles` files in the CK series, localisation files per language, province-name data files for IR).
+- Game-specific builders (`CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`, `Victoria3ModBuilder`): Extend `ModBuilder` and implement game-specific file output (patched `landed_titles` files in the CK series, localisation files per language, province-name data files for IR, and dynamic state and hub name effects for Victoria 3).
 - `IModBuilderFactory`: Selects the appropriate builder at runtime.
 
 **Boundary rules:**
@@ -338,9 +338,9 @@ More Cultural Names Builder is a stateless, single-invocation console applicatio
 | Contract | Owner | Invariant | Verification | Change Policy |
 |----------|-------|-----------|--------------|---------------|
 | CLI argument names and aliases | `Configuration/Settings.cs` | `--lang`, `--loc`, `--output`/`--out`, `--id`, `--name`, `--version`/`--ver`, `--game`, `--game-version`, `--landed-titles`, `--landed-titles-name`, `--dependency`/`--dep`, `--verbose` remain accepted | `SettingsTests` | Renaming or removing an argument is a breaking change for existing mod build scripts |
-| Game identifiers | `ModBuilderFactory.GetModBuilder()` | `CK2`, `CK3`, `HOI4`, and `IR` select their builders | `ModBuilderFactoryTests` | Additional identifiers are additive; existing identifiers must keep resolving |
+| Game identifiers | `ModBuilderFactory.GetModBuilder()` | `CK2`, `CK3`, `HOI4`, `IR`, and `Vic3` select their builders | `ModBuilderFactoryTests` | Additional identifiers are additive; existing identifiers must keep resolving |
 | Input XML schema | `DataAccess/DataObjects/` | Element and attribute names including `Language`, `Location`, `GameId`, `Name`, `iso-639-1` remain mapped | `DataObjectSerialisationTests` | Schema changes are breaking for callers who supply data stores |
-| Output layout | Game builders | The mod descriptor, localisation, landed titles, and province name paths within the mod directory remain stable | Builder tests that build against temporary directories | Changes require a coordinated update to the mod packaging scripts |
+| Output layout | Game builders | The mod descriptor, launcher metadata, localisation, landed titles, and province name paths within the mod directory remain stable | Builder tests that build against temporary directories | Changes require a coordinated update to the mod packaging scripts |
 | Landed titles format | `CK2ModBuilder`, `CK3ModBuilder`, `CK3CulturalNameBlockMerger` | Unrelated lines survive patching, and cultural name blocks remain valid for the game | `CK2ModBuilderTests`, `CK3ModBuilderTests` | Format changes follow the supported game versions |
 | Name normalisation output | `NameNormaliser` | Each game method returns names within the supported character set for its target | `NameNormaliserTests`, `NameNormaliserEdgeCaseTests` | Changes alter every generated name and require regeneration of existing mods |
 

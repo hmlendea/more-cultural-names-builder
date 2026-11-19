@@ -8,6 +8,7 @@
       <GameId game="CK3">romanian</GameId>
       <GameId game="HOI4">romanian</GameId>
       <GameId game="IR">romanian</GameId>
+      <GameId game="Vic3">romanian</GameId>
     </GameIds>
     <FallbackLanguages>
       <LanguageId>English</LanguageId>
@@ -21,6 +22,7 @@
       <GameId game="CK3">english</GameId>
       <GameId game="HOI4">english</GameId>
       <GameId game="IR">english</GameId>
+      <GameId game="Vic3">english</GameId>
     </GameIds>
     <FallbackLanguages />
   </Language>

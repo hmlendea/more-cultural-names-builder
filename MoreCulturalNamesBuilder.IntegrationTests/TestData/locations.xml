@@ -10,6 +10,8 @@
       <GameId game="HOI4" type="State" defaultLanguage="Romanian">42</GameId>
       <GameId game="HOI4" type="City" defaultLanguage="Romanian">613</GameId>
       <GameId game="IR" type="Province" defaultLanguage="Romanian">42</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="Romanian">STATE_CLUJ</GameId>
+      <GameId game="Vic3" type="Hub">STATE_CLUJ_city</GameId>
     </GameIds>
     <Names>
       <Name language="Romanian" value="Cluj-Napoca" adjective="Clujean" comment="Praise the Sun!" />
@@ -25,6 +27,8 @@
       <GameId game="HOI4" type="State" defaultLanguage="Romanian">4</GameId>
       <GameId game="HOI4" type="City" defaultLanguage="Romanian">8</GameId>
       <GameId game="IR" type="Province" defaultLanguage="Romanian">4</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="Romanian">STATE_FLORESTI</GameId>
+      <GameId game="Vic3" type="Hub">STATE_FLORESTI_city</GameId>
     </GameIds>
     <Names>
       <Name language="Romanian" value="Florești" adjective="Floreștean" />
@@ -39,6 +43,8 @@
       <GameId game="HOI4" type="State" defaultLanguage="Romanian">48</GameId>
       <GameId game="HOI4" type="City" defaultLanguage="Romanian">96</GameId>
       <GameId game="IR" type="Province" defaultLanguage="Romanian">16</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="Romanian">STATE_CUPISAN</GameId>
+      <GameId game="Vic3" type="Hub">STATE_CUPISAN_mine</GameId>
     </GameIds>
     <Names>
       <Name language="Romanian" value="Çupișan" adjective="Çupișean" />
@@ -53,6 +59,8 @@
       <GameId game="HOI4" type="State" defaultLanguage="English">16</GameId>
       <GameId game="HOI4" type="City" defaultLanguage="English">32</GameId>
       <GameId game="IR" type="Province" defaultLanguage="English">8</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="English">STATE_NEWPORT</GameId>
+      <GameId game="Vic3" type="Hub">STATE_NEWPORT_port</GameId>
     </GameIds>
     <Names>
       <Name language="English" value="Newport" adjective="Newportian" />
@@ -67,6 +75,8 @@
       <GameId game="HOI4" type="State" defaultLanguage="Romanian">64</GameId>
       <GameId game="HOI4" type="City" defaultLanguage="Romanian">128</GameId>
       <GameId game="IR" type="Province" defaultLanguage="Romanian">32</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="Romanian">STATE_DEZMIR</GameId>
+      <GameId game="Vic3" type="Hub">STATE_DEZMIR_wood</GameId>
     </GameIds>
     <Names>
       <Name language="Romanian" value="Dezmir" adjective="Dezmiran" />
@@ -81,6 +91,8 @@
       <GameId game="HOI4" type="State" defaultLanguage="Romanian">256</GameId>
       <GameId game="HOI4" type="City" defaultLanguage="Romanian">512</GameId>
       <GameId game="IR" type="Province" defaultLanguage="Romanian">48</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="English">STATE_CORNOVA</GameId>
+      <GameId game="Vic3" type="Hub">STATE_CORNOVA_farm</GameId>
     </GameIds>
     <Names>
       <Name language="English" value="Cornova" adjective="Cornovan" />
@@ -97,6 +109,7 @@
       <GameId game="HOI4" type="State" defaultLanguage="Romanian">1024</GameId>
       <GameId game="HOI4" type="City" defaultLanguage="Romanian">2048</GameId>
       <GameId game="IR" type="Province" defaultLanguage="Romanian">64</GameId>
+      <GameId game="Vic3" type="State" defaultLanguage="Romanian">STATE_ORADEA</GameId>
     </GameIds>
     <Names />
   </LocationEntity>

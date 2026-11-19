@@ -82,6 +82,7 @@ Measured against the production data set (~44,000 locations, ~4,500 languages, ~
 | CK3 / CK3AEP / CK3CE / CK3MBP / CK3TFE | ~2-4 s | ~3 s | ~7-9 s |
 | HOI4 / HOI4MDM | ~1 s | ~1 s | ~4 s |
 | Imperator: Rome | ~1 s | ~1 s | ~4 s |
+| Victoria 3 | ~1 s | ~1 s | ~10 s |
 
 Generation cost is linear in the number of localisations. The CK3 builder resolves every cultural name through a single canonical index, built once per build; it previously re-scanned the entire localisation set for each generated `name_list_` entry, which made the CK3 editions take over 30 minutes. Guard against reintroducing a similar lookup: [`CK3ModBuilderTests`](../MoreCulturalNamesBuilder.UnitTests/Service/ModBuilders/CK3ModBuilderTests.cs) asserts a bound on the number of name-normalisation calls.
 
@@ -168,6 +169,19 @@ MoreCulturalNamesBuilder \
 └── localization/
     ├── <mod-id>_provincenames_l_english.yml
     └── ... (4 languages)
+```
+
+### Victoria 3
+```
+<output>/Vic3/<mod-id>/
+├── .metadata/metadata.json
+├── common/on_actions/
+│   └── <prefix>_state_names.txt
+├── common/scripted_effects/
+│   └── <prefix>_state_names.txt
+└── localization/
+    ├── english/<prefix>_state_names_l_english.yml
+    └── ... (11 languages)
 ```
 
 ## Operational Considerations

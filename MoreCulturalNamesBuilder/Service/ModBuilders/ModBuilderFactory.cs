@@ -58,6 +58,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     settings);
             }
 
+            if (normalisedGame.StartsWith("VIC3") ||
+                normalisedGame.StartsWith("VICTORIA3"))
+            {
+                return new Victoria3ModBuilder(
+                    localisationFetcher,
+                    nameNormaliser,
+                    languageRepository,
+                    locationRepository,
+                    settings);
+            }
+
             throw new NotImplementedException($"The game \"{settings.Mod.Game}\" is not supported");
         }
     }
