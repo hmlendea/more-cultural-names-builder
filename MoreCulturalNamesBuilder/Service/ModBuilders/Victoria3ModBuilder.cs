@@ -401,6 +401,8 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
             builder.Append(Environment.NewLine);
             builder.Append("  \"game_id\": \"victoria3\",");
             builder.Append(Environment.NewLine);
+            builder.Append("  \"picture\": \"thumbnail.png\",");
+            builder.Append(Environment.NewLine);
             builder.Append($"  \"supported_game_version\": {Serialize(Settings.Mod.GameVersion)},");
             builder.Append(Environment.NewLine);
             builder.Append($"  \"short_description\": {Serialize(Settings.Mod.Name)},");
