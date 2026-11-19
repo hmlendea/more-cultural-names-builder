@@ -202,7 +202,14 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
                 string firstFilePath = Path.Combine(firstMainDirectoryPath, relativeFilePath);
                 string secondFilePath = Path.Combine(secondMainDirectoryPath, relativeFilePath);
 
-                if (!TextContent.ReadBytes(firstFilePath).SequenceEqual(TextContent.ReadBytes(secondFilePath)))
+                bool isIdentical =
+                    TextContent.ReadBytes(firstFilePath).SequenceEqual(TextContent.ReadBytes(secondFilePath)) ||
+                    string.Equals(
+                        TextContent.WithoutVersionComment(TextContent.Read(firstFilePath)),
+                        TextContent.WithoutVersionComment(TextContent.Read(secondFilePath)),
+                        StringComparison.Ordinal);
+
+                if (!isIdentical)
                 {
                     differences.Add(relativeFilePath);
                 }
