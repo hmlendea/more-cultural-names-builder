@@ -280,6 +280,13 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             string id,
             string gameId,
             string languageId,
+            string name)
+            => CreateLocalisation(id, gameId, languageId, name, null);
+
+        private static Localisation CreateLocalisation(
+            string id,
+            string gameId,
+            string languageId,
             string name,
             string? comment)
             => new()
@@ -292,13 +299,6 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 Adjective = null,
                 Comment = comment
             };
-
-        private static Localisation CreateLocalisation(
-            string id,
-            string gameId,
-            string languageId,
-            string name)
-            => CreateLocalisation(id, gameId, languageId, name, null);
 
         private void ConfigureStores(
             IEnumerable<string> languageIds,

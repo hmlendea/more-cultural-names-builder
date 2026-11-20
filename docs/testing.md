@@ -138,11 +138,12 @@ dotnet test MoreCulturalNamesBuilder.IntegrationTests/MoreCulturalNamesBuilder.I
 
 The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/MoreCulturalNamesBuilder.ArchitectureTests.csproj) is included in the solution and runs with `dotnet test`.
 
-- ArchUnit.NET checks the explicitly inventoried production assembly, documented dependency directions, independent game builders, shared builder inheritance, and production assembly isolation.
+- ArchUnit.NET checks the explicitly inventoried production assembly, documented dependency directions, the documented layer acyclicity, independent game builders, shared builder inheritance, and production assembly isolation.
 - `ModBuilderContractsTests` verifies that every game builder is reachable through exactly one factory identifier, that only `ModBuilderFactory` constructs builders, and that only CK3 specialises another builder.
 - `IntegrationFixtureTests` keeps `TestPaths` and the `TestData` directory in sync, verifying that every declared fixture exists and that every fixture file is declared, while absent fixtures stay absent.
-- Roslyn checks handwritten production and test sources for file/type correspondence, namespaces, syntax conventions, interface contracts, model declarations, mappings, collection contracts, and NUnit conventions.
-- Separate project tests inspect declared XML and evaluated MSBuild metadata for Debug and Release, production references, solution inventory, and analyser enforcement.
+- Roslyn checks handwritten production and test sources for file/type correspondence, namespaces, syntax conventions (explicit types, no ternaries or tuples, explicit accessibility, braced control flow, target-typed construction, compound assignments, `else if` layout, `string.Equals` comparisons, single-character string overloads, culture-invariant date-time calls, and no global usings), interface contracts, model declarations, mappings, collection contracts, null and exception handling, and NUnit conventions.
+- `ConventionDetectorTests` verifies each source and semantic convention against inline snippets, proving every detector still flags its documented violation and accepts compliant code rather than passing vacuously.
+- Separate project tests inspect declared XML and evaluated MSBuild metadata for Debug and Release, production references, nullable and documentation settings, `InternalsVisibleTo`, solution inventory, and analyser enforcement.
 - Source checks require a repository checkout, exclude generated files and build outputs, and fail when expected sources or selectors are absent.
 - Existing violations remain failures, including builder dependencies on configuration and CK3 dependencies on CK2; production code is not changed or exempted to make the suite green.
 - These structural checks do not prove runtime behaviour, security, game compatibility, or exhaustive compliance with contextual and review-only instructions.

@@ -56,6 +56,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                 if (replacementBlocks.TryGetValue(lineIndex, out List<string>? replacementBlock))
                 {
                     mergedContentLines.Add(string.Join(Environment.NewLine, replacementBlock));
+
                     continue;
                 }
 

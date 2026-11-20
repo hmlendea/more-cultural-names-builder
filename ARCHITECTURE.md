@@ -353,7 +353,7 @@ The project includes three test suites that verify:
 - **Mappings and services:** mapping tests, model key tests, and `LocalisationFetcherTests` cover entity-to-model conversion, identity contracts, and fallback resolution.
 - **Builder output:** every game builder is exercised end to end against temporary directories, asserting descriptor, localisation, landed titles, and data-file content, including Victoria 3 hub suffix recognition, hub-only cultures, and foreign identifier handling.
 - **End-to-end pipeline:** `MoreCulturalNamesBuilder.IntegrationTests` invokes the entry point with real XML data stores and landed titles files, asserting the exact content, encoding, and file inventory of every generated mod file, plus every configuration and data-loading failure mode.
-- **Structural conventions:** `MoreCulturalNamesBuilder.ArchitectureTests` enforces dependency direction, project conventions, and source conventions, including the rule that builders must not depend on the configuration layer, that only `ModBuilderFactory` constructs builders, and that `TestPaths` stays synchronised with the `TestData` fixtures.
+- **Structural conventions:** `MoreCulturalNamesBuilder.ArchitectureTests` enforces dependency direction and acyclicity, project conventions, and source conventions, including the rule that builders must not depend on the configuration layer, that only `ModBuilderFactory` constructs builders, that `TestPaths` stays synchronised with the `TestData` fixtures, and that each source and semantic convention is proven against inline snippets by `ConventionDetectorTests`.
 
 Execute the principal automated verification with:
 

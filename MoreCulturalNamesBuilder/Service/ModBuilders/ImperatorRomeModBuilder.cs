@@ -148,7 +148,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     GameId gameId = locationGameIdsById[provinceId];
 
                     Localisation? defaultLocalisation = provinceLocalisations.Values
-                        .FirstOrDefault(localisation => localisation.LanguageId.Equals(gameId.DefaultNameLanguageId));
+                        .FirstOrDefault(localisation => string.Equals(localisation.LanguageId, gameId.DefaultNameLanguageId));
 
                     if (defaultLocalisation is not null)
                     {
