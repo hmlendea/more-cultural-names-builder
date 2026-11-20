@@ -71,6 +71,46 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
             Assert.That(dataObjects.Select(dataObject => dataObject.Value), Is.EqualTo(["Newport", "Cluj-Napoca"]));
         }
 
+        [Test]
+        public void GivenADataObject_WhenMappingToAServiceModel_ThenEveryValueIsPreserved()
+        {
+            NameDataObject dataObject = new("Romanian", "Cluj-Napoca")
+            {
+                Adjective = "Clujean",
+                Comment = "Praise the Sun!"
+            };
+
+            Name serviceModel = InternalMappingInvoker.Invoke<Name>(
+                "NameMapping",
+                "ToServiceModel",
+                dataObject);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serviceModel.LanguageId, Is.EqualTo("Romanian"));
+                Assert.That(serviceModel.Value, Is.EqualTo("Cluj-Napoca"));
+                Assert.That(serviceModel.Adjective, Is.EqualTo("Clujean"));
+                Assert.That(serviceModel.Comment, Is.EqualTo("Praise the Sun!"));
+            });
+        }
+
+        [Test]
+        public void GivenMultipleDataObjects_WhenMappingToServiceModels_ThenOrderAndValuesArePreserved()
+        {
+            IEnumerable<NameDataObject> dataObjects =
+            [
+                new("English", "Newport"),
+                new("Romanian", "Cluj-Napoca")
+            ];
+
+            IEnumerable<Name> serviceModels = InternalMappingInvoker.Invoke<IEnumerable<Name>>(
+                "NameMapping",
+                "ToServiceModels",
+                dataObjects);
+
+            Assert.That(serviceModels.Select(name => name.Value), Is.EqualTo(["Newport", "Cluj-Napoca"]));
+        }
+
         private static Name BuildName(string languageId, string value)
             => new()
             {

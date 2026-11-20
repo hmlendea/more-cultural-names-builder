@@ -16,6 +16,7 @@ MoreCulturalNamesBuilder.UnitTests/
 │   └── SettingsTests.cs
 ├── DataAccess/
 │   └── DataObjects/
+│       ├── DataObjectConstructorTests.cs
 │       └── DataObjectSerialisationTests.cs
 ├── Service/
 │   ├── LocalisationFetcherTests.cs
@@ -31,6 +32,7 @@ MoreCulturalNamesBuilder.UnitTests/
 │   ├── Models/
 │   │   ├── GameLocationKeyTests.cs
 │   │   ├── LocalisationKeyTests.cs
+│   │   ├── LocationTests.cs
 │   │   └── TypedGameLocationKeyTests.cs
 │   └── ModBuilders/
 │       ├── CK2ModBuilderTests.cs
@@ -161,6 +163,13 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 **Gaps:**
 - Game version pattern validation
 
+### Data Access Layer (Data Objects)
+
+| Test File | Coverage |
+|-----------|----------|
+| `DataObjectSerialisationTests.cs` | XML type names, nested element and identifier deserialisation |
+| `DataObjectConstructorTests.cs` | Convenience constructor defaults for `GameIdDataObject` and `NameDataObject` |
+
 ### Data Access Layer (Mapping)
 
 | Test File | Coverage |
@@ -183,14 +192,15 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `GameLocationKeyTests.cs` | Equality and hash codes across game and identifier combinations |
 | `TypedGameLocationKeyTests.cs` | Equality, null-type handling, and hash codes across game, identifier, and type |
 | `LocalisationKeyTests.cs` | Equality and hash codes across location and language combinations |
+| `LocationTests.cs` | Emptiness detection across names and fallback locations |
 
 ### Service Layer
 
 | Test File | Coverage |
 |-----------|----------|
-| `LocalisationFetcherTests.cs` | Fallback chain resolution |
+| `LocalisationFetcherTests.cs` | Fallback chain resolution, location and language indexes, empty-name indexing, negative-result caching, and duplicate identifiers |
 | `NameNormaliserTests.cs` | Game charset transformations |
-| `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars |
+| `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars, Victoria 3 delegation to the CK3 charset, and per-game cache reuse |
 | Game builder integration tests | Real charset transformation applied to the canonical fixture names for every target game |
 
 **Gaps:**

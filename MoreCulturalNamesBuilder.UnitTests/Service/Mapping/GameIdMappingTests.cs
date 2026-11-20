@@ -66,5 +66,47 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
 
             Assert.That(dataObjects, Is.Empty);
         }
+
+        [Test]
+        public void GivenADataObject_WhenMappingToAServiceModel_ThenEveryValueIsPreserved()
+        {
+            GameIdDataObject dataObject = new("CK3", "c_cluj")
+            {
+                Type = "county",
+                Parent = "d_romania",
+                DefaultNameLanguageId = "Romanian"
+            };
+
+            GameId serviceModel = InternalMappingInvoker.Invoke<GameId>(
+                "GameIdMapping",
+                "ToServiceModel",
+                dataObject);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serviceModel.Game, Is.EqualTo("CK3"));
+                Assert.That(serviceModel.Type, Is.EqualTo("county"));
+                Assert.That(serviceModel.Parent, Is.EqualTo("d_romania"));
+                Assert.That(serviceModel.DefaultNameLanguageId, Is.EqualTo("Romanian"));
+                Assert.That(serviceModel.Id, Is.EqualTo("c_cluj"));
+            });
+        }
+
+        [Test]
+        public void GivenMultipleDataObjects_WhenMappingToServiceModels_ThenOrderAndValuesArePreserved()
+        {
+            IEnumerable<GameIdDataObject> dataObjects =
+            [
+                new("CK2", "c_oradea"),
+                new("CK3", "c_cluj")
+            ];
+
+            IEnumerable<GameId> serviceModels = InternalMappingInvoker.Invoke<IEnumerable<GameId>>(
+                "GameIdMapping",
+                "ToServiceModels",
+                dataObjects);
+
+            Assert.That(serviceModels.Select(gameId => gameId.Id), Is.EqualTo(["c_oradea", "c_cluj"]));
+        }
     }
 }

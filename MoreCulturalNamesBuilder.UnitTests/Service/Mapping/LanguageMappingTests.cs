@@ -61,12 +61,72 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
             Assert.That(dataObjects.Select(dataObject => dataObject.Id), Is.EqualTo(["English", "Romanian"]));
         }
 
+        [Test]
+        public void GivenADataObjectWithACode_WhenMappingToAServiceModel_ThenNestedValuesArePreserved()
+        {
+            LanguageDataObject dataObject = BuildDataObject(
+                "Romanian",
+                new() { ISO_639_1 = "ro", ISO_639_2 = "ron", ISO_639_3 = "ron" });
+
+            Language serviceModel = InternalMappingInvoker.Invoke<Language>(
+                "LanguageMapping",
+                "ToServiceModel",
+                dataObject);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serviceModel.Id, Is.EqualTo("Romanian"));
+                Assert.That(serviceModel.Code!.ISO_639_1, Is.EqualTo("ro"));
+                Assert.That(serviceModel.GameIds.Single().Id, Is.EqualTo("romanian"));
+                Assert.That(serviceModel.FallbackLanguages, Is.EqualTo(["English", "French"]));
+            });
+        }
+
+        [Test]
+        public void GivenADataObjectWithoutACode_WhenMappingToAServiceModel_ThenTheCodeRemainsNull()
+        {
+            LanguageDataObject dataObject = BuildDataObject("Romanian", null);
+
+            Language serviceModel = InternalMappingInvoker.Invoke<Language>(
+                "LanguageMapping",
+                "ToServiceModel",
+                dataObject);
+
+            Assert.That(serviceModel.Code, Is.Null);
+        }
+
+        [Test]
+        public void GivenMultipleDataObjects_WhenMappingToServiceModels_ThenOrderIsPreserved()
+        {
+            IEnumerable<LanguageDataObject> dataObjects =
+            [
+                BuildDataObject("English", new() { ISO_639_1 = "en" }),
+                BuildDataObject("Romanian", new() { ISO_639_1 = "ro" })
+            ];
+
+            IEnumerable<Language> serviceModels = InternalMappingInvoker.Invoke<IEnumerable<Language>>(
+                "LanguageMapping",
+                "ToServiceModels",
+                dataObjects);
+
+            Assert.That(serviceModels.Select(language => language.Id), Is.EqualTo(["English", "Romanian"]));
+        }
+
         private static Language BuildLanguage(string languageId, LanguageCode? code)
             => new()
             {
                 Id = languageId,
                 Code = code,
                 GameIds = [new() { Game = "CK3", Id = languageId.ToLowerInvariant() }],
+                FallbackLanguages = ["English", "French"]
+            };
+
+        private static LanguageDataObject BuildDataObject(string languageId, LanguageCodeDataObject? code)
+            => new()
+            {
+                Id = languageId,
+                Code = code,
+                GameIds = [new("CK3", languageId.ToLowerInvariant())],
                 FallbackLanguages = ["English", "French"]
             };
     }

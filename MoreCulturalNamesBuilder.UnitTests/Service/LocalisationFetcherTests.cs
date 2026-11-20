@@ -286,6 +286,85 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
                 Throws.TypeOf<ArgumentNullException>());
         }
 
+        [Test]
+        public void GivenNamesWithADuplicatedLanguage_WhenGettingLocalisations_ThenTheFirstNameIsUsed()
+        {
+            LocationDataObject location = BuildLocation(
+                LocationId,
+                LocationGameId,
+                [
+                    new("Romanian", "Cluj-Napoca"),
+                    new("Romanian", "Florești")
+                ],
+                []);
+            localisationFetcher = CreateFetcher([BuildRomanianLanguage()], [location]);
+
+            Localisation localisation = localisationFetcher
+                .GetGameLocationLocalisations(LocationGameId, Game)
+                .Single();
+
+            Assert.That(localisation.Name, Is.EqualTo(LocationId));
+        }
+
+        [Test]
+        public void GivenAnUnresolvedLocalisation_WhenGettingLocalisationsAgain_ThenTheMissingResultIsCached()
+        {
+            LocationDataObject location = BuildLocation(
+                LocationId,
+                LocationGameId,
+                [new("English", "Cluj-Napoca")],
+                []);
+            localisationFetcher = CreateFetcher([BuildRomanianLanguage()], [location]);
+
+            IEnumerable<Localisation> firstLocalisations = localisationFetcher
+                .GetGameLocationLocalisations(LocationGameId, Game);
+            IEnumerable<Localisation> secondLocalisations = localisationFetcher
+                .GetGameLocationLocalisations(LocationGameId, Game);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(firstLocalisations, Is.Empty);
+                Assert.That(secondLocalisations, Is.Empty);
+                languageRepository.Verify(repository => repository.GetAll(), Times.Exactly(2));
+                locationRepository.Verify(repository => repository.GetAll(), Times.Exactly(2));
+            });
+        }
+
+        [TestCase("county")]
+        [TestCase("")]
+        public void GivenARepeatedLocalisationQuery_WhenGettingLocalisationsAgain_ThenTheResolvedLocalisationIsCached(
+            string locationGameIdType)
+        {
+            IEnumerable<Localisation> firstLocalisations = localisationFetcher
+                .GetGameLocationLocalisations(LocationGameId, locationGameIdType, Game);
+            IEnumerable<Localisation> secondLocalisations = localisationFetcher
+                .GetGameLocationLocalisations(LocationGameId, locationGameIdType, Game);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(firstLocalisations, Has.Exactly(1).Items);
+                Assert.That(secondLocalisations, Has.Exactly(1).Items);
+            });
+        }
+
+        [Test]
+        public void GivenALocationWithoutAGameIdentifier_WhenGettingLocalisations_ThenNoLocalisationsAreReturned()
+        {
+            LocationDataObject location = BuildLocation(LocationId, LocationGameId, [], []);
+            location.GameIds.Clear();
+            localisationFetcher = CreateFetcher([BuildRomanianLanguage()], [location]);
+
+            Assert.That(
+                localisationFetcher.GetGameLocationLocalisations(LocationGameId, Game),
+                Is.Empty);
+        }
+
+        [Test]
+        public void GivenAQueryWithAnEmptyGame_WhenGettingLocalisations_ThenNoLocalisationsAreReturned()
+            => Assert.That(
+                localisationFetcher.GetGameLocationLocalisations(LocationGameId, string.Empty),
+                Is.Empty);
+
         private LocalisationFetcher CreateFetcher(
             IEnumerable<LanguageDataObject> languages,
             IEnumerable<LocationDataObject> locations)
