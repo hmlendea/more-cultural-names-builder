@@ -59,8 +59,10 @@ MoreCulturalNamesBuilder.IntegrationTests/
 ├── Victoria3ModBuilderIntegrationTests.cs
 ├── RichDataIntegrationTests.cs
 ├── ResilienceIntegrationTests.cs
+├── CrossBuilderIntegrationTests.cs
 ├── ProgramIntegrationTests.cs
 ├── ExpectedModContent.cs
+├── GeneratedFiles.cs
 ├── IntegrationTestSetup.cs
 ├── ModBuildRequest.cs
 ├── ModBuildRunner.cs
@@ -128,6 +130,7 @@ The [integration test project](../MoreCulturalNamesBuilder.IntegrationTests/More
 - A determinism test builds the same inputs twice and compares every generated file byte for byte.
 - `RichDataIntegrationTests` builds every game from a seven-language, sixteen-location fixture and asserts the complete descriptor, landed titles, province name, and localisation output against golden files, covering multi-language fallbacks, accented and non-Latin names, missing adjectives, fallback chains, and both verbose-comment modes. It also covers the output, version, and dependency aliases, custom mod identifiers, game-version rendering, and game-identifier normalisation.
 - `ResilienceIntegrationTests` covers duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, and the interaction of each failure with every builder.
+- `CrossBuilderIntegrationTests` applies the same custom name, version, and identifier overrides to every builder and asserts the declared descriptors and path layout, verifies that absent landed titles inputs do not affect the structural builders, checks custom landed titles file names, mixed-case verbose values, rebuild idempotence in an existing output directory, determinism for every builder, and game-identifier normalisation for non-CK2 builders.
 - The integration tests are marked `[NonParallelizable]` because they share the static `Program.ServiceProvider`.
 
 Run the integration tests on their own with:
@@ -231,6 +234,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `Victoria3ModBuilderIntegrationTests.cs` | Full Victoria 3 output content, metadata, dynamic state and hub name effects, on action hooks, comment suppression, empty and nameless data stores, dependency handling, custom mod identifiers |
 | `RichDataIntegrationTests.cs` | Golden-file reproduction for every builder from a seven-language, sixteen-location fixture, in both comment modes; output, version, and dependency aliases; custom mod identifiers; game-version rendering; game-identifier normalisation; rich-input determinism |
 | `ResilienceIntegrationTests.cs` | Duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, missing stores, and duplicate entities across every builder |
+| `CrossBuilderIntegrationTests.cs` | Custom name, version, and identifier overrides across every builder; absent landed titles inputs for the structural builders; custom landed titles file names; mixed-case verbose values; rebuild idempotence; per-builder determinism; game-identifier normalisation |
 
 **Major Gaps:**
 - No game compatibility verification (generated mods are not loaded in the target games)
