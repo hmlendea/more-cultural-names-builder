@@ -74,6 +74,43 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
             Assert.That(dataObjects.Select(dataObject => dataObject.Id), Is.EqualTo(["Oradea", "Cluj-Napoca"]));
         }
 
+        [Test]
+        public void GivenADataObject_WhenMappingToAServiceModel_ThenNestedValuesArePreserved()
+        {
+            LocationDataObject dataObject = BuildDataObject("Cluj-Napoca", "c_cluj");
+
+            Location serviceModel = InternalMappingInvoker.Invoke<Location>(
+                "LocationMapping",
+                "ToServiceModel",
+                dataObject);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serviceModel.Id, Is.EqualTo("Cluj-Napoca"));
+                Assert.That(serviceModel.GeoNamesId, Is.EqualTo("681290"));
+                Assert.That(serviceModel.GameIds.Single().Id, Is.EqualTo("c_cluj"));
+                Assert.That(serviceModel.FallbackLocations, Is.EqualTo(["Oradea", "Dezmir"]));
+                Assert.That(serviceModel.Names.Single().Value, Is.EqualTo("Cluj-Napoca"));
+            });
+        }
+
+        [Test]
+        public void GivenMultipleDataObjects_WhenMappingToServiceModels_ThenOrderIsPreserved()
+        {
+            IEnumerable<LocationDataObject> dataObjects =
+            [
+                BuildDataObject("Oradea", "c_oradea"),
+                BuildDataObject("Cluj-Napoca", "c_cluj")
+            ];
+
+            IEnumerable<Location> serviceModels = InternalMappingInvoker.Invoke<IEnumerable<Location>>(
+                "LocationMapping",
+                "ToServiceModels",
+                dataObjects);
+
+            Assert.That(serviceModels.Select(location => location.Id), Is.EqualTo(["Oradea", "Cluj-Napoca"]));
+        }
+
         private static Location BuildLocation(string locationId, string locationGameId)
             => new()
             {
@@ -82,6 +119,16 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.Mapping
                 GameIds = [new() { Game = "CK3", Id = locationGameId }],
                 FallbackLocations = ["Oradea", "Dezmir"],
                 Names = [new() { LanguageId = "Romanian", Value = locationId }]
+            };
+
+        private static LocationDataObject BuildDataObject(string locationId, string locationGameId)
+            => new()
+            {
+                Id = locationId,
+                GeoNamesId = "681290",
+                GameIds = [new("CK3", locationGameId) { Type = "county" }],
+                FallbackLocations = ["Oradea", "Dezmir"],
+                Names = [new("Romanian", locationId)]
             };
     }
 }

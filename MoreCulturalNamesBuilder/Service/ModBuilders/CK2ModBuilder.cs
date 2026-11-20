@@ -328,7 +328,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
 
                     foreach (Localisation localisation in localisationEntry.Value)
                     {
-                        if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
+                        if (string.Equals(localisation.LanguageId, gameId.DefaultNameLanguageId))
                         {
                             localLines.Add(GenerateLocationLocalisationLine(
                                 locationGameId,
@@ -344,7 +344,7 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                             $"{locationGameId}_adj_{localisation.LanguageGameId}",
                             localisation.Adjective));
 
-                        if (localisation.LanguageId.Equals(gameId.DefaultNameLanguageId))
+                        if (string.Equals(localisation.LanguageId, gameId.DefaultNameLanguageId))
                         {
                             localLines.Add(GenerateLocationLocalisationLine(
                                 $"{locationGameId}_adj",

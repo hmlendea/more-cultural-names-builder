@@ -12,6 +12,7 @@ using NUnit.Framework;
 using MoreCulturalNamesBuilder.Service.ModBuilders;
 
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
+using static ArchUnitNET.Fluent.Slices.SliceRuleDefinition;
 
 using Assembly = System.Reflection.Assembly;
 using Type = System.Type;
@@ -39,6 +40,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         {
             AssertNamespaceExists(source);
             AssertNamespaceExists(target);
+
             if (source is "Service")
             {
                 Types().That().ResideInNamespace("MoreCulturalNamesBuilder.Service")
@@ -46,6 +48,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
                         .ResideInNamespaceOrBelow($"MoreCulturalNamesBuilder.{target}"))
                     .Because($"{source} must not depend on {target}; see ARCHITECTURE.md")
                     .Check(architecture);
+
                 return;
             }
 
@@ -129,6 +132,20 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
                 Assert.That(builder.IsSubclassOf(typeof(ModBuilder)), $"{builder} must inherit ModBuilder.");
             }
         }
+
+        [Test]
+        public void DocumentedLayersMustBeAcyclic()
+        {
+            string[] layers = ["Configuration", "DataAccess", "Service", "Service.ModBuilders"];
+
+            foreach (string layer in layers)
+            {
+                AssertNamespaceExists(layer);
+            }
+
+            Slices().Matching("MoreCulturalNamesBuilder.(*)")
+                .Should().BeFreeOfCycles()
+                .Check(architecture);        }
 
         [Test]
         public void ProductionAssembliesMustNotExposeInternalsToTests()

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 using NuciDAL.Repositories;
 
@@ -191,31 +190,10 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
 
             string firstMainDirectoryPath = Path.Combine(firstOutputDirectoryPath, "CK3", "more-cultural-names");
             string secondMainDirectoryPath = Path.Combine(secondOutputDirectoryPath, "CK3", "more-cultural-names");
-            IEnumerable<string> relativeFilePaths = Directory
-                .GetFiles(firstMainDirectoryPath, "*", SearchOption.AllDirectories)
-                .Select(filePath => Path.GetRelativePath(firstMainDirectoryPath, filePath))
-                .Order(StringComparer.Ordinal);
-            List<string> differences = [];
 
-            foreach (string relativeFilePath in relativeFilePaths)
-            {
-                string firstFilePath = Path.Combine(firstMainDirectoryPath, relativeFilePath);
-                string secondFilePath = Path.Combine(secondMainDirectoryPath, relativeFilePath);
-
-                bool isIdentical =
-                    TextContent.ReadBytes(firstFilePath).SequenceEqual(TextContent.ReadBytes(secondFilePath)) ||
-                    string.Equals(
-                        TextContent.WithoutVersionComment(TextContent.Read(firstFilePath)),
-                        TextContent.WithoutVersionComment(TextContent.Read(secondFilePath)),
-                        StringComparison.Ordinal);
-
-                if (!isIdentical)
-                {
-                    differences.Add(relativeFilePath);
-                }
-            }
-
-            Assert.That(differences, Is.Empty);
+            Assert.That(
+                GeneratedFiles.FindDifferences(firstMainDirectoryPath, secondMainDirectoryPath),
+                Is.Empty);
         }
 
         private static ModBuildRequest BuildRequest()

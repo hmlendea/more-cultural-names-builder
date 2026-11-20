@@ -111,6 +111,216 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
         }
 
+        [Test]
+        public void TestFixturesMustBePublicSealedSubjectNamedClassesWithLifecycleNames()
+        {
+            List<string> violations = [];
+            int selected = 0;
+
+            foreach (SyntaxTree tree in RepositorySources.Trees.Where(tree => !RepositorySources.IsProduction(tree)))
+            {
+                foreach (ClassDeclarationSyntax fixture in tree.GetRoot().DescendantNodes()
+                    .OfType<ClassDeclarationSyntax>())
+                {
+                    if (!fixture.Members.OfType<MethodDeclarationSyntax>().Any(method =>
+                        HasAttribute(method.AttributeLists, "NUnit.Framework.TestAttribute") ||
+                        HasAttribute(method.AttributeLists, "NUnit.Framework.TestCaseAttribute") ||
+                        HasAttribute(method.AttributeLists, "NUnit.Framework.TestCaseSourceAttribute")))
+                    {
+                        continue;
+                    }
+
+                    selected += 1;
+
+                    if (!fixture.Identifier.ValueText.EndsWith("Tests", StringComparison.Ordinal) ||
+                        !fixture.Modifiers.Any(SyntaxKind.PublicKeyword) ||
+                        !fixture.Modifiers.Any(SyntaxKind.SealedKeyword) ||
+                        !HasAttribute(fixture.AttributeLists, "NUnit.Framework.TestFixtureAttribute"))
+                    {
+                        violations.Add(RepositorySources.Describe(fixture, "Expected a public sealed Tests fixture with TestFixture."));
+                    }
+
+                    foreach (MethodDeclarationSyntax method in fixture.Members.OfType<MethodDeclarationSyntax>())
+                    {
+                        if (HasAttribute(method.AttributeLists, "NUnit.Framework.SetUpAttribute") ||
+                            HasAttribute(method.AttributeLists, "NUnit.Framework.OneTimeSetUpAttribute"))
+                        {
+                            if (method.Identifier.ValueText is not "SetUp")
+                            {
+                                violations.Add(RepositorySources.Describe(method, "Setup methods must be named SetUp."));
+                            }
+                        }
+
+                        if (HasAttribute(method.AttributeLists, "NUnit.Framework.TearDownAttribute") ||
+                            HasAttribute(method.AttributeLists, "NUnit.Framework.OneTimeTearDownAttribute"))
+                        {
+                            if (method.Identifier.ValueText is not "TearDown")
+                            {
+                                violations.Add(RepositorySources.Describe(method, "Teardown methods must be named TearDown."));
+                            }
+                        }
+                    }
+                }
+            }
+
+            Assert.That(selected, Is.GreaterThan(0), "No test fixtures were selected.");
+            Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
+        }
+
+        [Test]
+        public void PrivateFixtureHelpersMustBeDeclaredAfterTheLastTest()
+        {
+            List<string> violations = [];
+            int selected = 0;
+
+            foreach (SyntaxTree tree in RepositorySources.Trees.Where(IsUnitOrIntegrationSource))
+            {
+                foreach (ClassDeclarationSyntax fixture in tree.GetRoot().DescendantNodes()
+                    .OfType<ClassDeclarationSyntax>())
+                {
+                    MethodDeclarationSyntax[] tests = [.. fixture.Members.OfType<MethodDeclarationSyntax>()
+                        .Where(method =>
+                            HasAttribute(method.AttributeLists, "NUnit.Framework.TestAttribute") ||
+                            HasAttribute(method.AttributeLists, "NUnit.Framework.TestCaseAttribute") ||
+                            HasAttribute(method.AttributeLists, "NUnit.Framework.TestCaseSourceAttribute"))];
+
+                    if (tests.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    selected += 1;
+                    int lastTestLine = tests.Max(method =>
+                        method.SyntaxTree.GetLineSpan(method.Span).StartLinePosition.Line);
+
+                    foreach (MethodDeclarationSyntax method in fixture.Members.OfType<MethodDeclarationSyntax>())
+                    {
+                        bool isTest = tests.Contains(method);
+
+                        if (isTest || HasAttribute(method.AttributeLists, "NUnit.Framework.SetUpAttribute") ||
+                            HasAttribute(method.AttributeLists, "NUnit.Framework.TearDownAttribute") ||
+                            HasAttribute(method.AttributeLists, "NUnit.Framework.OneTimeSetUpAttribute") ||
+                            HasAttribute(method.AttributeLists, "NUnit.Framework.OneTimeTearDownAttribute"))
+                        {
+                            continue;
+                        }
+
+                        if (method.SyntaxTree.GetLineSpan(method.Span).StartLinePosition.Line < lastTestLine)
+                        {
+                            violations.Add(RepositorySources.Describe(method, "Helpers must be declared at the bottom of the fixture."));
+                        }
+                    }
+                }
+            }
+
+            Assert.That(selected, Is.GreaterThan(0), "No test fixtures were selected.");
+            Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
+        }
+
+        [Test]
+        public void UnitTestMethodsMustBePublicVoidAndAssertOutcomes()
+        {
+            List<string> violations = [];
+            int selected = 0;
+
+            foreach (SyntaxTree tree in RepositorySources.Trees.Where(tree =>
+                string.Equals(RepositorySources.GetProjectName(tree.FilePath),
+                    "MoreCulturalNamesBuilder.UnitTests", StringComparison.Ordinal)))
+            {
+                foreach (ClassDeclarationSyntax fixture in tree.GetRoot().DescendantNodes()
+                    .OfType<ClassDeclarationSyntax>())
+                {
+                    foreach (MethodDeclarationSyntax method in fixture.Members.OfType<MethodDeclarationSyntax>())
+                    {
+                        if (!HasAttribute(method.AttributeLists, "NUnit.Framework.TestAttribute") &&
+                            !HasAttribute(method.AttributeLists, "NUnit.Framework.TestCaseAttribute") &&
+                            !HasAttribute(method.AttributeLists, "NUnit.Framework.TestCaseSourceAttribute"))
+                        {
+                            continue;
+                        }
+
+                        selected += 1;
+
+                        if (!method.Modifiers.Any(SyntaxKind.PublicKeyword) ||
+                            method.Modifiers.Any(SyntaxKind.StaticKeyword) ||
+                            method.Modifiers.Any(SyntaxKind.AsyncKeyword) ||
+                            !ReturnsVoid(method))
+                        {
+                            violations.Add(RepositorySources.Describe(method, "Test methods must be public void instance methods."));
+                        }
+
+                        if (!AssertsAnOutcome(fixture, method))
+                        {
+                            violations.Add(RepositorySources.Describe(method, "Business unit tests require an assertion or Moq verification."));
+                        }
+                    }
+                }
+            }
+
+            Assert.That(selected, Is.GreaterThan(0), "No unit tests were selected.");
+            Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
+        }
+
+        private static bool AssertsAnOutcome(ClassDeclarationSyntax fixture, MethodDeclarationSyntax method)
+        {
+            HashSet<string> visited = [];
+            Queue<MethodDeclarationSyntax> pending = new();
+            pending.Enqueue(method);
+
+            while (pending.Count > 0)
+            {
+                MethodDeclarationSyntax current = pending.Dequeue();
+
+                if (!visited.Add(current.Identifier.ValueText))
+                {
+                    continue;
+                }
+
+                if (DeclaresAssertion(current))
+                {
+                    return true;
+                }
+
+                foreach (InvocationExpressionSyntax invocation in current.DescendantNodes()
+                    .OfType<InvocationExpressionSyntax>())
+                {
+                    if (invocation.Expression is not IdentifierNameSyntax identifier)
+                    {
+                        continue;
+                    }
+
+                    MethodDeclarationSyntax? helper = fixture.Members.OfType<MethodDeclarationSyntax>()
+                        .FirstOrDefault(candidate => string.Equals(candidate.Identifier.ValueText,
+                            identifier.Identifier.ValueText, StringComparison.Ordinal));
+
+                    if (helper is not null)
+                    {
+                        pending.Enqueue(helper);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool DeclaresAssertion(MethodDeclarationSyntax method) =>
+            method.DescendantNodes().OfType<MemberAccessExpressionSyntax>().Any(access =>
+                access.Name.Identifier.ValueText is "That" or "Multiple" or "EnterMultipleScope" or "Verify" or "Pass") ||
+            method.AttributeLists.SelectMany(list => list.Attributes).Any(attribute =>
+                attribute.ArgumentList?.Arguments.Any(argument =>
+                    string.Equals(argument.NameEquals?.Name.Identifier.ValueText, "ExpectedResult", StringComparison.Ordinal)) is true);
+
+        private static bool ReturnsVoid(MethodDeclarationSyntax method) =>
+            method.ReturnType is PredefinedTypeSyntax predefined && predefined.Keyword.IsKind(SyntaxKind.VoidKeyword);
+
+        private static bool IsUnitOrIntegrationSource(SyntaxTree tree)
+        {
+            string projectName = RepositorySources.GetProjectName(tree.FilePath);
+
+            return string.Equals(projectName, "MoreCulturalNamesBuilder.UnitTests", StringComparison.Ordinal) ||
+                string.Equals(projectName, "MoreCulturalNamesBuilder.IntegrationTests", StringComparison.Ordinal);
+        }
+
         private static IEnumerable<MethodDeclarationSyntax> GetTestMethods() =>
             RepositorySources.Trees.Where(tree => !RepositorySources.IsProduction(tree))
                 .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())

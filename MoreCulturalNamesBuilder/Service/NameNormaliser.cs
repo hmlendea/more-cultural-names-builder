@@ -956,6 +956,7 @@ namespace MoreCulturalNamesBuilder.Service
                 if (map.ContainsKey(input[characterIndex]))
                 {
                     firstReplaceableCharacterIndex = characterIndex;
+
                     break;
                 }
             }
@@ -975,6 +976,7 @@ namespace MoreCulturalNamesBuilder.Service
                 if (map.TryGetValue(currentCharacter, out string? replacement))
                 {
                     contentBuilder.Append(replacement);
+
                     continue;
                 }
 

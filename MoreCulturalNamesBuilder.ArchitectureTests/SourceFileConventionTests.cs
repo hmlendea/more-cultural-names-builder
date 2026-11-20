@@ -27,6 +27,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
                 if (declarations.Length != 1)
                 {
                     violations.Add($"{tree.FilePath}: Expected exactly one type, found {declarations.Length}.");
+
                     continue;
                 }
 
@@ -87,6 +88,13 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         [TestCase("NoInitCollections")]
         [TestCase("NoIncrementOrDecrement")]
         [TestCase("NoInlineQualifiedTypes")]
+        [TestCase("NoRedundantDefaults")]
+        [TestCase("CompoundAssignments")]
+        [TestCase("ElseIfOnOneLine")]
+        [TestCase("NoStringEqualityOperator")]
+        [TestCase("SingleCharacterStringCalls")]
+        [TestCase("NoGlobalUsings")]
+        [TestCase("CultureInvariantDateTime")]
         public void HandwrittenSourcesMustFollowCodingConventions(string convention)
         {
             List<string> violations = [];
@@ -112,6 +120,13 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         [TestCase("DataContractAutoProperties")]
         [TestCase("StaticStateFreeMethods")]
         [TestCase("EntryPoint")]
+        [TestCase("EnumerableCollectionContracts")]
+        [TestCase("DataObjectListCollections")]
+        [TestCase("EquatableContract")]
+        [TestCase("InterfaceContractCompleteness")]
+        [TestCase("InterfaceColocation")]
+        [TestCase("NoCustomExceptions")]
+        [TestCase("BclExceptionThrows")]
         public void ProductionSymbolsMustFollowSemanticConventions(string convention)
         {
             List<string> violations = [];
@@ -135,7 +150,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
         }
 
-        private static IEnumerable<string> GetSymbolViolations(
+        internal static IEnumerable<string> GetSymbolViolations(
             ClassDeclarationSyntax declaration,
             INamedTypeSymbol symbol,
             string convention,
@@ -176,7 +191,158 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
                     }
                 }
             }
+
+            if (convention is "EnumerableCollectionContracts")
+            {
+                foreach (string violation in GetCollectionContractViolations(declaration, symbol, model))
+                {
+                    yield return violation;
+                }
+            }
+
+            if (convention is "DataObjectListCollections" &&
+                declaration.SyntaxTree.FilePath.Contains(".DataObjects", StringComparison.Ordinal))
+            {
+                foreach (PropertyDeclarationSyntax property in declaration.Members.OfType<PropertyDeclarationSyntax>())
+                {
+                    ITypeSymbol? propertyType = model.GetTypeInfo(property.Type).Type;
+
+                    if (propertyType is INamedTypeSymbol named && IsCollection(named) &&
+                        named.OriginalDefinition.ToDisplayString() is not "System.Collections.Generic.List<T>")
+                    {
+                        yield return RepositorySources.Describe(property,
+                            "XML-serialised data objects require List<T> collection properties.");
+                    }
+                }
+            }
+
+            if (convention is "EquatableContract" && DeclaresEquatable(declaration))
+            {
+                bool hasObjectEquals = symbol.GetMembers().OfType<IMethodSymbol>().Any(member =>
+                    member.Name is "Equals" && member.IsOverride && member.Parameters.Length == 1 &&
+                    member.Parameters[0].Type.SpecialType is SpecialType.System_Object);
+                bool hasHashCode = symbol.GetMembers().OfType<IMethodSymbol>()
+                    .Any(member => member.Name is "GetHashCode" && member.IsOverride);
+
+                if (!hasObjectEquals || !hasHashCode)
+                {
+                    yield return RepositorySources.Describe(declaration,
+                        "Types with meaningful equality must override Equals(object) and GetHashCode().");
+                }
+            }
+
+            if (convention is "NoCustomExceptions" && symbol.Name.EndsWith("Exception", StringComparison.Ordinal))
+            {
+                yield return RepositorySources.Describe(declaration,
+                    "Custom exception types are forbidden; a BCL exception must be used instead.");
+            }
+
+            if (convention is "InterfaceContractCompleteness" && !symbol.IsAbstract && !symbol.IsStatic)
+            {
+                foreach (string violation in GetInterfaceCompletenessViolations(declaration, symbol))
+                {
+                    yield return violation;
+                }
+            }
         }
+
+        private static IEnumerable<string> GetCollectionContractViolations(
+            ClassDeclarationSyntax declaration,
+            INamedTypeSymbol symbol,
+            SemanticModel model)
+        {
+            if (IsDataContract(declaration.SyntaxTree) || declaration.SyntaxTree.FilePath.Contains(".DataObjects", StringComparison.Ordinal))
+            {
+                yield break;
+            }
+
+            foreach (PropertyDeclarationSyntax property in declaration.Members.OfType<PropertyDeclarationSyntax>())
+            {
+                if (!IsExposed(property.Modifiers))
+                {
+                    continue;
+                }
+
+                if (model.GetTypeInfo(property.Type).Type is INamedTypeSymbol named && IsConcreteCollection(named))
+                {
+                    yield return RepositorySources.Describe(property,
+                        $"Collection members must expose IEnumerable<T>, not {named.Name}.");
+                }
+            }
+
+            foreach (MethodDeclarationSyntax method in declaration.Members.OfType<MethodDeclarationSyntax>())
+            {
+                if (!IsExposed(method.Modifiers))
+                {
+                    continue;
+                }
+
+                IMethodSymbol? methodSymbol = model.GetDeclaredSymbol(method);
+
+                if (methodSymbol is null)
+                {
+                    continue;
+                }
+
+                foreach (ITypeSymbol type in methodSymbol.Parameters.Select(parameter => parameter.Type)
+                    .Append(methodSymbol.ReturnType))
+                {
+                    if (type is INamedTypeSymbol named && IsConcreteCollection(named))
+                    {
+                        yield return RepositorySources.Describe(method, $"Collection members must expose IEnumerable<T>, not {named.Name}.");
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static IEnumerable<string> GetInterfaceCompletenessViolations(
+            ClassDeclarationSyntax declaration,
+            INamedTypeSymbol symbol)
+        {
+            INamedTypeSymbol? contract = symbol.AllInterfaces.FirstOrDefault(candidate =>
+                string.Equals(candidate.Name, $"I{symbol.Name}", StringComparison.Ordinal) &&
+                SymbolEqualityComparer.Default.Equals(candidate.ContainingNamespace, symbol.ContainingNamespace));
+
+            if (contract is null)
+            {
+                yield break;
+            }
+
+            string[] contractMembers = [.. contract.GetMembers().OfType<IMethodSymbol>().Select(member => member.Name)];
+
+            foreach (IMethodSymbol member in symbol.GetMembers().OfType<IMethodSymbol>())
+            {
+                if (member.MethodKind is MethodKind.Ordinary &&
+                    member.DeclaredAccessibility is Accessibility.Public &&
+                    !member.IsOverride &&
+                    !contractMembers.Contains(member.Name, StringComparer.Ordinal))
+                {
+                    yield return RepositorySources.Describe(declaration,
+                        $"{symbol.Name}.{member.Name} must be declared on {contract.Name}.");
+                }
+            }
+        }
+
+        private static bool DeclaresEquatable(ClassDeclarationSyntax declaration) =>
+            declaration.BaseList?.Types.Any(baseType =>
+                baseType.Type.ToString().StartsWith("IEquatable", StringComparison.Ordinal)) is true;
+
+        private static bool IsExposed(SyntaxTokenList modifiers) =>
+            modifiers.Any(token => token.IsKind(SyntaxKind.PublicKeyword) || token.IsKind(SyntaxKind.ProtectedKeyword));
+
+        private static bool IsConcreteCollection(INamedTypeSymbol type) =>
+            type.OriginalDefinition.ToDisplayString() is
+                "System.Collections.Generic.List<T>" or
+                "System.Collections.Generic.Dictionary<TKey, TValue>" or
+                "System.Collections.Generic.IDictionary<TKey, TValue>" or
+                "System.Collections.Generic.IList<T>" or
+                "System.Collections.Generic.HashSet<T>" or
+                "System.Collections.Generic.ICollection<T>" or
+                "System.Collections.Generic.IReadOnlyList<T>" or
+                "System.Collections.Generic.IReadOnlyDictionary<TKey, TValue>" or
+                "System.Collections.Concurrent.ConcurrentDictionary<TKey, TValue>";
 
         private static IEnumerable<string> GetMethodViolations(
             MethodDeclarationSyntax method,
@@ -194,6 +360,33 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
                     if (IsCollection(type) && type.OriginalDefinition.ToDisplayString() is not "System.Collections.Generic.IEnumerable<T>")
                     {
                         yield return RepositorySources.Describe(method, "Collection parameters and returns must use IEnumerable<T>.");
+                    }
+                }
+            }
+
+            if (convention is "BclExceptionThrows")
+            {
+                foreach (ThrowStatementSyntax statement in method.DescendantNodes().OfType<ThrowStatementSyntax>())
+                {
+                    if (statement.Expression is not BaseObjectCreationExpressionSyntax creation)
+                    {
+                        continue;
+                    }
+
+                    ITypeSymbol? thrown = model.GetTypeInfo(creation).Type;
+
+                    if (thrown is null)
+                    {
+                        continue;
+                    }
+
+                    string namespaceName = thrown.ContainingNamespace.ToDisplayString();
+
+                    if (!(string.Equals(namespaceName, "System", StringComparison.Ordinal) ||
+                        namespaceName.StartsWith("System.", StringComparison.Ordinal)))
+                    {
+                        yield return RepositorySources.Describe(statement,
+                            $"Only BCL exceptions may be thrown, not {thrown.Name}.");
                     }
                 }
             }
@@ -387,6 +580,97 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         }
 
         [Test]
+        public void ControlFlowStatementsMustBeSeparatedByBlankLines()
+        {
+            List<string> violations = [];
+            int selected = 0;
+
+            foreach (SyntaxTree tree in RepositorySources.Trees)
+            {
+                foreach (BlockSyntax block in tree.GetRoot().DescendantNodes().OfType<BlockSyntax>())
+                {
+                    StatementSyntax[] statements = [.. block.Statements];
+                    selected += statements.Length;
+
+                    for (int index = 1; index < statements.Length; index += 1)
+                    {
+                        StatementSyntax current = statements[index];
+                        StatementSyntax previous = statements[index - 1];
+
+                        if (RequiresBlankLineAbove(current, previous) &&
+                            tree.GetLineSpan(current.Span).StartLinePosition.Line -
+                            tree.GetLineSpan(previous.Span).EndLinePosition.Line < 2)
+                        {
+                            violations.Add(RepositorySources.Describe(current, "Control flow requires a blank line above."));
+                        }
+                    }
+                }
+            }
+
+            Assert.That(selected, Is.GreaterThan(0), "No statements were selected.");
+            Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
+        }
+
+        private static bool RequiresBlankLineAbove(StatementSyntax current, StatementSyntax previous)
+        {
+            if (IsControlFlowStatement(previous))
+            {
+                return false;
+            }
+
+            return IsBlockControlFlowStatement(current) ||
+                current is ReturnStatementSyntax or ThrowStatementSyntax or BreakStatementSyntax or ContinueStatementSyntax;
+        }
+
+        private static bool IsControlFlowStatement(StatementSyntax statement) =>
+            IsBlockControlFlowStatement(statement) || statement is ReturnStatementSyntax or ThrowStatementSyntax ||
+                statement is BreakStatementSyntax or ContinueStatementSyntax;
+
+        private static bool IsBlockControlFlowStatement(StatementSyntax statement) =>
+            statement is IfStatementSyntax or ForStatementSyntax or ForEachStatementSyntax or WhileStatementSyntax or
+                DoStatementSyntax or SwitchStatementSyntax or UsingStatementSyntax or LockStatementSyntax;
+
+        [Test]
+        public void OverloadsMustBeGroupedAndOrderedByIncreasingParameterCount()
+        {
+            List<string> violations = [];
+            int selected = 0;
+
+            foreach (SyntaxTree tree in RepositorySources.Trees)
+            {
+                foreach (TypeDeclarationSyntax type in tree.GetRoot().DescendantNodes()
+                    .OfType<TypeDeclarationSyntax>())
+                {
+                    Dictionary<string, List<int>> positions = [];
+
+                    foreach (MethodDeclarationSyntax method in type.Members.OfType<MethodDeclarationSyntax>())
+                    {
+                        string name = method.Identifier.ValueText;
+                        selected += 1;
+
+                        if (!positions.TryGetValue(name, out List<int>? seen))
+                        {
+                            positions[name] = [method.ParameterList.Parameters.Count];
+
+                            continue;
+                        }
+
+                        if (seen.Count > 0 && method.ParameterList.Parameters.Count < seen[^1])
+                        {
+                            violations.Add(RepositorySources.Describe(method,
+                                "Overloads must be adjacent and ordered from fewest to most parameters."));
+                        }
+
+                        seen.Add(method.ParameterList.Parameters.Count);
+                    }
+                }
+            }
+
+            Assert.That(selected, Is.GreaterThan(0), "No methods were selected.");
+            Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
+        }
+
+        [Test]
         public void ControlFlowBracesAndMethodSpacingMustFollowSourceLayout()
         {
             List<string> violations = [];
@@ -430,7 +714,13 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
         }
 
-        private static bool ViolatesConvention(SyntaxNode node, string convention) => convention switch
+        private static bool ViolatesConvention(SyntaxNode node, string convention) =>
+            ViolatesConvention(node, convention, RepositorySources.GetSemanticModel);
+
+        internal static bool ViolatesConvention(
+            SyntaxNode node,
+            string convention,
+            Func<SyntaxTree, SemanticModel> modelResolver) => convention switch
         {
             "ExplicitTypes" => node is VariableDeclarationSyntax { Type.IsVar: true } ||
                 node is ForEachStatementSyntax { Type.IsVar: true },
@@ -477,9 +767,86 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             "NoInlineQualifiedTypes" => node is QualifiedNameSyntax qualified &&
                 !qualified.Ancestors().Any(parent => parent is UsingDirectiveSyntax) &&
                 qualified.Parent is not BaseNamespaceDeclarationSyntax &&
-                RepositorySources.GetSemanticModel(node.SyntaxTree).GetSymbolInfo(qualified).Symbol is ITypeSymbol,
+                modelResolver(node.SyntaxTree).GetSymbolInfo(qualified).Symbol is ITypeSymbol,
+            "NoRedundantDefaults" => IsRedundantDefault(node),
+            "CompoundAssignments" => node is AssignmentExpressionSyntax assignment && assignment.IsKind(SyntaxKind.SimpleAssignmentExpression) &&
+                assignment.Right is BinaryExpressionSyntax binary &&
+                (binary.IsKind(SyntaxKind.AddExpression) || binary.IsKind(SyntaxKind.SubtractExpression)) &&
+                string.Equals(binary.Left.ToString(), assignment.Left.ToString(), StringComparison.Ordinal),
+            "ElseIfOnOneLine" => node is ElseClauseSyntax clause && clause.Statement is IfStatementSyntax statement &&
+                clause.SyntaxTree.GetLineSpan(clause.ElseKeyword.Span).StartLinePosition.Line !=
+                clause.SyntaxTree.GetLineSpan(statement.IfKeyword.Span).StartLinePosition.Line,
+            "NoStringEqualityOperator" => IsStringEqualityComparison(node, modelResolver),
+            "SingleCharacterStringCalls" => IsSingleCharacterStringCall(node, modelResolver),
+            "NoGlobalUsings" => node is UsingDirectiveSyntax { GlobalKeyword.RawKind: not 0 },
+            "CultureInvariantDateTime" => IsCultureSensitiveDateTimeCall(node, modelResolver),
             _ => false
         };
+
+        private static bool IsCultureSensitiveDateTimeCall(SyntaxNode node, Func<SyntaxTree, SemanticModel> modelResolver)
+        {
+            if (node is not InvocationExpressionSyntax invocation ||
+                modelResolver(node.SyntaxTree).GetSymbolInfo(invocation).Symbol is not IMethodSymbol symbol ||
+                symbol.ContainingType.SpecialType is not SpecialType.System_DateTime)
+            {
+                return false;
+            }
+
+            if (symbol.Name is not "Parse" and not "TryParse" and not "ParseExact" and not "TryParseExact" and not "ToString")
+            {
+                return false;
+            }
+
+            return !invocation.ArgumentList.Arguments.Any(argument =>
+                IsFormatProvider(modelResolver(node.SyntaxTree).GetTypeInfo(argument.Expression).Type));
+        }
+
+        private static bool IsFormatProvider(ITypeSymbol? type) =>
+            type is not null && (type.ToDisplayString() is "System.IFormatProvider" ||
+                type.AllInterfaces.Any(contract => contract.ToDisplayString() is "System.IFormatProvider"));
+
+        private static bool IsRedundantDefault(SyntaxNode node)
+        {
+            ExpressionSyntax? initialiser = node switch
+            {
+                FieldDeclarationSyntax field => field.Declaration.Variables
+                    .Select(variable => variable.Initializer?.Value).FirstOrDefault(value => value is not null),
+                PropertyDeclarationSyntax property => property.Initializer?.Value,
+                _ => null
+            };
+
+            return initialiser is LiteralExpressionSyntax literal &&
+                (literal.IsKind(SyntaxKind.FalseLiteralExpression) || literal.IsKind(SyntaxKind.NullLiteralExpression) ||
+                (literal.Token.Value is int number && number == 0) || (literal.Token.Value is double value && value == 0));
+        }
+
+        private static bool IsStringEqualityComparison(SyntaxNode node, Func<SyntaxTree, SemanticModel> modelResolver)
+        {
+            if (node is not BinaryExpressionSyntax binary ||
+                (!binary.IsKind(SyntaxKind.EqualsExpression) && !binary.IsKind(SyntaxKind.NotEqualsExpression)))
+            {
+                return false;
+            }
+
+            SemanticModel model = modelResolver(node.SyntaxTree);
+
+            return model.GetTypeInfo(binary.Left).Type?.SpecialType is SpecialType.System_String &&
+                model.GetTypeInfo(binary.Right).Type?.SpecialType is SpecialType.System_String;
+        }
+
+        private static bool IsSingleCharacterStringCall(SyntaxNode node, Func<SyntaxTree, SemanticModel> modelResolver)
+        {
+            if (node is not InvocationExpressionSyntax invocation ||
+                invocation.ArgumentList.Arguments.Count != 1 ||
+                invocation.ArgumentList.Arguments[0].Expression is not LiteralExpressionSyntax literal ||
+                literal.Token.Value is not string text || text.Length != 1)
+            {
+                return false;
+            }
+
+            return modelResolver(node.SyntaxTree).GetSymbolInfo(invocation).Symbol is IMethodSymbol symbol &&
+                symbol.ContainingType.SpecialType is SpecialType.System_String;
+        }
 
         private static bool MissingAccessibility(SyntaxNode node)
         {

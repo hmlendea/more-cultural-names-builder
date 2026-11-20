@@ -235,6 +235,5 @@ namespace MoreCulturalNamesBuilder.Service
 
             return [.. languageIdsToCheck];
         }
-
     }
 }

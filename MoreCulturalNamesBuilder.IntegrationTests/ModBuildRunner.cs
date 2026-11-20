@@ -4,9 +4,6 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
 {
     internal static class ModBuildRunner
     {
-        internal static void Run(string outputDirectoryPath, ModBuildRequest request)
-            => Run(TestArguments.Build(outputDirectoryPath, request));
-
         internal static void Run(string[] arguments)
         {
             try
@@ -18,6 +15,9 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
                 DisposeServiceProvider();
             }
         }
+
+        internal static void Run(string outputDirectoryPath, ModBuildRequest request)
+            => Run(TestArguments.Build(outputDirectoryPath, request));
 
         private static void DisposeServiceProvider()
         {

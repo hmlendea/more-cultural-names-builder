@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
 
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using NUnit.Framework;
 
 namespace MoreCulturalNamesBuilder.ArchitectureTests
@@ -70,6 +73,28 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         }
 
         [Test]
+        public void ProjectsMustNotDeclareInternalsVisibleToOrTestReferences()
+        {
+            foreach (string projectName in RepositorySources.ProjectNames)
+            {
+                XDocument project = XDocument.Load(GetProjectPath(projectName));
+                bool isProduction = string.Equals(projectName, "MoreCulturalNamesBuilder", StringComparison.Ordinal);
+
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(project.Descendants("InternalsVisibleTo"), Is.Empty,
+                        $"{projectName}: InternalsVisibleTo is forbidden for every project.");
+
+                    if (isProduction)
+                    {
+                        Assert.That(project.Descendants("ProjectReference"), Is.Empty,
+                            "The documented single-production-project architecture has no production project dependencies.");
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void SolutionMustInventorySiblingProjectsInThePrescribedOrder()
         {
             string path = Path.Combine(RepositorySources.Root, "MoreCulturalNamesBuilder.slnx");
@@ -122,6 +147,44 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             }
         }
 
+        [TestCase("Debug")]
+        [TestCase("Release")]
+        public void ProjectsMustEnableNullableContextAndDocumentation(string configuration)
+        {
+            foreach (string projectName in RepositorySources.ProjectNames)
+            {
+                using JsonDocument evaluated = EvaluateProject(projectName, configuration);
+                JsonElement properties = evaluated.RootElement.GetProperty("Properties");
+
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(properties.GetProperty("Nullable").GetString(), Is.EqualTo("enable"), projectName);
+                    Assert.That(properties.GetProperty("GenerateDocumentationFile").GetString(), Is.EqualTo("true"), projectName);
+                    Assert.That(properties.GetProperty("AssemblyName").GetString(), Is.EqualTo(projectName), projectName);
+                    Assert.That(properties.GetProperty("RootNamespace").GetString(), Is.EqualTo(projectName), projectName);
+                }
+            }
+        }
+
+        [Test]
+        public void ProductionSourcesMustNotDeclarePreviewLanguageFeatures()
+        {
+            foreach (SyntaxTree tree in RepositorySources.Trees.Where(RepositorySources.IsProduction))
+            {
+                SyntaxNode root = tree.GetRoot();
+
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(root.DescendantNodes().OfType<GlobalStatementSyntax>(), Is.Empty,
+                        $"{tree.FilePath}: Top-level statements are a preview-era entry point.");
+                    Assert.That(root.DescendantNodes().OfType<RecordDeclarationSyntax>(), Is.Empty,
+                        $"{tree.FilePath}: Record types must not be used in production code.");
+                    Assert.That(root.DescendantNodes().OfType<FileScopedNamespaceDeclarationSyntax>(), Is.Empty,
+                        $"{tree.FilePath}: File-scoped namespaces must not be used.");
+                }
+            }
+        }
+
         private static string GetProjectPath(string projectName) =>
             Path.Combine(RepositorySources.Root, projectName, $"{projectName}.csproj");
 
@@ -138,7 +201,8 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             start.ArgumentList.Add(GetProjectPath(projectName));
             start.ArgumentList.Add($"-property:Configuration={configuration}");
             start.ArgumentList.Add("-getProperty:TargetFramework,ImplicitUsings,LangVersion,Nullable,IsPackable," +
-                "IsTestProject,ExcludeFromCodeCoverage,EnableNETAnalyzers,EnforceCodeStyleInBuild,TreatWarningsAsErrors");
+                "IsTestProject,ExcludeFromCodeCoverage,EnableNETAnalyzers,EnforceCodeStyleInBuild,TreatWarningsAsErrors," +
+                "GenerateDocumentationFile,AssemblyName,RootNamespace,OutputType");
             start.ArgumentList.Add("-getItem:ProjectReference,Reference,PackageReference,InternalsVisibleTo,AssemblyAttribute");
             using Process process = Process.Start(start)!;
             string output = process.StandardOutput.ReadToEnd();

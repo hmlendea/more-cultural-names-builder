@@ -16,6 +16,7 @@ MoreCulturalNamesBuilder.UnitTests/
 │   └── SettingsTests.cs
 ├── DataAccess/
 │   └── DataObjects/
+│       ├── DataObjectConstructorTests.cs
 │       └── DataObjectSerialisationTests.cs
 ├── Service/
 │   ├── LocalisationFetcherTests.cs
@@ -31,6 +32,7 @@ MoreCulturalNamesBuilder.UnitTests/
 │   ├── Models/
 │   │   ├── GameLocationKeyTests.cs
 │   │   ├── LocalisationKeyTests.cs
+│   │   ├── LocationTests.cs
 │   │   └── TypedGameLocationKeyTests.cs
 │   └── ModBuilders/
 │       ├── CK2ModBuilderTests.cs
@@ -57,8 +59,10 @@ MoreCulturalNamesBuilder.IntegrationTests/
 ├── Victoria3ModBuilderIntegrationTests.cs
 ├── RichDataIntegrationTests.cs
 ├── ResilienceIntegrationTests.cs
+├── CrossBuilderIntegrationTests.cs
 ├── ProgramIntegrationTests.cs
 ├── ExpectedModContent.cs
+├── GeneratedFiles.cs
 ├── IntegrationTestSetup.cs
 ├── ModBuildRequest.cs
 ├── ModBuildRunner.cs
@@ -126,6 +130,7 @@ The [integration test project](../MoreCulturalNamesBuilder.IntegrationTests/More
 - A determinism test builds the same inputs twice and compares every generated file byte for byte.
 - `RichDataIntegrationTests` builds every game from a seven-language, sixteen-location fixture and asserts the complete descriptor, landed titles, province name, and localisation output against golden files, covering multi-language fallbacks, accented and non-Latin names, missing adjectives, fallback chains, and both verbose-comment modes. It also covers the output, version, and dependency aliases, custom mod identifiers, game-version rendering, and game-identifier normalisation.
 - `ResilienceIntegrationTests` covers duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, and the interaction of each failure with every builder.
+- `CrossBuilderIntegrationTests` applies the same custom name, version, and identifier overrides to every builder and asserts the declared descriptors and path layout, verifies that absent landed titles inputs do not affect the structural builders, checks custom landed titles file names, mixed-case verbose values, rebuild idempotence in an existing output directory, determinism for every builder, and game-identifier normalisation for non-CK2 builders.
 - The integration tests are marked `[NonParallelizable]` because they share the static `Program.ServiceProvider`.
 
 Run the integration tests on their own with:
@@ -138,11 +143,12 @@ dotnet test MoreCulturalNamesBuilder.IntegrationTests/MoreCulturalNamesBuilder.I
 
 The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/MoreCulturalNamesBuilder.ArchitectureTests.csproj) is included in the solution and runs with `dotnet test`.
 
-- ArchUnit.NET checks the explicitly inventoried production assembly, documented dependency directions, independent game builders, shared builder inheritance, and production assembly isolation.
+- ArchUnit.NET checks the explicitly inventoried production assembly, documented dependency directions, the documented layer acyclicity, independent game builders, shared builder inheritance, and production assembly isolation.
 - `ModBuilderContractsTests` verifies that every game builder is reachable through exactly one factory identifier, that only `ModBuilderFactory` constructs builders, and that only CK3 specialises another builder.
 - `IntegrationFixtureTests` keeps `TestPaths` and the `TestData` directory in sync, verifying that every declared fixture exists and that every fixture file is declared, while absent fixtures stay absent.
-- Roslyn checks handwritten production and test sources for file/type correspondence, namespaces, syntax conventions, interface contracts, model declarations, mappings, collection contracts, and NUnit conventions.
-- Separate project tests inspect declared XML and evaluated MSBuild metadata for Debug and Release, production references, solution inventory, and analyser enforcement.
+- Roslyn checks handwritten production and test sources for file/type correspondence, namespaces, syntax conventions (explicit types, no ternaries or tuples, explicit accessibility, braced control flow, target-typed construction, compound assignments, `else if` layout, `string.Equals` comparisons, single-character string overloads, culture-invariant date-time calls, and no global usings), interface contracts, model declarations, mappings, collection contracts, null and exception handling, and NUnit conventions.
+- `ConventionDetectorTests` verifies each source and semantic convention against inline snippets, proving every detector still flags its documented violation and accepts compliant code rather than passing vacuously.
+- Separate project tests inspect declared XML and evaluated MSBuild metadata for Debug and Release, production references, nullable and documentation settings, `InternalsVisibleTo`, solution inventory, and analyser enforcement.
 - Source checks require a repository checkout, exclude generated files and build outputs, and fail when expected sources or selectors are absent.
 - Existing violations remain failures, including builder dependencies on configuration and CK3 dependencies on CK2; production code is not changed or exempted to make the suite green.
 - These structural checks do not prove runtime behaviour, security, game compatibility, or exhaustive compliance with contextual and review-only instructions.
@@ -159,6 +165,13 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 
 **Gaps:**
 - Game version pattern validation
+
+### Data Access Layer (Data Objects)
+
+| Test File | Coverage |
+|-----------|----------|
+| `DataObjectSerialisationTests.cs` | XML type names, nested element and identifier deserialisation |
+| `DataObjectConstructorTests.cs` | Convenience constructor defaults for `GameIdDataObject` and `NameDataObject` |
 
 ### Data Access Layer (Mapping)
 
@@ -182,14 +195,15 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `GameLocationKeyTests.cs` | Equality and hash codes across game and identifier combinations |
 | `TypedGameLocationKeyTests.cs` | Equality, null-type handling, and hash codes across game, identifier, and type |
 | `LocalisationKeyTests.cs` | Equality and hash codes across location and language combinations |
+| `LocationTests.cs` | Emptiness detection across names and fallback locations |
 
 ### Service Layer
 
 | Test File | Coverage |
 |-----------|----------|
-| `LocalisationFetcherTests.cs` | Fallback chain resolution |
+| `LocalisationFetcherTests.cs` | Fallback chain resolution, location and language indexes, empty-name indexing, negative-result caching, and duplicate identifiers |
 | `NameNormaliserTests.cs` | Game charset transformations |
-| `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars |
+| `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars, Victoria 3 delegation to the CK3 charset, and per-game cache reuse |
 | Game builder integration tests | Real charset transformation applied to the canonical fixture names for every target game |
 
 **Gaps:**
@@ -220,6 +234,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `Victoria3ModBuilderIntegrationTests.cs` | Full Victoria 3 output content, metadata, dynamic state and hub name effects, on action hooks, comment suppression, empty and nameless data stores, dependency handling, custom mod identifiers |
 | `RichDataIntegrationTests.cs` | Golden-file reproduction for every builder from a seven-language, sixteen-location fixture, in both comment modes; output, version, and dependency aliases; custom mod identifiers; game-version rendering; game-identifier normalisation; rich-input determinism |
 | `ResilienceIntegrationTests.cs` | Duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, missing stores, and duplicate entities across every builder |
+| `CrossBuilderIntegrationTests.cs` | Custom name, version, and identifier overrides across every builder; absent landed titles inputs for the structural builders; custom landed titles file names; mixed-case verbose values; rebuild idempotence; per-builder determinism; game-identifier normalisation |
 
 **Major Gaps:**
 - No game compatibility verification (generated mods are not loaded in the target games)

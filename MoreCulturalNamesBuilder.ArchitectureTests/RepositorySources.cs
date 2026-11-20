@@ -26,8 +26,43 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
 
         private static readonly Dictionary<string, CSharpCompilation> compilations = BuildCompilations();
 
-        internal static SemanticModel GetSemanticModel(SyntaxTree tree) =>
-            compilations[GetProjectName(tree.FilePath)].GetSemanticModel(tree);
+        private static readonly Dictionary<SyntaxTree, SemanticModel> snippetModels = [];
+
+        internal static SemanticModel GetSemanticModel(SyntaxTree tree)
+        {
+            if (snippetModels.TryGetValue(tree, out SemanticModel? snippet))
+            {
+                return snippet;
+            }
+
+            return compilations[GetProjectName(tree.FilePath)].GetSemanticModel(tree);
+        }
+
+        internal static SyntaxTree RegisterSnippet(string fileName, string source)
+        {
+            CSharpCompilation compilation = CreateSnippetCompilation(fileName, source);
+            SyntaxTree tree = compilation.SyntaxTrees.Single();
+            snippetModels[tree] = compilation.GetSemanticModel(tree);
+
+            return tree;
+        }
+
+        internal static CSharpCompilation CreateSnippetCompilation(string fileName, string source)
+        {
+            string? platformAssemblies = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
+            Assert.That(platformAssemblies, Is.Not.Null.And.Not.Empty, "Runtime assembly inventory is unavailable.");
+            IEnumerable<MetadataReference> references = platformAssemblies!.Split(Path.PathSeparator)
+                .Concat(Directory.GetFiles(AppContext.BaseDirectory, "*.dll"))
+                .Distinct(StringComparer.Ordinal)
+                .Select(path => MetadataReference.CreateFromFile(path));
+
+            return CSharpCompilation.Create(
+                "Snippet",
+                [CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview), fileName)],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                    .WithNullableContextOptions(NullableContextOptions.Enable));
+        }
 
         internal static string GetProjectName(string path) =>
             Path.GetRelativePath(Root, path).Split(Path.DirectorySeparatorChar)[0];

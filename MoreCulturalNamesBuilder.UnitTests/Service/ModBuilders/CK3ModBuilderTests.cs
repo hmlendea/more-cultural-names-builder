@@ -274,7 +274,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
             Dictionary<string, IEnumerable<Localisation>> localisations = [];
             StringBuilder landedTitlesBuilder = new();
 
-            for (int languageIndex = 0; languageIndex < languageCount; languageIndex = languageIndex + 1)
+            for (int languageIndex = 0; languageIndex < languageCount; languageIndex += 1)
             {
                 languages.Add(ModBuilderTestDataFactory.CreateLanguage(
                     Game,
@@ -282,7 +282,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                     $"language_{languageIndex}"));
             }
 
-            for (int locationIndex = 0; locationIndex < locationCount; locationIndex = locationIndex + 1)
+            for (int locationIndex = 0; locationIndex < locationCount; locationIndex += 1)
             {
                 string locationGameId = $"c_location_{locationIndex}";
                 List<Localisation> locationLocalisations = [];
@@ -297,7 +297,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 landedTitlesBuilder.Append($"{locationGameId} = {{\n");
                 landedTitlesBuilder.Append("    cultural_names = {\n");
 
-                for (int languageIndex = 0; languageIndex < languageCount; languageIndex = languageIndex + 1)
+                for (int languageIndex = 0; languageIndex < languageCount; languageIndex += 1)
                 {
                     locationLocalisations.Add(ModBuilderTestDataFactory.CreateLocalisation(
                         $"Location{locationIndex}",
@@ -323,7 +323,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service.ModBuilders
                 {
                     lock (normalisationLock)
                     {
-                        normalisationCount = normalisationCount + 1;
+                        normalisationCount += 1;
                     }
 
                     return value;
