@@ -54,6 +54,7 @@ Generates localised mod files for multiple game engines:
 
 - **Crusader Kings II** (via `CK2`)
 - **Crusader Kings III** (via `CK3`)
+- **Europa Universalis V** (via `EU5`)
 - **Hearts of Iron IV** (via `HOI4`)
 - **Imperator: Rome** (via `IR`)
 - **Victoria 3** (via `Vic3`)
@@ -107,7 +108,7 @@ Note: Use either `--output` or `--out` (required), and either `--version` or `--
 - The application does not create intermediate output directories; the target directory must exist and be writable prior to execution.
 - Builds are not transactional; a failed run leaves partial output, so clean the output directory prior to repeating a build.
 - The alias pairs `--output`/`--out` and `--version`/`--ver` must both be supplied, even when only one value is intended; this legacy contract produces confusing validation messages.
-- The `--game` argument requires an exact identifier correspondence (`CK2`, `CK3`, `HOI4`, `IR`); abbreviations are not recognised.
+- The `--game` argument requires an exact identifier correspondence (`CK2`, `CK3`, `EU5`, `HOI4`, `IR`); abbreviations are not recognised.
 - Generated mods are not validated within the target games; their syntax is asserted only against the expectations of the builders.
 
 ## 📦 Installation
@@ -134,7 +135,7 @@ More Cultural Names Mod Builder is configured entirely via command-line argument
 | `--name` | `<value>` | — | Human-readable mod name (required) |
 | `--version` | `<value>` | — | Mod version, e.g. `1.0.0` (required unless `--ver` is used) |
 | `--ver` | `<value>` | — | Alias for `--version` (required unless `--version` is used) |
-| `--game` | `<value>` | — | Target game: `CK2`, `CK3`, `HOI4`, or `IR` (required) |
+| `--game` | `<value>` | — | Target game: `CK2`, `CK3`, `EU5`, `HOI4`, or `IR` (required) |
 | `--game-version` | `<value>` | — | Supported game version, e.g. `1.12.*` (required) |
 | `--landed-titles` | `<path>` | — | Path to an existing landed titles file to patch (CK2/CK3 only) |
 | `--landed-titles-name` | `<value>` | — | File name to use for the output landed titles file |
@@ -149,6 +150,7 @@ More Cultural Names Mod Builder is configured entirely via command-line argument
 | .NET runtime | 10.0 | Archives are published as self-contained builds; the .NET 10.0 SDK is required only to build from source |
 | Crusader Kings II | All versions | Selected via the `CK2` game identifier |
 | Crusader Kings III | All versions | Selected via the `CK3` game identifier |
+| Europa Universalis V | All versions | Selected via the `EU5` game identifier |
 | Hearts of Iron IV | All versions | Selected via the `HOI4` game identifier |
 | Imperator: Rome | All versions | Selected via the `IR` game identifier |
 | Victoria 3 | All versions | Selected via the `Vic3` game identifier |
@@ -334,6 +336,7 @@ Additional technical documentation is available in the `docs/` directory.
 | Landed titles script | Game-specific format patched via `--landed-titles` (CK2 and CK3) | Source file whose cultural names are merged and rewritten |
 | Mod descriptor | Game-specific descriptor file | Identifies and configures the generated mod |
 | Localisation files | Game-specific localisation format | Maps locations to cultural names per language |
+| Location name localisation | Europa Universalis V `.yml` localisation keys | Supplies per-language location names |
 | Province name data | Imperator: Rome province-name format | Supplies province names per culture |
 | Dynamic state name scripts | Victoria 3 scripted effects and on actions | Assigns cultural state and hub names |
 
@@ -344,7 +347,7 @@ Additional technical documentation is available in the `docs/` directory.
 | `FileNotFoundException` | Incorrect XML path | Verify the `--lang` and `--loc` paths |
 | `XmlException` | Malformed XML input | Validate the input against the expected schema |
 | `ArgumentException` | Absent required argument | Supply every required argument |
-| `NotImplementedException` | Unsupported game | Use one of `CK2`, `CK3`, `HOI4`, `IR`, or `Vic3` |
+| `NotImplementedException` | Unsupported game | Use one of `CK2`, `CK3`, `EU5`, `HOI4`, `IR`, or `Vic3` |
 | Output directory not created | The application creates no directories | Create the output directory prior to execution |
 
 ## 🤝 Contributing

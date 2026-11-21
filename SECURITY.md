@@ -40,7 +40,7 @@ The subsequent report categories are in scope for this repository:
 - Denial of service through crafted input data
 
 The subsequent categories are out of scope unless explicitly stated to the contrary:
-- Vulnerabilities in the target games (CK2, CK3, HOI4, IR) themselves
+- Vulnerabilities in the target games (CK2, CK3, EU5, HOI4, IR) themselves
 - Issues in third-party dependencies not directly exploitable through this tool
 - Social engineering or phishing attacks
 - Physical security issues

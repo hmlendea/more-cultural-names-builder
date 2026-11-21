@@ -37,6 +37,7 @@ MoreCulturalNamesBuilder.UnitTests/
 │   └── ModBuilders/
 │       ├── CK2ModBuilderTests.cs
 │       ├── CK3ModBuilderTests.cs
+│       ├── EuropaUniversalis5ModBuilderTests.cs
 │       ├── HOI4ModBuilderTests.cs
 │       ├── ImperatorRomeModBuilderTests.cs
 │       ├── ModBuilderFactoryTests.cs
@@ -54,6 +55,7 @@ MoreCulturalNamesBuilder.UnitTests/
 MoreCulturalNamesBuilder.IntegrationTests/
 ├── Ck2ModBuilderIntegrationTests.cs
 ├── Ck3ModBuilderIntegrationTests.cs
+├── EuropaUniversalis5ModBuilderIntegrationTests.cs
 ├── HoI4ModBuilderIntegrationTests.cs
 ├── ImperatorRomeModBuilderIntegrationTests.cs
 ├── Victoria3ModBuilderIntegrationTests.cs
@@ -203,7 +205,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 |-----------|----------|
 | `LocalisationFetcherTests.cs` | Fallback chain resolution, location and language indexes, empty-name indexing, negative-result caching, and duplicate identifiers |
 | `NameNormaliserTests.cs` | Game charset transformations |
-| `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars, Victoria 3 delegation to the CK3 charset, and per-game cache reuse |
+| `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars, Victoria 3 and Europa Universalis V delegation to the CK3 charset, and per-game cache reuse |
 | Game builder integration tests | Real charset transformation applied to the canonical fixture names for every target game |
 
 **Gaps:**
@@ -217,6 +219,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 |-----------|----------|
 | `CK2ModBuilderTests.cs` | Descriptor, landed-titles patching, CSV localisation, optional-file suppression |
 | `CK3ModBuilderTests.cs` | Descriptor pair, block merging, default and dynamic localisation files, landed-title prefix tiers including `h_`, name-normalisation call bound |
+| `EuropaUniversalis5ModBuilderTests.cs` | Metadata, language-suffixed location name localisation, verbose comment suppression, empty-input handling, custom game version |
 | `HOI4ModBuilderTests.cs` | State/city localisation, descriptors, empty-input handling, identifier and duplicate failures |
 | `ImperatorRomeModBuilderTests.cs` | Province name data, localisation, descriptors, empty-input handling, identifier and duplicate failures |
 | `Victoria3ModBuilderTests.cs` | Metadata, dynamic state and hub name effects, on action hooks, localisation, empty-input handling |
@@ -229,6 +232,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 |-----------|----------|
 | `Ck2ModBuilderIntegrationTests.cs` | Full CK2 output content, Windows-1252 encoding, comment suppression, dependency declaration, empty and nameless data stores, absent landed titles inputs |
 | `Ck3ModBuilderIntegrationTests.cs` | Full CK3 output content, descriptor pair, block merging, prefix tiers, dynamic name keys, comment suppression, empty data stores, absent landed titles inputs |
+| `EuropaUniversalis5ModBuilderIntegrationTests.cs` | Full Europa Universalis V output content, metadata, language-suffixed location names, comment suppression, empty and nameless data stores, dependency handling, custom mod identifiers |
 | `HoI4ModBuilderIntegrationTests.cs` | Full HOI4 output content, locale directories, header-only files, non-numeric and duplicate identifiers |
 | `ImperatorRomeModBuilderIntegrationTests.cs` | Full Imperator: Rome output content, province name data, header-only files, non-numeric and duplicate identifiers |
 | `Victoria3ModBuilderIntegrationTests.cs` | Full Victoria 3 output content, metadata, dynamic state and hub name effects, on action hooks, comment suppression, empty and nameless data stores, dependency handling, custom mod identifiers |

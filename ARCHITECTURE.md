@@ -41,7 +41,7 @@ This document describes the current architecture of the More Cultural Names Buil
 
 ## 🎯 Purpose
 
-The More Cultural Names Builder is a command-line tool that transforms linguistic and geographic data into game-specific mod files. It reads XML data stores for languages and locations, applies localisation and name normalisation, and generates output files compatible with Crusader Kings II, Crusader Kings III, Hearts of Iron IV, Imperator: Rome, and Victoria 3. The architecture prioritises independent game-specific generation logic, reusable data transformation services, and fail-fast configuration validation.
+The More Cultural Names Builder is a command-line tool that transforms linguistic and geographic data into game-specific mod files. It reads XML data stores for languages and locations, applies localisation and name normalisation, and generates output files compatible with Crusader Kings II, Crusader Kings III, Europa Universalis V, Hearts of Iron IV, Imperator: Rome, and Victoria 3. The architecture prioritises independent game-specific generation logic, reusable data transformation services, and fail-fast configuration validation.
 
 ## 🌐 System Context
 
@@ -76,7 +76,7 @@ flowchart TB
     CLI -->|Parse| Settings["Settings<br/>(Configuration Container)"]
     Settings -->|Inject| DI["Dependency Injection<br/>Container"]
     DI -->|Factory| Factory["ModBuilderFactory"]
-    Factory -->|Select| Builder["Game-Specific ModBuilder<br/>(CK2/CK3/HOI4/IR)"]
+    Factory -->|Select| Builder["Game-Specific ModBuilder<br/>(CK2/CK3/EU5/HOI4/IR/Vic3)"]
     DI -->|Provide| DataSvc["Data Services<br/>(Fetcher, Normaliser)"]
     DataSvc -->|Feed| Builder
     Builder -->|Output| ModFiles["Generated Mod Files"]
@@ -182,7 +182,7 @@ The principal runtime sequence is:
 **Responsibilities:**
 - `IModBuilder`: Interface defining the `Build()` contract.
 - `ModBuilder`: Base class providing common file generation logic for all games (shared localisation file format).
-- Game-specific builders (`CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`, `Victoria3ModBuilder`): Extend `ModBuilder` and implement game-specific file output (patched `landed_titles` files in the CK series, localisation files per language, province-name data files for IR, and dynamic state and hub name effects for Victoria 3).
+- Game-specific builders (`CK2ModBuilder`, `CK3ModBuilder`, `EuropaUniversalis5ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`, `Victoria3ModBuilder`): Extend `ModBuilder` and implement game-specific file output (patched `landed_titles` files in the CK series, localisation files per language, province-name data files for IR, dynamic state and hub name effects for Victoria 3, and language-suffixed location-name localisation for Europa Universalis V).
 - `IModBuilderFactory`: Selects the appropriate builder at runtime.
 
 **Boundary rules:**
@@ -218,7 +218,7 @@ The application processes two principal data flows:
 | CLI Arguments | Inbound | Command-line string array, parsed by `ArgumentParser`. | Configuration layer | Unrecognised or missing required arguments raise an exception; application terminates. |
 | XML Data Stores | Inbound | Language and Location XML files at paths specified by `--lang` and `--loc`. | Data access layer | File-not-found or XML parse errors raise an exception; application terminates. |
 | Landed Titles File (Optional) | Inbound/Outbound | CK2/CK3 landed-titles format; read, patched, and written to output directory. | `CK2ModBuilder`, `CK3ModBuilder` | File read failure: exception. Invalid format: silent skip or partial output (determined by builder). |
-| Game Mod Output | Outbound | Game-specific format (e.g., `.txt` for CK3 localisation, custom formats for HOI4/IR). | Builders | File write errors raise an exception; application terminates. |
+| Game Mod Output | Outbound | Game-specific format (e.g., `.txt` for CK3 localisation, `.yml` for Europa Universalis V and Victoria 3, custom formats for HOI4/IR). | Builders | File write errors raise an exception; application terminates. |
 
 ## 🔀 Key Processes
 
@@ -270,7 +270,7 @@ Progress is written to standard output, timing is reported for the data-retrievi
 | Configuration Area | Source | Responsibility | Supersede or Secret Policy |
 |--------------------|--------|----------------|---------------------------|
 | Input data stores | `--lang`, `--loc` command-line arguments | Paths of the language and location XML repositories | Required; no alternative source |
-| Landed titles input | `--landed-titles` command-line argument | Optional source file patched in place for CK2 and CK3 | Absent for HOI4 and Imperator: Rome |
+| Landed titles input | `--landed-titles` command-line argument | Optional source file patched in place for CK2 and CK3 | Absent for Europa Universalis V, HOI4, and Imperator: Rome |
 | Mod identity | `--id`, `--name`, `--version`/`--ver` command-line arguments | Descriptor identity written into the generated mod | Required |
 | Mod dependency | `--dependency`/`--dep` command-line argument | Optional mod identifier recorded in the descriptor | Optional |
 | Game selection | `--game`, `--game-version` command-line arguments | Target builder and declared game version | Required; unknown values raise `NotImplementedException` |
@@ -338,7 +338,7 @@ More Cultural Names Builder is a stateless, single-invocation console applicatio
 | Contract | Owner | Invariant | Verification | Change Policy |
 |----------|-------|-----------|--------------|---------------|
 | CLI argument names and aliases | `Configuration/Settings.cs` | `--lang`, `--loc`, `--output`/`--out`, `--id`, `--name`, `--version`/`--ver`, `--game`, `--game-version`, `--landed-titles`, `--landed-titles-name`, `--dependency`/`--dep`, `--verbose` remain accepted | `SettingsTests` | Renaming or removing an argument is a breaking change for existing mod build scripts |
-| Game identifiers | `ModBuilderFactory.GetModBuilder()` | `CK2`, `CK3`, `HOI4`, `IR`, and `Vic3` select their builders | `ModBuilderFactoryTests` | Additional identifiers are additive; existing identifiers must keep resolving |
+| Game identifiers | `ModBuilderFactory.GetModBuilder()` | `CK2`, `CK3`, `EU5`/`EuropaUniversalis5`, `HOI4`, `IR`, and `Vic3` select their builders | `ModBuilderFactoryTests` | Additional identifiers are additive; existing identifiers must keep resolving |
 | Input XML schema | `DataAccess/DataObjects/` | Element and attribute names including `Language`, `Location`, `GameId`, `Name`, `iso-639-1` remain mapped | `DataObjectSerialisationTests` | Schema changes are breaking for callers who supply data stores |
 | Output layout | Game builders | The mod descriptor, launcher metadata, localisation, landed titles, and province name paths within the mod directory remain stable | Builder tests that build against temporary directories | Changes require a coordinated update to the mod packaging scripts |
 | Landed titles format | `CK2ModBuilder`, `CK3ModBuilder`, `CK3CulturalNameBlockMerger` | Unrelated lines survive patching, and cultural name blocks remain valid for the game | `CK2ModBuilderTests`, `CK3ModBuilderTests` | Format changes follow the supported game versions |
@@ -379,7 +379,8 @@ dotnet test
 - **Configuration Ownership:** Settings expose mutable auto-properties; every build uses the same parsed configuration and presumes callers do not modify it concurrently.
 - **In-Memory Data Loading:** All localisation data is loaded into memory during startup; no streaming or pagination of large datasets.
 - **No Transaction Support:** Failed builds do not roll back partial output files; idempotency is caller responsibility.
-- **Game Alias Requirement:** The `--game` argument requires an exact string match (CK2, CK3, HOI4, IR); no fuzzy matching or abbreviations.
+- **Game Alias Requirement:** The `--game` argument requires an exact string match (CK2, CK3, EU5, HOI4, IR); no fuzzy matching or abbreviations.
+- **Europa Universalis V Localisation Placement:** The EU5 builder must emit its localisation into `main_menu/localization/<language>/replace/`, because vanilla location names are loaded from `main_menu` and only the `replace` folder reliably overrides existing keys.
 - **Alias Argument Handling:** `--output`/`--out` and `--version`/`--ver` pairs must both be provided or validation fails, even when only one pair is used; this is a validation gap introduced to support legacy scripts.
 
 ## 🔧 Extension Points

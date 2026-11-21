@@ -33,6 +33,7 @@ The application implements a **console pipeline architecture** with these defini
 ┌─────────────────────────────────────────────────────────────────┐
 │                      ModBuilderFactory                          │
 │  Selects: CK2ModBuilder / CK3ModBuilder / HOI4ModBuilder /     │
+│           EuropaUniversalis5ModBuilder /                       │
 │           ImperatorRomeModBuilder / Victoria3ModBuilder        │
 └─────────────────────────────┬───────────────────────────────────┘
                               ▼
@@ -156,7 +157,7 @@ flowchart TD
 **Responsibilities:**
 - `IModBuilder`: Interface defining the `Build()` contract
 - `ModBuilder`: Base class providing shared file generation logic
-- Game-specific builders: `CK2ModBuilder`, `CK3ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`, `Victoria3ModBuilder`
+- Game-specific builders: `CK2ModBuilder`, `CK3ModBuilder`, `EuropaUniversalis5ModBuilder`, `HOI4ModBuilder`, `ImperatorRomeModBuilder`, `Victoria3ModBuilder`
 - `IModBuilderFactory`: Runtime builder selection
 
 **Boundary Rules:**
@@ -228,7 +229,7 @@ Persist: Normalised names included in generated mod files
 - **Immutable Configuration**: Once parsed, the settings cannot be modified
 - **In-Memory Data Loading**: All localisation data is loaded into memory at startup; no streaming or pagination
 - **No Transaction Support**: A failed build does not roll back partial output; idempotency is the caller's responsibility
-- **Game Alias Requirement**: The `--game` argument requires an exact string match (CK2, CK3, HOI4, IR); no fuzzy matching
+- **Game Alias Requirement**: The `--game` argument requires an exact string match (CK2, CK3, EU5, HOI4, IR); no fuzzy matching
 - **Alias Argument Handling**: The `--output`/`--out` and `--version`/`--ver` pairs must both be provided or validation fails (a validation gap for legacy script support)
 
 ## Source Map

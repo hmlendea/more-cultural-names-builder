@@ -157,7 +157,7 @@ public class GameIdEntity
 ```
 
 **Key Attributes:**
-- `Game` - Target game identifier (CK2, CK3, HOI4, IR)
+- `Game` - Target game identifier (CK2, CK3, EU5, HOI4, IR)
 - `Type` - Entity type within the game (e.g., "Province", "State", "City", "Language")
 - `Parent` - Hierarchical parent identifier (optional)
 - `DefaultNameLanguageId` - Language identifier for the default name
@@ -330,6 +330,40 @@ protected override void LoadData()
     locationGameIdsById = locationGameIds
         .GroupBy(gameId => gameId.Id)
         .ToDictionary(group => group.Key, group => group.First());
+}
+```
+
+#### Europa Universalis V (EuropaUniversalis5ModBuilder.LoadData)
+```csharp
+protected override void LoadData()
+{
+    ConcurrentDictionary<string, IDictionary<string, Localisation>> concurrentLocalisations = [];
+    ConcurrentDictionary<string, string> concurrentDefaultLanguages = [];
+
+    locationIds = [.. locationGameIds
+        .Where(gameId => !string.IsNullOrWhiteSpace(gameId.Id))
+        .Select(gameId => gameId.Id)
+        .Distinct(StringComparer.Ordinal)
+        .OrderBy(locationId => locationId, StringComparer.Ordinal)];
+
+    Parallel.ForEach(locationIds, locationId =>
+    {
+        concurrentLocalisations[locationId] = localisationFetcher
+            .GetGameLocationLocalisations(locationId, Settings.Mod.Game)
+            .ToDictionary(localisation => localisation.LanguageGameId, localisation => localisation);
+
+        string? defaultLanguageId = locationGameIds
+            .FirstOrDefault(gameId => string.Equals(gameId.Id, locationId, StringComparison.Ordinal))
+            ?.DefaultNameLanguageId;
+
+        if (!string.IsNullOrWhiteSpace(defaultLanguageId))
+        {
+            concurrentDefaultLanguages[locationId] = defaultLanguageId;
+        }
+    });
+
+    localisationsByLocationId = concurrentLocalisations;
+    defaultLanguageIdsByLocationId = concurrentDefaultLanguages;
 }
 ```
 

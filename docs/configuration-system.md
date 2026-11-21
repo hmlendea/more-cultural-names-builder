@@ -86,7 +86,7 @@ parser.AddArgument("game-version", required: true);
 | `Name` | `--name` | Yes | Human-readable mod name |
 | `Version` | `--version` / `--ver` | Yes | Mod version (e.g., `1.0.0`) |
 | `Dependency` | `--dependency` / `--dep` | No | Mod ID this mod depends on |
-| `Game` | `--game` | Yes | Target game: `CK2`, `CK3`, `HOI4`, `IR` |
+| `Game` | `--game` | Yes | Target game: `CK2`, `CK3`, `EU5`, `HOI4`, `IR` |
 | `GameVersion` | `--game-version` | Yes | Supported game version (e.g., `1.18.*`) |
 
 ### Version Resolution Logic

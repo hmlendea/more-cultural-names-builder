@@ -782,6 +782,8 @@ namespace MoreCulturalNamesBuilder.Service
 
         public string ToVictoria3Charset(string name) => ToCK3Charset(name);
 
+        public string ToEuropaUniversalis5Charset(string name) => ToCK3Charset(name);
+
         public string ToWindows1252(string name)
             => textConverter.ToWindows1252(name);
 

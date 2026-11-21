@@ -118,7 +118,7 @@ public class GameIdEntity
 
 | Property | XML Source | Description |
 |----------|------------|-------------|
-| `Game` | `game` attribute | Target game (CK2, CK3, HOI4, IR) |
+| `Game` | `game` attribute | Target game (CK2, CK3, EU5, HOI4, IR) |
 | `Type` | `type` attribute | Entity type (Language, Province, State, City, and so on) |
 | `Parent` | `parent` attribute | Hierarchical parent ID (optional) |
 | `DefaultNameLanguageId` | `defaultLanguage` attribute | Default language for name |
@@ -441,6 +441,7 @@ Localisation ──► NameNormaliser.To{Game}Charset() ──► Normalised Nam
     │
     ├── CK2: CSV line with Windows-1252 encoding
     ├── CK3: YAML with dynamic localisation keys
+    ├── EU5: YAML with language-suffixed location names
     ├── HOI4: YAML with STATE_/VICTORY_POINTS_ prefixes
     └── IR: Province name data + YAML localisation
 ```
@@ -471,6 +472,7 @@ Location
 |------|----------------|----------------|
 | CK2 | Province, Title | Language |
 | CK3 | Province, Title | Language |
+| EU5 | Location | Language or dialect |
 | HOI4 | State, City | Language |
 | IR | Province | Language |
 
@@ -546,6 +548,15 @@ Dictionary<string, Dictionary<string, Localisation>> localisations;
 
 // Location game IDs for default language lookup
 Dictionary<string, GameId> locationGameIdsById;
+```
+
+### Europa Universalis V Builder
+```csharp
+// Location localisations keyed by the language game identifier
+Dictionary<string, Dictionary<string, Localisation>> localisationsByLocationId;
+
+// Default name language declared by each location game ID
+Dictionary<string, string> defaultLanguageIdsByLocationId;
 ```
 
 ## Testing

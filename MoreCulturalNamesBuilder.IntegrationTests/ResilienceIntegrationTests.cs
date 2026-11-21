@@ -153,6 +153,7 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
 
         [TestCase("CK2")]
         [TestCase("CK3")]
+        [TestCase("EU5")]
         [TestCase("HOI4")]
         [TestCase("IR")]
         [TestCase("Vic3")]
@@ -173,6 +174,7 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
 
         [TestCase("CK2")]
         [TestCase("CK3")]
+        [TestCase("EU5")]
         [TestCase("HOI4")]
         [TestCase("IR")]
         [TestCase("Vic3")]

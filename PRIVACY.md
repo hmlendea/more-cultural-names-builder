@@ -111,4 +111,4 @@ Update this document when application data flows, storage, integrations, or depl
 
 ## 📬 Contact
 
-For questions about application data handling, contact the project maintainers via the GitHub repository: https://github.com/hmlendea/more-cultural-names-builder. For a self-hosted instance, contact the instance operator, unless the project explicitly handles the request. Include the game target (CK2, CK3, HOI4, IR) and any relevant configuration details; do not send passwords, access tokens, or other secrets.
+For questions about application data handling, contact the project maintainers via the GitHub repository: https://github.com/hmlendea/more-cultural-names-builder. For a self-hosted instance, contact the instance operator, unless the project explicitly handles the request. Include the game target (CK2, CK3, EU5, HOI4, IR) and any relevant configuration details; do not send passwords, access tokens, or other secrets.

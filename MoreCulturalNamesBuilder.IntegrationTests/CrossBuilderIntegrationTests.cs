@@ -21,6 +21,7 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
         [TestCase("CK3", "more-cultural-names.mod", "name=\"Cultural Names\"")]
         [TestCase("HOI4", "more-cultural-names.mod", "name=\"Cultural Names\"")]
         [TestCase("IR", "more-cultural-names.mod", "name=\"Cultural Names\"")]
+        [TestCase("EU5", "more-cultural-names/.metadata/metadata.json", "\"name\": \"Cultural Names\"")]
         [TestCase("Vic3", "more-cultural-names/.metadata/metadata.json", "\"name\": \"Cultural Names\"")]
         public void GivenACustomModName_WhenBuildingAnyMod_ThenTheDescriptorDeclaresIt(
             string game,
@@ -41,6 +42,7 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
         [TestCase("CK3", "more-cultural-names.mod", "version=\"2.0.0\"")]
         [TestCase("HOI4", "more-cultural-names.mod", "version=\"2.0.0\"")]
         [TestCase("IR", "more-cultural-names.mod", "version=\"2.0.0\"")]
+        [TestCase("EU5", "more-cultural-names/.metadata/metadata.json", "\"version\": \"2.0.0\"")]
         [TestCase("Vic3", "more-cultural-names/.metadata/metadata.json", "\"version\": \"2.0.0\"")]
         public void GivenACustomModVersion_WhenBuildingAnyMod_ThenTheDescriptorDeclaresIt(
             string game,
@@ -61,6 +63,7 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
         [TestCase("CK3", "renamed-mod/descriptor.mod", "more-cultural-names.mod")]
         [TestCase("HOI4", "renamed-mod/descriptor.mod", "more-cultural-names.mod")]
         [TestCase("IR", "renamed-mod/descriptor.mod", "more-cultural-names.mod")]
+        [TestCase("EU5", "renamed-mod/.metadata/metadata.json", "more-cultural-names")]
         [TestCase("Vic3", "renamed-mod/.metadata/metadata.json", "more-cultural-names")]
         public void GivenACustomModIdentifier_WhenBuildingAnyMod_ThenOnlyTheRenamedPathsAreWritten(
             string game,
@@ -170,6 +173,7 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
 
         [TestCase("CK2")]
         [TestCase("CK3")]
+        [TestCase("EU5")]
         [TestCase("HOI4")]
         [TestCase("IR")]
         [TestCase("Vic3")]
