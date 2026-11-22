@@ -64,16 +64,24 @@ MoreCulturalNamesBuilder.IntegrationTests/
 ├── EncodingIntegrationTests.cs
 ├── EdgeCaseIntegrationTests.cs
 ├── ArgumentEdgeCaseIntegrationTests.cs
+├── CommandLineIntegrationTests.cs
 ├── GameIdentifierIntegrationTests.cs
 ├── FailureIntegrationTests.cs
 ├── BuildIsolationIntegrationTests.cs
+├── RebuildIntegrationTests.cs
 ├── CanonicalGoldenFileIntegrationTests.cs
 ├── GoldenTreeIntegrationTests.cs
 ├── LocaleMatrixIntegrationTests.cs
 ├── PropagationIntegrationTests.cs
+├── CrossBuilderInvariantIntegrationTests.cs
 ├── DeterminismIntegrationTests.cs
 ├── FallbackChainIntegrationTests.cs
 ├── LandedTitlesIntegrationTests.cs
+├── LandedTitlesSyntaxIntegrationTests.cs
+├── CharsetIntegrationTests.cs
+├── OutputHygieneIntegrationTests.cs
+├── DefaultNameSelectionIntegrationTests.cs
+├── NameValueEdgeCaseIntegrationTests.cs
 ├── RichDataIntegrationTests.cs
 ├── ResilienceIntegrationTests.cs
 ├── CrossBuilderIntegrationTests.cs
@@ -166,6 +174,14 @@ The [integration test project](../MoreCulturalNamesBuilder.IntegrationTests/More
 - `DeterminismIntegrationTests` builds every mod five times and asserts byte-identical trees, and confirms stable locale file ordering and per-file bodies.
 - `FallbackChainIntegrationTests` verifies the location and language fallback chains as they surface in each builder's landed titles, province names, and localisation.
 - `LandedTitlesIntegrationTests` covers custom landed-titles file names, forbidden-token guards, the empty untitled block, CK3 repeated-block merging and nested barony preservation, and the landed-titles encoding.
+- `LandedTitlesSyntaxIntegrationTests` covers unbalanced blocks, a byte-order mark in the source, carriage-return-only line endings, comment-only sources, and source titles that match no location, verifying that craft-invalid input is preserved verbatim while valid input is enriched.
+- `CharsetIntegrationTests` asserts each builder's name transformation for diacritics and non-Latin characters, proving the Windows-1252, CK3, HOI4, Imperator: Rome, and Victoria 3 charsets differ where expected.
+- `OutputHygieneIntegrationTests` asserts that no generated file carries trailing whitespace, tab characters, carriage returns, or consecutive blank lines, and that every localisation file lacks a trailing newline.
+- `CommandLineIntegrationTests` covers verbose-flag value parsing, duplicate-flag precedence, full-name-over-alias precedence for output, version, and dependency, output paths with spaces or a trailing separator, and a blank game version.
+- `RebuildIntegrationTests` verifies that rebuilding in the same directory replaces the previous name, version, and content rather than accumulating stale output.
+- `CrossBuilderInvariantIntegrationTests` asserts the version and name descriptor markers per builder, the HOI4 state/city balance, the non-empty body of every generated locale file, and the shared HOI4/Imperator descriptor shape.
+- `DefaultNameSelectionIntegrationTests` verifies that each builder routes the location's default-language name to the bare key while still emitting every other language, that CK2 emits per-language and default adjectives, and that HOI4 emits no adjective keys.
+- `NameValueEdgeCaseIntegrationTests` covers names containing semicolons, double quotes, leading or trailing whitespace, and non-breaking spaces, plus case-sensitive game-identifier matching, proving the builders pass these values through without escaping or sanitisation.
 - The integration tests are marked `[NonParallelizable]` because they share the static `Program.ServiceProvider`.
 
 Run the integration tests on their own with:
@@ -284,6 +300,14 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 | `DeterminismIntegrationTests.cs` | Five-fold rebuild byte identity, locale ordering stability, and per-file body stability |
 | `FallbackChainIntegrationTests.cs` | Location and language fallback chains in landed titles, province names, and localisation |
 | `LandedTitlesIntegrationTests.cs` | Custom landed-titles file names, forbidden-token guards, repeated-block merging, nested baronies, and encoding |
+| `LandedTitlesSyntaxIntegrationTests.cs` | Unbalanced blocks, byte-order marks, carriage-return endings, comment-only sources, and unmatched titles |
+| `CharsetIntegrationTests.cs` | Per-builder transliteration and preservation of diacritics and non-Latin names |
+| `OutputHygieneIntegrationTests.cs` | Absence of trailing whitespace, tabs, carriage returns, and blank-line runs; localisation final-newline behaviour |
+| `CommandLineIntegrationTests.cs` | Verbose-flag parsing, duplicate and alias precedence, unusual output paths, and blank game version |
+| `RebuildIntegrationTests.cs` | Same-directory rebuild replacement of name, version, and content |
+| `CrossBuilderInvariantIntegrationTests.cs` | Version and name descriptor markers, HOI4 state/city balance, locale body non-emptiness, and shared descriptor shape |
+| `DefaultNameSelectionIntegrationTests.cs` | Default-language name routing per builder, per-language and default adjectives, and HOI4 adjective absence |
+| `NameValueEdgeCaseIntegrationTests.cs` | Semicolons, quotes, whitespace, and non-breaking spaces in names; case-sensitive game-identifier matching |
 | `RichDataIntegrationTests.cs` | Golden-file reproduction for every builder from a seven-language, sixteen-location fixture, in both comment modes; output, version, and dependency aliases; custom mod identifiers; game-version rendering; game-identifier normalisation; rich-input determinism |
 | `ResilienceIntegrationTests.cs` | Duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, missing stores, and duplicate entities across every builder |
 | `CrossBuilderIntegrationTests.cs` | Custom name, version, and identifier overrides across every builder; absent landed titles inputs for the structural builders; custom landed titles file names; mixed-case verbose values; rebuild idempotence; per-builder determinism; game-identifier normalisation |
