@@ -1,0 +1,10 @@
+﻿l_french:
+ STATE_ALPHA_english: "Alpha" # Language=English
+ STATE_ALPHA_french: "Alpha" # Language=English
+ STATE_ALPHA_romanian: "Alpha" # Language=English
+ STATE_BETA_english: "Alpha" # Language=English
+ STATE_BETA_french: "Alpha" # Language=English
+ STATE_BETA_romanian: "Alpha" # Language=English
+ STATE_GAMMA_english: "Alpha" # Language=English
+ STATE_GAMMA_french: "Alpha" # Language=English
+ STATE_GAMMA_romanian: "Alpha" # Language=English

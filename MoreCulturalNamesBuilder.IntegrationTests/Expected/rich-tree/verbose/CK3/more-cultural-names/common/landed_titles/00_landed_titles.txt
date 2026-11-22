@@ -1,0 +1,112 @@
+e_test = {
+    cultural_names = {
+        name_list_french = cn_outer
+    }
+    d_test = {
+        cultural_names = {
+            name_list_french = cn_inner
+        }
+    }
+}
+h_test = {
+    cultural_names = {
+        name_list_french = cn_first
+        name_list_german = cn_second
+    }
+    k_test = {
+        b_test = {
+            name_list_french = cn_barony
+            cultural_names = {
+                name_list_romanian = cn_barony_romanian
+            }
+        }
+    }
+}
+c_cluj = {
+    cultural_names = {
+        name_list_latin = cn_Cluj-Napoca_latin # Newport # Language=English
+        name_list_german = cn_Cluj-Napoca_german # Newport # Language=English
+        name_list_english = cn_Cluj-Napoca_english # Newport # Language=English
+        name_list_greek = cn_Cluj-Napoca_greek # Newport # Language=English
+        name_list_french = cn_Cluj-Napoca_french # Cluj # Language=French # C'est la vie
+        name_list_romanian = cn_Cluj-Napoca_romanian # Cluj-Napoca # Language=Romanian # Praise the Sun!
+    }
+}
+allow = {
+c_floresti = {
+    cultural_names = {
+        name_list_romanian = cn_Florești_romanian # Florești # Language=Romanian
+    }
+}
+c_oradea = {
+has_holder = yes
+}
+c_cornova = {
+    cultural_names = {
+        name_list_latin = cn_Cornova_latin # Cornova # Language=English
+        name_list_romanian = cn_Cornova_romanian # Cornova # Language=English
+        name_list_german = cn_Cornova_german # Cornova # Language=English
+        name_list_english = cn_Cornova_english # Cornova # Language=English
+        name_list_greek = cn_Cornova_greek # Cornova # Language=English
+        name_list_french = cn_Cornova_french # Cornova # Language=English
+    }
+}
+c_solara = {
+    cultural_names = {
+        name_list_romanian = cn_Solara_romanian # Solara # Language=English
+        name_list_german = cn_Solara_german # Solara # Language=English
+        name_list_english = cn_Solara_english # Solara # Language=English
+        name_list_greek = cn_Solara_greek # Solara # Language=English
+        name_list_french = cn_Solara_french # Solère # Language=French
+        name_list_latin = cn_Solara_latin # Solara # Language=Latin # Hic sunt dracones
+    }
+}
+c_nordavia = {
+    cultural_names = {
+        name_list_latin = cn_Nordavia_latin # Nordavia # Language=English
+        name_list_english = cn_Nordavia_english # Nordavia # Language=English
+        name_list_greek = cn_Nordavia_greek # Nordavia # Language=English
+        name_list_french = cn_Nordavia_french # Nordavia # Language=English
+        name_list_german = cn_Nordavia_german # Nordavia # Language=German
+        name_list_romanian = cn_Nordavia_romanian # Nordavia # Language=Romanian # Glory to Nucilandia!
+    }
+}
+c_talmeria = {
+    cultural_names = {
+        name_list_latin = cn_Nordavia_latin # Nordavia # Language=English
+        name_list_english = cn_Nordavia_english # Nordavia # Language=English
+        name_list_greek = cn_Nordavia_greek # Nordavia # Language=English
+        name_list_french = cn_Nordavia_french # Nordavia # Language=English
+        name_list_german = cn_Nordavia_german # Nordavia # Language=German
+        name_list_romanian = cn_Nordavia_romanian # Nordavia # Language=Romanian # Glory to Nucilandia!
+    }
+}
+c_hokazuro = {
+    cultural_names = {
+        name_list_latin = cn_Hokazuro_latin # Hokazuro # Language=English
+        name_list_romanian = cn_Hokazuro_romanian # Hokazuro # Language=English
+        name_list_german = cn_Hokazuro_german # Hokazuro # Language=English
+        name_list_english = cn_Hokazuro_english # Hokazuro # Language=English
+        name_list_french = cn_Hokazuro_french # Hokazuro # Language=English
+        name_list_greek = cn_Hokazuro_greek # Chokaζoúρo # Language=Greek # Veni, vidi, vici
+    }
+}
+c_flusseland = {
+    cultural_names = {
+        name_list_latin = cn_Flusseland_latin # Flusseland # Language=English # Not here nor there
+        name_list_romanian = cn_Flusseland_romanian # Flusseland # Language=English # Not here nor there
+        name_list_german = cn_Flusseland_german # Flusseland # Language=English # Not here nor there
+        name_list_english = cn_Flusseland_english # Flusseland # Language=English # Not here nor there
+        name_list_greek = cn_Flusseland_greek # Flusseland # Language=English # Not here nor there
+        name_list_french = cn_Flusseland_french # Flusseland # Language=French
+    }
+}
+c_cratesia = {
+    cultural_names = {
+        name_list_latin = cn_Cratesia_latin # Cratesia # Language=Latin
+        name_list_greek = cn_Cratesia_greek # Cratesia # Language=Latin
+        name_list_romanian = cn_Cratesia_romanian # Cratesia # Language=Romanian # All roads lead to Rome
+    }
+}
+c_izmir = {
+}

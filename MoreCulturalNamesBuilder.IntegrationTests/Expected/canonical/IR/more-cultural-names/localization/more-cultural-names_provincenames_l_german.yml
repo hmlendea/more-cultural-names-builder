@@ -1,0 +1,17 @@
+﻿l_german:
+ PROV16_romanian:0 "Çupisan" # Language=Romanian
+ PROV16:0 "Çupisan" # Language=Romanian
+ PROV32_romanian:0 "Dezmir" # Language=Romanian
+ PROV32:0 "Dezmir" # Language=Romanian
+ PROV4_romanian:0 "Floresti" # Language=Romanian
+ PROV4:0 "Floresti" # Language=Romanian
+ PROV42_english:0 "Newport" # Language=English
+ PROV42_romanian:0 "Cluj-Napoca" # Language=Romanian # Praise the Sun!
+ PROV42:0 "Cluj-Napoca" # Language=Romanian # Praise the Sun!
+ PROV48_english:0 "Cornova" # Language=English
+ PROV48_romanian:0 "Cornova" # Language=English
+ PROV64_romanian:0 "Dezmir" # Language=Romanian
+ PROV64:0 "Dezmir" # Language=Romanian
+ PROV8_english:0 "Newport" # Language=English
+ PROV8_romanian:0 "Newport" # Language=English
+ PROV8:0 "Newport" # Language=English

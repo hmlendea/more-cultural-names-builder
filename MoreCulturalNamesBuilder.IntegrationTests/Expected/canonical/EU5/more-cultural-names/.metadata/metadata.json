@@ -1,0 +1,19 @@
+{
+  "name": "More Cultural Names",
+  "id": "more-cultural-names",
+  "version": "1.0.0",
+  "game_id": "eu5",
+  "picture": "thumbnail.png",
+  "supported_game_version": "1.18.*",
+  "short_description": "More Cultural Names",
+  "tags": [
+    "Culture & Art",
+    "Historical",
+    "Map",
+    "Translation"
+  ],
+  "relationships": [],
+  "game_custom_data": {
+    "multiplayer_synchronized": true
+  }
+}

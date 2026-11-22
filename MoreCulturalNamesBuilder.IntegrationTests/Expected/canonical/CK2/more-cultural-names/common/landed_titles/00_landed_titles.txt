@@ -1,0 +1,20 @@
+c_cluj = {
+    english = "Newport" # Language=English
+    romanian = "Cluj-Napoca" # Language=Romanian # Praise the Sun!
+}
+c_floresti = {
+    romanian = "Floresti" # Language=Romanian
+}
+allow = {
+c_newport = {
+    english = "Newport" # Language=English
+    romanian = "Newport" # Language=English
+}
+c_dezmir = {
+has_holder = yes
+}
+c_cupisan = {
+    romanian = "Çupisan" # Language=Romanian
+}
+not_a_title = {
+}

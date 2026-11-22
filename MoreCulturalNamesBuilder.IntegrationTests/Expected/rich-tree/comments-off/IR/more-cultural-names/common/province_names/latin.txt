@@ -1,0 +1,8 @@
+latin = {
+    8 = PROV8_latin # Newport
+    42 = PROV42_latin # Newport
+    48 = PROV48_latin # Cornova
+    128 = PROV128_latin # Solara # Hic sunt dracones
+    512 = PROV512_latin # Nordavia
+    2048 = PROV2048_latin # Cratesia
+}

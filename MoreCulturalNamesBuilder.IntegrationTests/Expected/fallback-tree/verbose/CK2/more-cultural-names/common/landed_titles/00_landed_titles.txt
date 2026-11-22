@@ -1,0 +1,22 @@
+c_alpha = {
+    english = "Alpha" # Language=English
+    french = "Alpha" # Language=English
+    romanian = "Alpha" # Language=English
+}
+c_beta = {
+    english = "Alpha" # Language=English
+    french = "Alpha" # Language=English
+    romanian = "Alpha" # Language=English
+}
+c_gamma = {
+    english = "Alpha" # Language=English
+    french = "Alpha" # Language=English
+    romanian = "Alpha" # Language=English
+}
+c_delta = {
+}
+c_epsilon = {
+    english = "Alpha" # Language=English
+    french = "Epsilon" # Language=Romanian
+    romanian = "Epsilon" # Language=Romanian
+}
