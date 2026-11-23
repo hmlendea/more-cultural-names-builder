@@ -95,6 +95,17 @@ Maps to IR-supported characters.
 | `J̌` | `J` | Special handling |
 | `T̈` | `T` | Special handling |
 
+### Delegated Charsets
+
+Two targets do not maintain their own map:
+
+| Method | Target | Behaviour |
+|--------|--------|-----------|
+| `ToVictoria3Charset()` | Victoria 3 | Delegates to `ToCK3Charset()` and therefore shares the `ck3cache` |
+| `ToEuropaUniversalis5Charset()` | Europa Universalis V | Delegates to `ToCK3Charset()` and therefore shares the `ck3cache` |
+
+Both games accept the extended Latin set that the CK3 map produces, so a separate character map would duplicate the same replacements.
+
 ## ReplaceUsingMap Algorithm
 
 ```csharp
@@ -140,7 +151,7 @@ Each method maintains its own `ConcurrentDictionary<string, string>` cache:
 
 | Cache | Method |
 |-------|--------|
-| `ck3cache` | `ToCK3Charset()` |
+| `ck3cache` | `ToCK3Charset()`, `ToVictoria3Charset()`, `ToEuropaUniversalis5Charset()` |
 | `hoi4citiesCache` | `ToHOI4CityCharset()` |
 | `hoi4statesCache` | `ToHOI4StateCharset()` |
 | `irCache` | `ToImperatorRomeCharset()` |

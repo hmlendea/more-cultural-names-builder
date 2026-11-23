@@ -37,6 +37,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     settings);
             }
 
+            if (normalisedGame.StartsWith("EU5") ||
+                normalisedGame.StartsWith("EUROPAUNIVERSALIS5"))
+            {
+                return new EuropaUniversalis5ModBuilder(
+                    localisationFetcher,
+                    nameNormaliser,
+                    languageRepository,
+                    locationRepository,
+                    settings);
+            }
+
             if (normalisedGame.StartsWith("HOI4"))
             {
                 return new HOI4ModBuilder(

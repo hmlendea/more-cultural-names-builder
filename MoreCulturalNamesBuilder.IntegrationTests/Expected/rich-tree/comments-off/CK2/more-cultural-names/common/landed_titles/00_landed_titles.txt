@@ -1,0 +1,78 @@
+c_cluj = {
+    english = "Newport"
+    french = "Cluj" # C'est la vie
+    german = "Newport"
+    greek = "Newport"
+    latin = "Newport"
+    romanian = "Cluj-Napoca" # Praise the Sun!
+}
+c_floresti = {
+    romanian = "Floresti"
+}
+allow = {
+c_newport = {
+    english = "Newport"
+    french = "Newport"
+    german = "Newport"
+    greek = "Newport"
+    latin = "Newport"
+    romanian = "Newport"
+}
+c_dezmir = {
+has_holder = yes
+}
+c_cupisan = {
+    romanian = "Çupisan"
+}
+c_solara = {
+    english = "Solara"
+    french = "Solère"
+    german = "Solara"
+    greek = "Solara"
+    latin = "Solara" # Hic sunt dracones
+    romanian = "Solara"
+}
+c_nordavia = {
+    english = "Nordavia"
+    french = "Nordavia"
+    german = "Nordavia"
+    greek = "Nordavia"
+    latin = "Nordavia"
+    romanian = "Nordavia" # Glory to Nucilandia!
+}
+c_talmeria = {
+    english = "Nordavia"
+    french = "Nordavia"
+    german = "Nordavia"
+    greek = "Nordavia"
+    latin = "Nordavia"
+    romanian = "Nordavia" # Glory to Nucilandia!
+}
+c_hokazuro = {
+    english = "Hokazuro"
+    french = "Hokazuro"
+    german = "Hokazuro"
+    greek = "Choka?oú?o" # Veni, vidi, vici
+    latin = "Hokazuro"
+    romanian = "Hokazuro"
+}
+c_flusseland = {
+    english = "Flusseland" # Not here nor there
+    french = "Flusseland"
+    german = "Flusseland" # Not here nor there
+    greek = "Flusseland" # Not here nor there
+    latin = "Flusseland" # Not here nor there
+    romanian = "Flusseland" # Not here nor there
+}
+c_cratesia = {
+    greek = "Cratesia"
+    latin = "Cratesia"
+    romanian = "Cratesia" # All roads lead to Rome
+}
+c_izmir = {
+}
+not_a_title = {
+    has_holder = yes
+}
+nomatch = {
+}

@@ -1,0 +1,30 @@
+c_alpha = {
+    cultural_names = {
+        name_list_romanian = cn_Alpha_romanian # Alpha
+        name_list_english = cn_Alpha_english # Alpha
+        name_list_french = cn_Alpha_french # Alpha
+    }
+}
+c_beta = {
+    cultural_names = {
+        name_list_romanian = cn_Alpha_romanian # Alpha
+        name_list_english = cn_Alpha_english # Alpha
+        name_list_french = cn_Alpha_french # Alpha
+    }
+}
+c_gamma = {
+    cultural_names = {
+        name_list_romanian = cn_Alpha_romanian # Alpha
+        name_list_english = cn_Alpha_english # Alpha
+        name_list_french = cn_Alpha_french # Alpha
+    }
+}
+c_delta = {
+}
+c_epsilon = {
+    cultural_names = {
+        name_list_english = cn_Alpha_english # Alpha
+        name_list_romanian = cn_Epsilon_romanian # Epsilon
+        name_list_french = cn_Epsilon_french # Epsilon
+    }
+}

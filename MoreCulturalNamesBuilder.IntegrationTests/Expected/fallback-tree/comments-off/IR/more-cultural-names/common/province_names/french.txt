@@ -1,0 +1,4 @@
+french = {
+    1 = PROV1_french # Alpha
+    2 = PROV2_french # Alpha
+}

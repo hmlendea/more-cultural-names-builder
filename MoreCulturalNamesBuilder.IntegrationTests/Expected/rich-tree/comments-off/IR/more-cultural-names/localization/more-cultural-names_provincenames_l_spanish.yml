@@ -1,0 +1,55 @@
+﻿l_spanish:
+ PROV1024_romanian:0 "Horidava"
+ PROV1024:0 "Horidava"
+ PROV128_english:0 "Solara"
+ PROV128_french:0 "Solère"
+ PROV128_german:0 "Solara"
+ PROV128_greek:0 "Solara"
+ PROV128_latin:0 "Solara" # Hic sunt dracones
+ PROV128_romanian:0 "Solara"
+ PROV128:0 "Solara" # Hic sunt dracones
+ PROV16_romanian:0 "Çupisan"
+ PROV16:0 "Çupisan"
+ PROV2048_greek:0 "Cratesia"
+ PROV2048_latin:0 "Cratesia"
+ PROV2048_romanian:0 "Cratesia" # All roads lead to Rome
+ PROV2048:0 "Cratesia" # All roads lead to Rome
+ PROV256_greek:0 "Φρiyoνίτσa" # Έλα να δεις
+ PROV256_romanian:0 "Frigonita"
+ PROV256:0 "Φρiyoνίτσa" # Έλα να δεις
+ PROV32_german:0 "Dezmirsburg" # Winter is coming
+ PROV32_romanian:0 "Dezmir"
+ PROV32:0 "Dezmir"
+ PROV4_romanian:0 "Floresti"
+ PROV4:0 "Floresti"
+ PROV42_english:0 "Newport"
+ PROV42_french:0 "Cluj" # C'est la vie
+ PROV42_german:0 "Newport"
+ PROV42_greek:0 "Newport"
+ PROV42_latin:0 "Newport"
+ PROV42_romanian:0 "Cluj-Napoca" # Praise the Sun!
+ PROV42:0 "Cluj-Napoca" # Praise the Sun!
+ PROV48_english:0 "Cornova"
+ PROV48_french:0 "Cornova"
+ PROV48_german:0 "Cornova"
+ PROV48_greek:0 "Cornova"
+ PROV48_latin:0 "Cornova"
+ PROV48_romanian:0 "Cornova"
+ PROV48:0 "Cornova"
+ PROV512_english:0 "Nordavia"
+ PROV512_french:0 "Nordavia"
+ PROV512_german:0 "Nordavia"
+ PROV512_greek:0 "Nordavia"
+ PROV512_latin:0 "Nordavia"
+ PROV512_romanian:0 "Nordavia" # Glory to Nucilandia!
+ PROV512:0 "Nordavia" # Glory to Nucilandia!
+ PROV64_german:0 "Dezmirsburg" # Winter is coming
+ PROV64_romanian:0 "Dezmir"
+ PROV64:0 "Dezmir"
+ PROV8_english:0 "Newport"
+ PROV8_french:0 "Newport"
+ PROV8_german:0 "Newport"
+ PROV8_greek:0 "Newport"
+ PROV8_latin:0 "Newport"
+ PROV8_romanian:0 "Newport"
+ PROV8:0 "Newport"

@@ -1,0 +1,10 @@
+﻿l_simp_chinese:
+ STATE_ALPHA_english: "Alpha"
+ STATE_ALPHA_french: "Alpha"
+ STATE_ALPHA_romanian: "Alpha"
+ STATE_BETA_english: "Alpha"
+ STATE_BETA_french: "Alpha"
+ STATE_BETA_romanian: "Alpha"
+ STATE_GAMMA_english: "Alpha"
+ STATE_GAMMA_french: "Alpha"
+ STATE_GAMMA_romanian: "Alpha"

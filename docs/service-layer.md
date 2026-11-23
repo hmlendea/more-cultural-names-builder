@@ -73,7 +73,7 @@ IEnumerable<Localisation> GetGameLocationLocalisations(
 **Parameters:**
 - `locationGameId` - Game-specific location identifier (e.g., `c_paris`, `123`)
 - `locationGameIdType` - Optional type filter (e.g., `"State"`, `"City"` for HOI4)
-- `gameId` - Target game identifier (CK2, CK3, HOI4, IR)
+- `gameId` - Target game identifier (CK2, CK3, EU5, HOI4, IR)
 
 **Returns:** `IEnumerable<Localisation>` - One localisation per language for the location
 
@@ -170,6 +170,7 @@ public NameNormaliser(INuciTextConverter textConverter)
 | Method | Game Target | Description |
 |--------|-------------|-------------|
 | `ToCK3Charset(string name)` | Crusader Kings III | Converts to CK3-supported characters |
+| `ToEuropaUniversalis5Charset(string name)` | Europa Universalis V | Converts to EU5-supported characters (delegates to the CK3 charset) |
 | `ToHOI4CityCharset(string name)` | Hearts of Iron IV (Cities) | Converts to HOI4 city name charset |
 | `ToHOI4StateCharset(string name)` | Hearts of Iron IV (States) | Converts to HOI4 state name charset |
 | `ToImperatorRomeCharset(string name)` | Imperator: Rome | Converts to IR-supported characters |
@@ -239,7 +240,7 @@ Shared preprocessing applied by all game-specific methods:
 ### Caching
 
 Each method maintains its own `ConcurrentDictionary<string, string>` cache:
-- `ck3cache` - CK3 normalisation results
+- `ck3cache` - CK3, Victoria 3, and Europa Universalis V normalisation results
 - `hoi4citiesCache` - HOI4 city normalisation results
 - `hoi4statesCache` - HOI4 state normalisation results
 - `irCache` - Imperator: Rome normalisation results

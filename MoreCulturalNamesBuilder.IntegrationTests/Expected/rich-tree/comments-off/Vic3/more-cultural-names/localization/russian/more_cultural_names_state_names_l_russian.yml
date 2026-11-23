@@ -1,0 +1,113 @@
+﻿l_russian:
+ HUB_NAME_STATE_CLUJ_city_english: "Newport"
+ HUB_NAME_STATE_CLUJ_city_french: "Cluj" # C'est la vie
+ HUB_NAME_STATE_CLUJ_city_german: "Newport"
+ HUB_NAME_STATE_CLUJ_city_greek: "Newport"
+ HUB_NAME_STATE_CLUJ_city_latin: "Newport"
+ HUB_NAME_STATE_CLUJ_city_romanian: "Cluj-Napoca" # Praise the Sun!
+ HUB_NAME_STATE_CLUJ_city_turkish: "Newport"
+ HUB_NAME_STATE_CORNOVA_farm_english: "Cornova"
+ HUB_NAME_STATE_CORNOVA_farm_french: "Cornova"
+ HUB_NAME_STATE_CORNOVA_farm_german: "Cornova"
+ HUB_NAME_STATE_CORNOVA_farm_greek: "Cornova"
+ HUB_NAME_STATE_CORNOVA_farm_latin: "Cornova"
+ HUB_NAME_STATE_CORNOVA_farm_romanian: "Cornova"
+ HUB_NAME_STATE_CORNOVA_farm_turkish: "Cornova"
+ HUB_NAME_STATE_CUPISAN_mine_romanian: "Çupișan"
+ HUB_NAME_STATE_DEZMIR_wood_german: "Dezmirsburg" # Winter is coming
+ HUB_NAME_STATE_DEZMIR_wood_romanian: "Dezmir"
+ HUB_NAME_STATE_FLORESTI_port_romanian: "Florești"
+ HUB_NAME_STATE_FRIGONITA_mine_greek: "Φρiyoνίτσa" # Έλα να δεις
+ HUB_NAME_STATE_FRIGONITA_mine_romanian: "Frigonița"
+ HUB_NAME_STATE_NEWPORT_port_english: "Newport"
+ HUB_NAME_STATE_NEWPORT_port_french: "Newport"
+ HUB_NAME_STATE_NEWPORT_port_german: "Newport"
+ HUB_NAME_STATE_NEWPORT_port_greek: "Newport"
+ HUB_NAME_STATE_NEWPORT_port_latin: "Newport"
+ HUB_NAME_STATE_NEWPORT_port_romanian: "Newport"
+ HUB_NAME_STATE_NEWPORT_port_turkish: "Newport"
+ HUB_NAME_STATE_NORDAVIA_wood_english: "Nordavia"
+ HUB_NAME_STATE_NORDAVIA_wood_french: "Nordavia"
+ HUB_NAME_STATE_NORDAVIA_wood_german: "Nordavia"
+ HUB_NAME_STATE_NORDAVIA_wood_greek: "Nordavia"
+ HUB_NAME_STATE_NORDAVIA_wood_latin: "Nordavia"
+ HUB_NAME_STATE_NORDAVIA_wood_romanian: "Nordavia" # Glory to Nucilandia!
+ HUB_NAME_STATE_NORDAVIA_wood_turkish: "Nordavia"
+ HUB_NAME_STATE_SOLARA_city_english: "Solara"
+ HUB_NAME_STATE_SOLARA_city_french: "Solère"
+ HUB_NAME_STATE_SOLARA_city_german: "Solara"
+ HUB_NAME_STATE_SOLARA_city_greek: "Solara"
+ HUB_NAME_STATE_SOLARA_city_latin: "Solara" # Hic sunt dracones
+ HUB_NAME_STATE_SOLARA_city_romanian: "Solara"
+ HUB_NAME_STATE_SOLARA_city_turkish: "Solara"
+ HUB_NAME_STATE_TALMERIA_farm_english: "Nordavia"
+ HUB_NAME_STATE_TALMERIA_farm_french: "Nordavia"
+ HUB_NAME_STATE_TALMERIA_farm_german: "Nordavia"
+ HUB_NAME_STATE_TALMERIA_farm_greek: "Nordavia"
+ HUB_NAME_STATE_TALMERIA_farm_latin: "Nordavia"
+ HUB_NAME_STATE_TALMERIA_farm_romanian: "Nordavia" # Glory to Nucilandia!
+ HUB_NAME_STATE_TALMERIA_farm_turkish: "Nordavia"
+ STATE_CLUJ_english: "Newport"
+ STATE_CLUJ_french: "Cluj" # C'est la vie
+ STATE_CLUJ_german: "Newport"
+ STATE_CLUJ_greek: "Newport"
+ STATE_CLUJ_latin: "Newport"
+ STATE_CLUJ_romanian: "Cluj-Napoca" # Praise the Sun!
+ STATE_CLUJ_turkish: "Newport"
+ STATE_CORNOVA_english: "Cornova"
+ STATE_CORNOVA_french: "Cornova"
+ STATE_CORNOVA_german: "Cornova"
+ STATE_CORNOVA_greek: "Cornova"
+ STATE_CORNOVA_latin: "Cornova"
+ STATE_CORNOVA_romanian: "Cornova"
+ STATE_CORNOVA_turkish: "Cornova"
+ STATE_CUPISAN_romanian: "Çupișan"
+ STATE_DEZMIR_german: "Dezmirsburg" # Winter is coming
+ STATE_DEZMIR_romanian: "Dezmir"
+ STATE_ENADA_english: "Enada"
+ STATE_ENADA_french: "Enada"
+ STATE_ENADA_german: "Enada"
+ STATE_ENADA_greek: "Enada"
+ STATE_ENADA_latin: "Enada"
+ STATE_ENADA_romanian: "Enada"
+ STATE_ENADA_turkish: "Enada"
+ STATE_FLORESTI_romanian: "Florești"
+ STATE_FLUSSELAND_english: "Flusseland" # Not here nor there
+ STATE_FLUSSELAND_french: "Flusseland"
+ STATE_FLUSSELAND_german: "Flusseland" # Not here nor there
+ STATE_FLUSSELAND_greek: "Flusseland" # Not here nor there
+ STATE_FLUSSELAND_latin: "Flusseland" # Not here nor there
+ STATE_FLUSSELAND_romanian: "Flusseland" # Not here nor there
+ STATE_FLUSSELAND_turkish: "Flusseland" # Not here nor there
+ STATE_FRIGONITA_greek: "Φρiyoνίτσa" # Έλα να δεις
+ STATE_FRIGONITA_romanian: "Frigonița"
+ STATE_NEWPORT_english: "Newport"
+ STATE_NEWPORT_french: "Newport"
+ STATE_NEWPORT_german: "Newport"
+ STATE_NEWPORT_greek: "Newport"
+ STATE_NEWPORT_latin: "Newport"
+ STATE_NEWPORT_romanian: "Newport"
+ STATE_NEWPORT_turkish: "Newport"
+ STATE_NORDAVIA_english: "Nordavia"
+ STATE_NORDAVIA_french: "Nordavia"
+ STATE_NORDAVIA_german: "Nordavia"
+ STATE_NORDAVIA_greek: "Nordavia"
+ STATE_NORDAVIA_latin: "Nordavia"
+ STATE_NORDAVIA_romanian: "Nordavia" # Glory to Nucilandia!
+ STATE_NORDAVIA_turkish: "Nordavia"
+ STATE_ORADEA_german: "Dezmirsburg" # Winter is coming
+ STATE_ORADEA_romanian: "Dezmir"
+ STATE_SOLARA_english: "Solara"
+ STATE_SOLARA_french: "Solère"
+ STATE_SOLARA_german: "Solara"
+ STATE_SOLARA_greek: "Solara"
+ STATE_SOLARA_latin: "Solara" # Hic sunt dracones
+ STATE_SOLARA_romanian: "Solara"
+ STATE_SOLARA_turkish: "Solara"
+ STATE_TALMERIA_english: "Nordavia"
+ STATE_TALMERIA_french: "Nordavia"
+ STATE_TALMERIA_german: "Nordavia"
+ STATE_TALMERIA_greek: "Nordavia"
+ STATE_TALMERIA_latin: "Nordavia"
+ STATE_TALMERIA_romanian: "Nordavia" # Glory to Nucilandia!
+ STATE_TALMERIA_turkish: "Nordavia"

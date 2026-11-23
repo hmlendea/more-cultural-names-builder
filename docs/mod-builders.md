@@ -1,6 +1,6 @@
 # Mod Builders
 
-This document describes the game-specific mod generation implementations for CK2, CK3, HOI4, Imperator: Rome, and Victoria 3.
+This document describes the game-specific mod generation implementations for CK2, CK3, EU5, HOI4, Imperator: Rome, and Victoria 3.
 
 ## Overview
 
@@ -20,6 +20,8 @@ ModBuilder (abstract base)
     │       └── CK3ModBuilder (inherits CK2ModBuilder)
     │
     ├── HOI4ModBuilder
+    │
+    ├── EuropaUniversalis5ModBuilder
     │
     ├── ImperatorRomeModBuilder
     │
@@ -854,6 +856,160 @@ l_english:
 }
 ```
 
+## EuropaUniversalis5ModBuilder
+
+**Location:** [EuropaUniversalis5ModBuilder.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/EuropaUniversalis5ModBuilder.cs)
+
+### Inheritance
+
+- Directly inherits from `ModBuilder` (not `CK2ModBuilder`)
+
+### Constructor Dependencies
+
+```csharp
+public EuropaUniversalis5ModBuilder(
+    ILocalisationFetcher localisationFetcher,
+    INameNormaliser nameNormaliser,
+    IFileRepository<LanguageDataObject> languageRepository,
+    IFileRepository<LocationDataObject> locationRepository,
+    Settings settings)
+```
+
+### Game Model
+
+Europa Universalis V has no title hierarchy and no scripting hook for renaming a location. Location names are resolved from localisation keys whose suffix is the **language or dialect** the location is displayed in:
+
+| Concept | Game identifier | Localisation key |
+|---------|-----------------|------------------|
+| Location | the location key, e.g. `stockholm` | `stockholm` (default) |
+| Language-specific name | language game ID, e.g. `romanian_language` | `stockholm.romanian_language` |
+
+When a location has no explicit culture-specific entry, vanilla falls back to the base `stockholm` key, which is why the builder writes both the language-suffixed keys and the location's own default name.
+
+The language game IDs therefore carry both the language identifier and its dialect namespace (`romanian_language`, `english_language`, `bavarian_dialect`), and the key uses the identifier verbatim after the dot, because the engine resolves dotted keys against the culture language and dialect names exactly as declared in `common/languages/`.
+
+### Key Fields
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `locationIds` | `IList<string>` | Ordinal-ordered location identifiers |
+| `localisationsByLocationId` | `IDictionary<string, IDictionary<string, Localisation>>` | Localisations per location, keyed by language game ID |
+| `defaultLanguageIdsByLocationId` | `IDictionary<string, string>` | Default name language declared by each location game ID |
+
+### LoadData()
+
+```csharp
+protected override void LoadData()
+{
+    locationIds = [.. locationGameIds
+        .Where(gameId => !string.IsNullOrWhiteSpace(gameId.Id))
+        .Select(gameId => gameId.Id)
+        .Distinct(StringComparer.Ordinal)
+        .OrderBy(locationId => locationId, StringComparer.Ordinal)];
+
+    Parallel.ForEach(locationIds, locationId =>
+    {
+        concurrentLocalisations[locationId] = localisationFetcher
+            .GetGameLocationLocalisations(locationId, Settings.Mod.Game)
+            .ToDictionary(localisation => localisation.LanguageGameId, localisation => localisation);
+
+        string? defaultLanguageId = locationGameIds
+            .FirstOrDefault(gameId => string.Equals(gameId.Id, locationId, StringComparison.Ordinal))
+            ?.DefaultNameLanguageId;
+
+        if (!string.IsNullOrWhiteSpace(defaultLanguageId))
+        {
+            concurrentDefaultLanguages[locationId] = defaultLanguageId;
+        }
+    });
+}
+```
+
+### GenerateFiles()
+
+```csharp
+protected override void GenerateFiles()
+{
+    string mainDirectoryPath = Path.Combine(OutputDirectoryPath, Settings.Mod.Id);
+    string metadataDirectoryPath = Path.Combine(mainDirectoryPath, ".metadata");
+    string localisationDirectoryPath = Path.Combine(mainDirectoryPath, "main_menu", "localization");
+
+    Directory.CreateDirectory(metadataDirectoryPath);
+    Directory.CreateDirectory(localisationDirectoryPath);
+
+    CreateMetadataFile(metadataDirectoryPath);
+    CreateLocalisationFiles(localisationDirectoryPath);
+}
+```
+
+### Output Structure (Europa Universalis V)
+
+```text
+<output>/EU5/<mod-id>/
+├── .metadata/
+│   └── metadata.json                                       # Launcher metadata, UTF-8 without BOM
+└── main_menu/
+    └── localization/
+        └── <language>/
+            └── replace/
+                └── <prefix>_location_names_l_<language>.yml  # 11 locales
+```
+
+There is no outer `.mod` descriptor, and no `in_game/` or `loading_screen/` content: Europa Universalis V identifies a mod solely by the `.metadata` folder, and vanilla location names live under `main_menu/localization/`.
+
+### Localisation Placement
+
+Every display language the game ships is emitted: `braz_por`, `english`, `french`, `german`, `japanese`, `korean`, `polish`, `russian`, `simp_chinese`, `spanish`, and `turkish`. The file is written under a `replace/` sub-folder, because localisation files load in reverse alphabetical order and later-loaded keys do not overwrite earlier ones; only `localization/<language>/replace/` reliably overrides a vanilla location name.
+
+### Localisation Files
+
+**Format:** YAML (UTF-8 with BOM)
+**File naming:** `<prefix>_location_names_l_<language>.yml`, in a `<language>/replace/` sub-folder
+
+**Content:**
+```yaml
+l_english:
+ cluj.english_language: "Newport" # Language=English
+ cluj.romanian_language: "Cluj-Napoca" # Language=Romanian # Praise the Sun!
+ cluj: "Cluj-Napoca" # Language=Romanian # Praise the Sun!
+```
+
+The location's own key carries the name supplied by its default language, so the name persists when no language-specific entry matches.
+
+**Normalisation:** `nameNormaliser.ToEuropaUniversalis5Charset()` (delegates to the CK3 charset)
+
+### Deliberate Limitations
+
+- Adjectives are not emitted. Vanilla declares a language-independent `<location>_ADJ` key for only a handful of locations, so generating one for every location would invent content the engine does not consume.
+- The builder only writes the localisation layer. Europa Universalis V derives location names from the key suffix and never needs map or setup files, so no `in_game/` content is generated.
+- A location's own default name is emitted only when the default language declared by its game identifier resolves to a loaded localisation; otherwise its language-suffixed keys stand alone.
+
+### Metadata Format
+
+```json
+{
+  "name": "More Cultural Names",
+  "id": "more-cultural-names",
+  "version": "1.0.0",
+  "game_id": "eu5",
+  "picture": "thumbnail.png",
+  "supported_game_version": "1.18.*",
+  "short_description": "More Cultural Names",
+  "tags": [
+    "Culture & Art",
+    "Historical",
+    "Map",
+    "Translation"
+  ],
+  "relationships": [],
+  "game_custom_data": {
+    "multiplayer_synchronized": true
+  }
+}
+```
+
+The tags are drawn from `main_menu/create_mod_tags.json`, so they are valid launcher categories.
+
 ## ModBuilderFactory
 
 **Location:** [ModBuilderFactory.cs](../MoreCulturalNamesBuilder/Service/ModBuilders/ModBuilderFactory.cs)
@@ -870,6 +1026,10 @@ public IModBuilder GetModBuilder(Settings settings)
 
     if (normalisedGame.StartsWith("CK3"))
         return new CK3ModBuilder(...);
+
+    if (normalisedGame.StartsWith("EU5") ||
+        normalisedGame.StartsWith("EUROPAUNIVERSALIS5"))
+        return new EuropaUniversalis5ModBuilder(...);
 
     if (normalisedGame.StartsWith("HOI4"))
         return new HOI4ModBuilder(...);
@@ -889,21 +1049,22 @@ public IModBuilder GetModBuilder(Settings settings)
 **Matching:** Prefix-based, case-insensitive
 - `CK2*` → CK2ModBuilder
 - `CK3*` → CK3ModBuilder
+- `EU5*` or `EUROPAUNIVERSALIS5*` → EuropaUniversalis5ModBuilder
 - `HOI4*` → HOI4ModBuilder
 - `IR*` or `IMPERATORROME*` → ImperatorRomeModBuilder
 - `VIC3*` or `VICTORIA3*` → Victoria3ModBuilder
 
 ## Output Comparison Summary
 
-| Aspect | CK2 | CK3 | HOI4 | Imperator: Rome | Victoria 3 |
-|--------|-----|-----|------|-----------------|------------|
-| **Descriptor** | Single `.mod` | Main + inner `.mod` | Main + inner `.mod` | Main + inner `.mod` | `.metadata/metadata.json` |
-| **Landed Titles** | Patched file | Merged + patched | N/A | N/A | N/A |
-| **Localisation Format** | CSV (Win-1252) | YAML (UTF-8) | YAML (UTF-8) | YAML (UTF-8) | YAML (UTF-8 BOM) |
-| **Localisation Files** | 1 CSV | 2 YAML × 9 langs | 1 YAML × 5 langs | 1 YAML × 4 langs | 1 YAML × 11 langs |
-| **Data Files** | None | None | None | Province names (txt) | Scripted effects + on actions (txt) |
-| **Name Normalisation** | Windows-1252 | CK3 charset | HOI4 city/state | IR charset | Victoria 3 charset |
-| **Directory Name** | `localisation` | `localization` | `localisation` | `localization` | `localization` |
+| Aspect | CK2 | CK3 | EU5 | HOI4 | Imperator: Rome | Victoria 3 |
+|--------|-----|-----|-----|------|-----------------|------------|
+| **Descriptor** | Single `.mod` | Main + inner `.mod` | `.metadata/metadata.json` | Main + inner `.mod` | Main + inner `.mod` | `.metadata/metadata.json` |
+| **Landed Titles** | Patched file | Merged + patched | N/A | N/A | N/A | N/A |
+| **Localisation Format** | CSV (Win-1252) | YAML (UTF-8) | YAML (UTF-8 BOM) | YAML (UTF-8) | YAML (UTF-8) | YAML (UTF-8 BOM) |
+| **Localisation Files** | 1 CSV | 2 YAML × 9 langs | 1 YAML × 11 langs | 1 YAML × 5 langs | 1 YAML × 4 langs | 1 YAML × 11 langs |
+| **Data Files** | None | None | None | None | Province names (txt) | Scripted effects + on actions (txt) |
+| **Name Normalisation** | Windows-1252 | CK3 charset | EU5 charset | HOI4 city/state | IR charset | Victoria 3 charset |
+| **Directory Name** | `localisation` | `localization` | `main_menu/localization` | `localisation` | `localization` | `localization` |
 
 ## Testing Coverage
 

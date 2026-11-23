@@ -1,0 +1,7 @@
+english = {
+    8 = PROV8_english # Newport
+    42 = PROV42_english # Newport
+    48 = PROV48_english # Cornova
+    128 = PROV128_english # Solara
+    512 = PROV512_english # Nordavia
+}

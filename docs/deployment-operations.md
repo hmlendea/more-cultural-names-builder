@@ -82,6 +82,7 @@ Measured against the production data set (~44,000 locations, ~4,500 languages, ~
 | CK3 / CK3AEP / CK3CE / CK3MBP / CK3TFE | ~2-4 s | ~3 s | ~7-9 s |
 | HOI4 / HOI4MDM | ~1 s | ~1 s | ~4 s |
 | Imperator: Rome | ~1 s | ~1 s | ~4 s |
+| Europa Universalis V | ~1 s | ~1 s | ~4 s |
 | Victoria 3 | ~1 s | ~1 s | ~10 s |
 
 Generation cost is linear in the number of localisations. The CK3 builder resolves every cultural name through a single canonical index, built once per build; it previously re-scanned the entire localisation set for each generated `name_list_` entry, which made the CK3 editions take over 30 minutes. Guard against reintroducing a similar lookup: [`CK3ModBuilderTests`](../MoreCulturalNamesBuilder.UnitTests/Service/ModBuilders/CK3ModBuilderTests.cs) asserts a bound on the number of name-normalisation calls.
@@ -121,6 +122,7 @@ MoreCulturalNamesBuilder \
 |------|----------------|------------------|
 | Crusader Kings II | `CK2` | `<output>/CK2/<mod-id>/` |
 | Crusader Kings III | `CK3` | `<output>/CK3/<mod-id>/` |
+| Europa Universalis V | `EU5` | `<output>/EU5/<mod-id>/` |
 | Hearts of Iron IV | `HOI4` | `<output>/HOI4/<mod-id>/` |
 | Imperator: Rome | `IR` | `<output>/IR/<mod-id>/` |
 
@@ -169,6 +171,16 @@ MoreCulturalNamesBuilder \
 └── localization/
     ├── <mod-id>_provincenames_l_english.yml
     └── ... (4 languages)
+```
+
+### Europa Universalis V
+```
+<output>/EU5/<mod-id>/
+├── .metadata/metadata.json
+└── main_menu/localization/
+    ├── english/replace/<prefix>_location_names_l_english.yml
+    ├── french/replace/<prefix>_location_names_l_french.yml
+    └── ... (11 languages)
 ```
 
 ### Victoria 3
@@ -251,7 +263,7 @@ Results are published to the GitHub Security tab and can be viewed in the Action
 | `FileNotFoundException` | Incorrect XML path | Verify the `--lang` and `--loc` paths |
 | `XmlException` | Malformed XML | Validate the XML against the expected schema |
 | `ArgumentException` | Missing required arguments | Check that all required arguments are provided |
-| `NotImplementedException` | Unsupported game | Use CK2, CK3, HOI4, or IR |
+| `NotImplementedException` | Unsupported game | Use CK2, CK3, EU5, HOI4, or IR |
 | Output directory not created | The application creates no directories | Create the output directory manually |
 
 ### Debugging

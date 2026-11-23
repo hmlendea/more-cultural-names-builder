@@ -136,6 +136,29 @@ namespace MoreCulturalNamesBuilder.UnitTests.Service
             Assert.That(victoria3Result, Is.SameAs(ck3Result));
         }
 
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t")]
+        [TestCase("\r")]
+        [TestCase("\n")]
+        [TestCase("\r\n")]
+        [TestCase(" \t\r\n ")]
+        public void GivenAnEmptyName_WhenNormalisingForEuropaUniversalis5_ThenAnEmptyNameIsReturned(string name)
+            => Assert.That(nameNormaliser.ToEuropaUniversalis5Charset(name), Is.Empty);
+
+        [TestCase("Cluj-Napoca")]
+        [TestCase("Florești")]
+        public void GivenAPreviouslyNormalisedName_WhenNormalisingForEuropaUniversalis5_ThenTheCachedCK3ResultIsReturned(
+            string name)
+        {
+            string ck3Result = nameNormaliser.ToCK3Charset(name);
+
+            string europaUniversalis5Result = nameNormaliser.ToEuropaUniversalis5Charset(name);
+
+            Assert.That(europaUniversalis5Result, Is.SameAs(ck3Result));
+        }
+
         [Test]
         public void GivenAName_WhenNormalisingForWindows1252_ThenTheTextConverterResultIsReturned()
         {

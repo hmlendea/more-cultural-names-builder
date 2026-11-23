@@ -1,0 +1,7 @@
+french = {
+    8 = PROV8_french # Newport # Language=English
+    42 = PROV42_french # Cluj # Language=French # C'est la vie
+    48 = PROV48_french # Cornova # Language=English
+    128 = PROV128_french # Solère # Language=French
+    512 = PROV512_french # Nordavia # Language=English
+}

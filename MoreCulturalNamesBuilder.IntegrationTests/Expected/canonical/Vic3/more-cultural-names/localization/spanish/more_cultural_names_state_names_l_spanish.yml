@@ -1,0 +1,20 @@
+﻿l_spanish:
+ HUB_NAME_STATE_CLUJ_city_english: "Newport" # Language=English
+ HUB_NAME_STATE_CLUJ_city_romanian: "Cluj-Napoca" # Language=Romanian # Praise the Sun!
+ HUB_NAME_STATE_CORNOVA_farm_english: "Cornova" # Language=English
+ HUB_NAME_STATE_CORNOVA_farm_romanian: "Cornova" # Language=English
+ HUB_NAME_STATE_CUPISAN_mine_romanian: "Çupișan" # Language=Romanian
+ HUB_NAME_STATE_DEZMIR_wood_romanian: "Dezmir" # Language=Romanian
+ HUB_NAME_STATE_FLORESTI_city_romanian: "Florești" # Language=Romanian
+ HUB_NAME_STATE_NEWPORT_port_english: "Newport" # Language=English
+ HUB_NAME_STATE_NEWPORT_port_romanian: "Newport" # Language=English
+ STATE_CLUJ_english: "Newport" # Language=English
+ STATE_CLUJ_romanian: "Cluj-Napoca" # Language=Romanian # Praise the Sun!
+ STATE_CORNOVA_english: "Cornova" # Language=English
+ STATE_CORNOVA_romanian: "Cornova" # Language=English
+ STATE_CUPISAN_romanian: "Çupișan" # Language=Romanian
+ STATE_DEZMIR_romanian: "Dezmir" # Language=Romanian
+ STATE_FLORESTI_romanian: "Florești" # Language=Romanian
+ STATE_NEWPORT_english: "Newport" # Language=English
+ STATE_NEWPORT_romanian: "Newport" # Language=English
+ STATE_ORADEA_romanian: "Dezmir" # Language=Romanian

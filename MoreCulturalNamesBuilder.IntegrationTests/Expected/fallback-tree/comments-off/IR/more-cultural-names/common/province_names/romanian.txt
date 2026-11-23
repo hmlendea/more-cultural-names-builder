@@ -1,0 +1,4 @@
+romanian = {
+    1 = PROV1_romanian # Alpha
+    2 = PROV2_romanian # Alpha
+}

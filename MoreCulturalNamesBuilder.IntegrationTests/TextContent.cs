@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MoreCulturalNamesBuilder.IntegrationTests
@@ -23,6 +24,23 @@ namespace MoreCulturalNamesBuilder.IntegrationTests
             ReadWindows1252(Path.Combine(TestPaths.ExpectedDirectory, relativeFilePath));
 
         internal static byte[] ReadBytes(string filePath) => File.ReadAllBytes(filePath);
+
+        internal static byte[] ReadBytesOfDirectory(string directoryPath)
+        {
+            List<byte> content = [];
+            string[] filePaths = [.. Directory.GetFiles(directoryPath, "*", SearchOption.AllDirectories)
+                .Order(StringComparer.Ordinal)];
+
+            foreach (string filePath in filePaths)
+            {
+                string relativeFilePath = Path.GetRelativePath(directoryPath, filePath);
+
+                content.AddRange(Encoding.UTF8.GetBytes(relativeFilePath));
+                content.AddRange(ReadBytes(filePath));
+            }
+
+            return [.. content];
+        }
 
         internal static string WithoutVersionComment(string content)
         {

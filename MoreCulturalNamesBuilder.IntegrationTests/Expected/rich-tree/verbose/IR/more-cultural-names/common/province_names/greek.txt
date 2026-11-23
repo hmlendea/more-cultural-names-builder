@@ -1,0 +1,9 @@
+greek = {
+    8 = PROV8_greek # Newport # Language=English
+    42 = PROV42_greek # Newport # Language=English
+    48 = PROV48_greek # Cornova # Language=English
+    128 = PROV128_greek # Solara # Language=English
+    256 = PROV256_greek # Φρiyoνίτσa # Language=Greek # Έλα να δεις
+    512 = PROV512_greek # Nordavia # Language=English
+    2048 = PROV2048_greek # Cratesia # Language=Latin
+}

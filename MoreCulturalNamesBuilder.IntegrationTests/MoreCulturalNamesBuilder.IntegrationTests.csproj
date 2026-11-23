@@ -37,6 +37,24 @@
     <None Update="Expected/**/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Expected/canonical/EU5/more-cultural-names/.metadata/metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Expected/canonical/Vic3/more-cultural-names/.metadata/metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Expected/rich-tree/verbose/Vic3/more-cultural-names/.metadata/metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Expected/rich-tree/comments-off/Vic3/more-cultural-names/.metadata/metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Expected/fallback-tree/verbose/Vic3/more-cultural-names/.metadata/metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Expected/fallback-tree/comments-off/Vic3/more-cultural-names/.metadata/metadata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

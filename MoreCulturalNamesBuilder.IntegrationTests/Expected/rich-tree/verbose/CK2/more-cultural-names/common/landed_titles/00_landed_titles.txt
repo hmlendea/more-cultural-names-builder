@@ -1,0 +1,78 @@
+c_cluj = {
+    english = "Newport" # Language=English
+    french = "Cluj" # Language=French # C'est la vie
+    german = "Newport" # Language=English
+    greek = "Newport" # Language=English
+    latin = "Newport" # Language=English
+    romanian = "Cluj-Napoca" # Language=Romanian # Praise the Sun!
+}
+c_floresti = {
+    romanian = "Floresti" # Language=Romanian
+}
+allow = {
+c_newport = {
+    english = "Newport" # Language=English
+    french = "Newport" # Language=English
+    german = "Newport" # Language=English
+    greek = "Newport" # Language=English
+    latin = "Newport" # Language=English
+    romanian = "Newport" # Language=English
+}
+c_dezmir = {
+has_holder = yes
+}
+c_cupisan = {
+    romanian = "Çupisan" # Language=Romanian
+}
+c_solara = {
+    english = "Solara" # Language=English
+    french = "Solère" # Language=French
+    german = "Solara" # Language=English
+    greek = "Solara" # Language=English
+    latin = "Solara" # Language=Latin # Hic sunt dracones
+    romanian = "Solara" # Language=English
+}
+c_nordavia = {
+    english = "Nordavia" # Language=English
+    french = "Nordavia" # Language=English
+    german = "Nordavia" # Language=German
+    greek = "Nordavia" # Language=English
+    latin = "Nordavia" # Language=English
+    romanian = "Nordavia" # Language=Romanian # Glory to Nucilandia!
+}
+c_talmeria = {
+    english = "Nordavia" # Language=English
+    french = "Nordavia" # Language=English
+    german = "Nordavia" # Language=German
+    greek = "Nordavia" # Language=English
+    latin = "Nordavia" # Language=English
+    romanian = "Nordavia" # Language=Romanian # Glory to Nucilandia!
+}
+c_hokazuro = {
+    english = "Hokazuro" # Language=English
+    french = "Hokazuro" # Language=English
+    german = "Hokazuro" # Language=English
+    greek = "Choka?oú?o" # Language=Greek # Veni, vidi, vici
+    latin = "Hokazuro" # Language=English
+    romanian = "Hokazuro" # Language=English
+}
+c_flusseland = {
+    english = "Flusseland" # Language=English # Not here nor there
+    french = "Flusseland" # Language=French
+    german = "Flusseland" # Language=English # Not here nor there
+    greek = "Flusseland" # Language=English # Not here nor there
+    latin = "Flusseland" # Language=English # Not here nor there
+    romanian = "Flusseland" # Language=English # Not here nor there
+}
+c_cratesia = {
+    greek = "Cratesia" # Language=Latin
+    latin = "Cratesia" # Language=Latin
+    romanian = "Cratesia" # Language=Romanian # All roads lead to Rome
+}
+c_izmir = {
+}
+not_a_title = {
+    has_holder = yes
+}
+nomatch = {
+}

@@ -10,7 +10,7 @@ This directory contains comprehensive technical documentation for the More Cultu
 | [Configuration System](configuration-system.md) | CLI argument parsing, validation, and settings management |
 | [Data Access Layer](data-access-layer.md) | XML repository integration, entity definitions, and data loading |
 | [Service Layer](service-layer.md) | Localisation retrieval, name normalisation, and data transformation |
-| [Mod Builders](mod-builders.md) | Game-specific mod generation for CK2, CK3, HOI4, Imperator: Rome, and Victoria 3 |
+| [Mod Builders](mod-builders.md) | Game-specific mod generation for CK2, CK3, EU5, HOI4, Imperator: Rome, and Victoria 3 |
 | [Data Models](data-models.md) | Domain models, entity mappings, and data flow transformations |
 | [Name Normalisation](name-normalisation.md) | Linguistic transformation rules per game target |
 | [Testing](testing.md) | Test coverage, gaps, and verification strategies |
@@ -21,6 +21,7 @@ This directory contains comprehensive technical documentation for the More Cultu
 ### Supported Games
 - **Crusader Kings II** (CK2) - Generates `.mod` descriptor, landed titles patches, and CSV localisation
 - **Crusader Kings III** (CK3) - Generates `.mod` descriptor, merged cultural name blocks, and YAML localisation
+- **Europa Universalis V** (EU5) - Generates `.metadata` launcher metadata and language-suffixed location name localisation
 - **Hearts of Iron IV** (HOI4) - Generates `.mod` descriptor and YAML localisation for states/cities
 - **Imperator: Rome** (IR) - Generates `.mod` descriptor, province name data files, and YAML localisation
 - **Victoria 3** (Vic3) - Generates `.metadata` launcher metadata, dynamic state and hub name effects, and YAML localisation

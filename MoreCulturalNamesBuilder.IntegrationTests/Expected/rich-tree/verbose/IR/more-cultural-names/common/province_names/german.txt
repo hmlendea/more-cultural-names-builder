@@ -1,0 +1,9 @@
+german = {
+    8 = PROV8_german # Newport # Language=English
+    32 = PROV32_german # Dezmirsburg # Language=German # Winter is coming
+    42 = PROV42_german # Newport # Language=English
+    48 = PROV48_german # Cornova # Language=English
+    64 = PROV64_german # Dezmirsburg # Language=German # Winter is coming
+    128 = PROV128_german # Solara # Language=English
+    512 = PROV512_german # Nordavia # Language=German
+}

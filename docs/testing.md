@@ -37,6 +37,7 @@ MoreCulturalNamesBuilder.UnitTests/
 │   └── ModBuilders/
 │       ├── CK2ModBuilderTests.cs
 │       ├── CK3ModBuilderTests.cs
+│       ├── EuropaUniversalis5ModBuilderTests.cs
 │       ├── HOI4ModBuilderTests.cs
 │       ├── ImperatorRomeModBuilderTests.cs
 │       ├── ModBuilderFactoryTests.cs
@@ -54,9 +55,33 @@ MoreCulturalNamesBuilder.UnitTests/
 MoreCulturalNamesBuilder.IntegrationTests/
 ├── Ck2ModBuilderIntegrationTests.cs
 ├── Ck3ModBuilderIntegrationTests.cs
+├── EuropaUniversalis5ModBuilderIntegrationTests.cs
 ├── HoI4ModBuilderIntegrationTests.cs
 ├── ImperatorRomeModBuilderIntegrationTests.cs
 ├── Victoria3ModBuilderIntegrationTests.cs
+├── ModBuilderStructureIntegrationTests.cs
+├── LocalisationContentIntegrationTests.cs
+├── EncodingIntegrationTests.cs
+├── EdgeCaseIntegrationTests.cs
+├── ArgumentEdgeCaseIntegrationTests.cs
+├── CommandLineIntegrationTests.cs
+├── GameIdentifierIntegrationTests.cs
+├── FailureIntegrationTests.cs
+├── BuildIsolationIntegrationTests.cs
+├── RebuildIntegrationTests.cs
+├── CanonicalGoldenFileIntegrationTests.cs
+├── GoldenTreeIntegrationTests.cs
+├── LocaleMatrixIntegrationTests.cs
+├── PropagationIntegrationTests.cs
+├── CrossBuilderInvariantIntegrationTests.cs
+├── DeterminismIntegrationTests.cs
+├── FallbackChainIntegrationTests.cs
+├── LandedTitlesIntegrationTests.cs
+├── LandedTitlesSyntaxIntegrationTests.cs
+├── CharsetIntegrationTests.cs
+├── OutputHygieneIntegrationTests.cs
+├── DefaultNameSelectionIntegrationTests.cs
+├── NameValueEdgeCaseIntegrationTests.cs
 ├── RichDataIntegrationTests.cs
 ├── ResilienceIntegrationTests.cs
 ├── CrossBuilderIntegrationTests.cs
@@ -71,9 +96,12 @@ MoreCulturalNamesBuilder.IntegrationTests/
 ├── TextContent.cs
 ├── TemporaryDirectory.cs
 ├── Expected/
+│   ├── canonical/
 │   ├── edge/
 │   ├── fallback/
-│   └── rich/
+│   ├── fallback-tree/
+│   ├── rich/
+│   └── rich-tree/
 └── TestData/
     ├── languages.xml
     ├── locations.xml
@@ -111,7 +139,7 @@ MoreCulturalNamesBuilder.IntegrationTests/
 
 The integration tests invoke `Program.Main` directly with real XML data stores and real landed titles files, so the configuration layer, dependency injection container, repository deserialisation, localisation retrieval, name normalisation, and every game builder run as they do in production. The XML stores and landed titles inputs are read from the repository `TestData` directory, which is copied to the test output directory on build.
 
-The `Expected` directory holds golden files that capture the complete output of the rich and fallback fixtures for every builder. The golden files are copied to the test output directory alongside the fixtures and are compared with exact string equality, so any behavioural drift in a builder fails the suite. The golden files preserve the original game encoding: CK2 golden files are Windows-1252, and every other golden file is UTF-8.
+The `Expected` directory holds golden files that capture the complete output of the rich and fallback fixtures for every builder. The golden files are copied to the test output directory alongside the fixtures and are compared with exact string equality, so any behavioural drift in a builder fails the suite. The golden files preserve the original game encoding: CK2 golden files are Windows-1252, and every other golden file is UTF-8. Alongside the per-file golden files, the `canonical`, `rich-tree`, and `fallback-tree` directories hold the complete canonical, rich, and fallback output trees for every builder, in both comment modes, so whole-tree comparison catches any added, removed, or altered file.
 
 ## Test Framework
 
@@ -131,6 +159,29 @@ The [integration test project](../MoreCulturalNamesBuilder.IntegrationTests/More
 - `RichDataIntegrationTests` builds every game from a seven-language, sixteen-location fixture and asserts the complete descriptor, landed titles, province name, and localisation output against golden files, covering multi-language fallbacks, accented and non-Latin names, missing adjectives, fallback chains, and both verbose-comment modes. It also covers the output, version, and dependency aliases, custom mod identifiers, game-version rendering, and game-identifier normalisation.
 - `ResilienceIntegrationTests` covers duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, and the interaction of each failure with every builder.
 - `CrossBuilderIntegrationTests` applies the same custom name, version, and identifier overrides to every builder and asserts the declared descriptors and path layout, verifies that absent landed titles inputs do not affect the structural builders, checks custom landed titles file names, mixed-case verbose values, rebuild idempotence in an existing output directory, determinism for every builder, and game-identifier normalisation for non-CK2 builders.
+- `ModBuilderStructureIntegrationTests` asserts the exact generated file inventory and the absence of empty files for every builder from the canonical stores, and confirms that the descriptor of each structural builder sits at the output root beside the mod directory.
+- `LocalisationContentIntegrationTests` asserts representative names, adjectives, per-language and default keys, cultural-name injection, and non-Latin and diacritic preservation across every builder, and confirms that verbose-comment suppression leaves only the author-supplied comments.
+- `EncodingIntegrationTests` asserts each builder's byte-level encoding contract, including the Windows-1252 output for CK2 and the presence or absence of the UTF-8 byte-order mark per file type.
+- `EdgeCaseIntegrationTests` covers unknown languages, nameless and blank or padded locations, and duplicate locations for the builders that lack a dedicated edge-case fixture.
+- `ArgumentEdgeCaseIntegrationTests` covers blank output and version values, blank and whitespace mod names, verbatim-omitted and mixed-case `--verbose`, blank or nested landed titles file names, a landed titles path without a file name, empty landed titles files, tab and carriage-return line-ending normalisation, and service-provider disposal after a failed build.
+- `GameIdentifierIntegrationTests` covers the full `EuropaUniversalis5`, `ImperatorRome`, `HoI4` game-name forms, uppercase mod identifiers with the file-name prefix transformations, and a blank mod identifier.
+- `FailureIntegrationTests` parameterises the missing, malformed, and duplicate store failures, the unusable output path, and the absent landed titles inputs across every builder, and confirms descriptor game-version rendering for a non-canonical version.
+- `BuildIsolationIntegrationTests` rebuilds every builder in an existing output directory and asserts byte-identical trees, builds every builder into one shared directory, and asserts self-contained parity across two output directories.
+- `CanonicalGoldenFileIntegrationTests` compares the complete canonical output tree of every builder, descriptors included, against a committed golden tree in both directions and asserts the file inventories match.
+- `GoldenTreeIntegrationTests` compares the complete rich and fallback output trees, for every builder, in both verbose and comment-suppressed modes, against committed golden trees, and asserts both trees cover every builder.
+- `LocaleMatrixIntegrationTests` asserts each builder's exact locale-file inventory against the language header of every emitted file, the language-annotation behaviour per builder and mode, the survival of author comments, and that each locale variant shares one body per builder; it also documents that HOI4 carries neither annotations nor author comments.
+- `PropagationIntegrationTests` asserts that every generated path derives from the mod identifier, and that custom name, version, and game version reach the descriptor of every builder, including the root/inner descriptor split.
+- `DeterminismIntegrationTests` builds every mod five times and asserts byte-identical trees, and confirms stable locale file ordering and per-file bodies.
+- `FallbackChainIntegrationTests` verifies the location and language fallback chains as they surface in each builder's landed titles, province names, and localisation.
+- `LandedTitlesIntegrationTests` covers custom landed-titles file names, forbidden-token guards, the empty untitled block, CK3 repeated-block merging and nested barony preservation, and the landed-titles encoding.
+- `LandedTitlesSyntaxIntegrationTests` covers unbalanced blocks, a byte-order mark in the source, carriage-return-only line endings, comment-only sources, and source titles that match no location, verifying that craft-invalid input is preserved verbatim while valid input is enriched.
+- `CharsetIntegrationTests` asserts each builder's name transformation for diacritics and non-Latin characters, proving the Windows-1252, CK3, HOI4, Imperator: Rome, and Victoria 3 charsets differ where expected.
+- `OutputHygieneIntegrationTests` asserts that no generated file carries trailing whitespace, tab characters, carriage returns, or consecutive blank lines, and that every localisation file lacks a trailing newline.
+- `CommandLineIntegrationTests` covers verbose-flag value parsing, duplicate-flag precedence, full-name-over-alias precedence for output, version, and dependency, output paths with spaces or a trailing separator, and a blank game version.
+- `RebuildIntegrationTests` verifies that rebuilding in the same directory replaces the previous name, version, and content rather than accumulating stale output.
+- `CrossBuilderInvariantIntegrationTests` asserts the version and name descriptor markers per builder, the HOI4 state/city balance, the non-empty body of every generated locale file, and the shared HOI4/Imperator descriptor shape.
+- `DefaultNameSelectionIntegrationTests` verifies that each builder routes the location's default-language name to the bare key while still emitting every other language, that CK2 emits per-language and default adjectives, and that HOI4 emits no adjective keys.
+- `NameValueEdgeCaseIntegrationTests` covers names containing semicolons, double quotes, leading or trailing whitespace, and non-breaking spaces, plus case-sensitive game-identifier matching, proving the builders pass these values through without escaping or sanitisation.
 - The integration tests are marked `[NonParallelizable]` because they share the static `Program.ServiceProvider`.
 
 Run the integration tests on their own with:
@@ -203,7 +254,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 |-----------|----------|
 | `LocalisationFetcherTests.cs` | Fallback chain resolution, location and language indexes, empty-name indexing, negative-result caching, and duplicate identifiers |
 | `NameNormaliserTests.cs` | Game charset transformations |
-| `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars, Victoria 3 delegation to the CK3 charset, and per-game cache reuse |
+| `NameNormaliserEdgeCaseTests.cs` | Empty strings, null inputs, special chars, Victoria 3 and Europa Universalis V delegation to the CK3 charset, and per-game cache reuse |
 | Game builder integration tests | Real charset transformation applied to the canonical fixture names for every target game |
 
 **Gaps:**
@@ -217,6 +268,7 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 |-----------|----------|
 | `CK2ModBuilderTests.cs` | Descriptor, landed-titles patching, CSV localisation, optional-file suppression |
 | `CK3ModBuilderTests.cs` | Descriptor pair, block merging, default and dynamic localisation files, landed-title prefix tiers including `h_`, name-normalisation call bound |
+| `EuropaUniversalis5ModBuilderTests.cs` | Metadata, language-suffixed location name localisation, verbose comment suppression, empty-input handling, custom game version |
 | `HOI4ModBuilderTests.cs` | State/city localisation, descriptors, empty-input handling, identifier and duplicate failures |
 | `ImperatorRomeModBuilderTests.cs` | Province name data, localisation, descriptors, empty-input handling, identifier and duplicate failures |
 | `Victoria3ModBuilderTests.cs` | Metadata, dynamic state and hub name effects, on action hooks, localisation, empty-input handling |
@@ -229,9 +281,33 @@ The [architecture test project](../MoreCulturalNamesBuilder.ArchitectureTests/Mo
 |-----------|----------|
 | `Ck2ModBuilderIntegrationTests.cs` | Full CK2 output content, Windows-1252 encoding, comment suppression, dependency declaration, empty and nameless data stores, absent landed titles inputs |
 | `Ck3ModBuilderIntegrationTests.cs` | Full CK3 output content, descriptor pair, block merging, prefix tiers, dynamic name keys, comment suppression, empty data stores, absent landed titles inputs |
+| `EuropaUniversalis5ModBuilderIntegrationTests.cs` | Full Europa Universalis V output content, metadata, language-suffixed location names, comment suppression, empty and nameless data stores, dependency handling, custom mod identifiers |
 | `HoI4ModBuilderIntegrationTests.cs` | Full HOI4 output content, locale directories, header-only files, non-numeric and duplicate identifiers |
 | `ImperatorRomeModBuilderIntegrationTests.cs` | Full Imperator: Rome output content, province name data, header-only files, non-numeric and duplicate identifiers |
 | `Victoria3ModBuilderIntegrationTests.cs` | Full Victoria 3 output content, metadata, dynamic state and hub name effects, on action hooks, comment suppression, empty and nameless data stores, dependency handling, custom mod identifiers |
+| `ModBuilderStructureIntegrationTests.cs` | Exact generated file inventory, absence of empty files, and descriptor placement for every builder |
+| `LocalisationContentIntegrationTests.cs` | Representative names, adjectives, default and per-language keys, cultural-name injection, charset preservation, and comment suppression for every builder |
+| `EncodingIntegrationTests.cs` | Byte-level encoding contract per builder, including Windows-1252 output and UTF-8 byte-order-mark presence per file type |
+| `EdgeCaseIntegrationTests.cs` | Unknown languages, nameless, blank and padded, and duplicate locations for the builders without a dedicated edge fixture |
+| `ArgumentEdgeCaseIntegrationTests.cs` | Blank argument values, verbatim flag handling, blank or nested landed titles names, empty landed titles files, and carriage-return normalisation |
+| `GameIdentifierIntegrationTests.cs` | Long and mixed-case game names, uppercase and blank mod identifiers, and file-name prefix behaviour |
+| `FailureIntegrationTests.cs` | Missing, malformed, and duplicate stores; unusable output paths; absent landed titles inputs; non-canonical game-version rendering |
+| `BuildIsolationIntegrationTests.cs` | Rebuild idempotence, shared-directory coexistence, and self-contained parity across output directories |
+| `CanonicalGoldenFileIntegrationTests.cs` | Whole-tree comparison of every builder against a canonical golden tree, plus inventory parity |
+| `GoldenTreeIntegrationTests.cs` | Whole-tree comparison of every builder against rich and fallback golden trees, in both comment modes |
+| `LocaleMatrixIntegrationTests.cs` | Per-builder locale-file inventory, language headers, annotation behaviour, author comments, and per-variant body consistency |
+| `PropagationIntegrationTests.cs` | Mod identifier path propagation, descriptor name, version, and game-version declaration, and the root/inner descriptor split |
+| `DeterminismIntegrationTests.cs` | Five-fold rebuild byte identity, locale ordering stability, and per-file body stability |
+| `FallbackChainIntegrationTests.cs` | Location and language fallback chains in landed titles, province names, and localisation |
+| `LandedTitlesIntegrationTests.cs` | Custom landed-titles file names, forbidden-token guards, repeated-block merging, nested baronies, and encoding |
+| `LandedTitlesSyntaxIntegrationTests.cs` | Unbalanced blocks, byte-order marks, carriage-return endings, comment-only sources, and unmatched titles |
+| `CharsetIntegrationTests.cs` | Per-builder transliteration and preservation of diacritics and non-Latin names |
+| `OutputHygieneIntegrationTests.cs` | Absence of trailing whitespace, tabs, carriage returns, and blank-line runs; localisation final-newline behaviour |
+| `CommandLineIntegrationTests.cs` | Verbose-flag parsing, duplicate and alias precedence, unusual output paths, and blank game version |
+| `RebuildIntegrationTests.cs` | Same-directory rebuild replacement of name, version, and content |
+| `CrossBuilderInvariantIntegrationTests.cs` | Version and name descriptor markers, HOI4 state/city balance, locale body non-emptiness, and shared descriptor shape |
+| `DefaultNameSelectionIntegrationTests.cs` | Default-language name routing per builder, per-language and default adjectives, and HOI4 adjective absence |
+| `NameValueEdgeCaseIntegrationTests.cs` | Semicolons, quotes, whitespace, and non-breaking spaces in names; case-sensitive game-identifier matching |
 | `RichDataIntegrationTests.cs` | Golden-file reproduction for every builder from a seven-language, sixteen-location fixture, in both comment modes; output, version, and dependency aliases; custom mod identifiers; game-version rendering; game-identifier normalisation; rich-input determinism |
 | `ResilienceIntegrationTests.cs` | Duplicate state and location identifiers, unknown and dangling language fallbacks, blank and padded names, empty and malformed stores, missing stores, and duplicate entities across every builder |
 | `CrossBuilderIntegrationTests.cs` | Custom name, version, and identifier overrides across every builder; absent landed titles inputs for the structural builders; custom landed titles file names; mixed-case verbose values; rebuild idempotence; per-builder determinism; game-identifier normalisation |

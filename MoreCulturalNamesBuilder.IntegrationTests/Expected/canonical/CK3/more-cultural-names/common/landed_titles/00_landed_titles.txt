@@ -1,0 +1,46 @@
+e_test = {
+    cultural_names = {
+        name_list_french = cn_outer
+    }
+    d_test = {
+        cultural_names = {
+            name_list_french = cn_inner
+        }
+    }
+}
+h_test = {
+    cultural_names = {
+        name_list_french = cn_first
+        name_list_german = cn_second
+    }
+    k_test = {
+        b_test = {
+            name_list_french = cn_barony
+            cultural_names = {
+                name_list_romanian = cn_barony_romanian
+            }
+        }
+    }
+}
+c_cluj = {
+    cultural_names = {
+        name_list_english = cn_Cluj-Napoca_english # Newport # Language=English
+        name_list_romanian = cn_Cluj-Napoca_romanian # Cluj-Napoca # Language=Romanian # Praise the Sun!
+        name_list_french = old_name
+    }
+}
+allow = {
+c_floresti = {
+    cultural_names = {
+        name_list_romanian = cn_Florești_romanian # Florești # Language=Romanian
+    }
+}
+c_oradea = {
+has_holder = yes
+}
+c_cornova = {
+    cultural_names = {
+        name_list_romanian = cn_Cornova_romanian # Cornova # Language=English
+        name_list_english = cn_Cornova_english # Cornova # Language=English
+    }
+}

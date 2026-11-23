@@ -1,0 +1,9 @@
+romanian = {
+    4 = PROV4_romanian # Floresti # Language=Romanian
+    8 = PROV8_romanian # Newport # Language=English
+    16 = PROV16_romanian # Çupisan # Language=Romanian
+    32 = PROV32_romanian # Dezmir # Language=Romanian
+    42 = PROV42_romanian # Cluj-Napoca # Language=Romanian # Praise the Sun!
+    48 = PROV48_romanian # Cornova # Language=English
+    64 = PROV64_romanian # Dezmir # Language=Romanian
+}

@@ -1,0 +1,5 @@
+﻿l_simp_chinese:
+ c_alpha_adj:0 "Alphan" # Language=English
+ c_alpha:0 "Alpha" # Language=English
+ c_epsilon_adj:0 "Epsilonian" # Language=Romanian
+ c_epsilon:0 "Epsilon" # Language=Romanian

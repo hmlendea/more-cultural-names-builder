@@ -6,6 +6,7 @@
     <GameIds>
       <GameId game="CK2">romanian</GameId>
       <GameId game="CK3">romanian</GameId>
+      <GameId game="EU5">romanian_language</GameId>
       <GameId game="HOI4">romanian</GameId>
       <GameId game="IR">romanian</GameId>
       <GameId game="Vic3">romanian</GameId>
@@ -20,6 +21,7 @@
     <GameIds>
       <GameId game="CK2">english</GameId>
       <GameId game="CK3">english</GameId>
+      <GameId game="EU5">english_language</GameId>
       <GameId game="HOI4">english</GameId>
       <GameId game="IR">english</GameId>
       <GameId game="Vic3">english</GameId>

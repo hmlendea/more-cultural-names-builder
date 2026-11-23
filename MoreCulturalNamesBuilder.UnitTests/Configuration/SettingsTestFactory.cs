@@ -16,6 +16,23 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
             string? landedTitlesFileName,
             bool areVerboseCommentsEnabled,
             string? dependency)
+            => Create(
+                game,
+                outputDirectoryPath,
+                landedTitlesFilePath,
+                landedTitlesFileName,
+                areVerboseCommentsEnabled,
+                dependency,
+                "1.12.*");
+
+        internal static Settings Create(
+            string game,
+            string outputDirectoryPath,
+            string? landedTitlesFilePath,
+            string? landedTitlesFileName,
+            bool areVerboseCommentsEnabled,
+            string? dependency,
+            string gameVersion)
         {
             List<string> arguments =
             [
@@ -26,7 +43,7 @@ namespace MoreCulturalNamesBuilder.UnitTests.Configuration
                 "--name", "More Cultural Names",
                 "--version", "1.0.0",
                 "--game", game,
-                "--game-version", "1.12.*",
+                "--game-version", gameVersion,
                 "--verbose", areVerboseCommentsEnabled.ToString().ToLowerInvariant()
             ];
 
