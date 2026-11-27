@@ -96,6 +96,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
 
         [TestCase(typeof(CK2ModBuilder))]
         [TestCase(typeof(CK3ModBuilder))]
+        [TestCase(typeof(Civilization5ModBuilder))]
         [TestCase(typeof(EuropaUniversalis5ModBuilder))]
         [TestCase(typeof(HOI4ModBuilder))]
         [TestCase(typeof(ImperatorRomeModBuilder))]
@@ -126,7 +127,7 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
             Type[] builders = productionAssemblies.SelectMany(assembly => assembly.GetTypes())
                 .Where(type => type.IsClass && !type.IsAbstract &&
                     typeof(IModBuilder).IsAssignableFrom(type)).ToArray();
-            Assert.That(builders, Has.Length.EqualTo(6), "Update the explicit game inventory when adding a builder.");
+            Assert.That(builders, Has.Length.EqualTo(7), "Update the explicit game inventory when adding a builder.");
 
             foreach (Type builder in builders)
             {

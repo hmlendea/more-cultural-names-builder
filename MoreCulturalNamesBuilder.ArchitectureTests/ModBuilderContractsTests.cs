@@ -19,6 +19,8 @@ namespace MoreCulturalNamesBuilder.ArchitectureTests
         [
             "CK2",
             "CK3",
+            "Civ5",
+            "Civilization5",
             "EU5",
             "EuropaUniversalis5",
             "HOI4",

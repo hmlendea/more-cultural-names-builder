@@ -37,6 +37,17 @@ namespace MoreCulturalNamesBuilder.Service.ModBuilders
                     settings);
             }
 
+            if (normalisedGame.StartsWith("CIV5") ||
+                normalisedGame.StartsWith("CIVILIZATION5"))
+            {
+                return new Civilization5ModBuilder(
+                    localisationFetcher,
+                    nameNormaliser,
+                    languageRepository,
+                    locationRepository,
+                    settings);
+            }
+
             if (normalisedGame.StartsWith("EU5") ||
                 normalisedGame.StartsWith("EUROPAUNIVERSALIS5"))
             {
